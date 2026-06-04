@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "data_root": "%LOCALAPPDATA%\\KR\\KRDesktopHub",
+  "ui_language": "en",
+  "fallback_language": "en",
+  "launch_at_login": true,
+  "startup_delay_seconds": 10,
+  "show_panel_after_login_start": false,
+  "stop_visual_refresh_when_panel_hidden": true,
+  "stop_network_requests_when_widget_inactive": true
+}

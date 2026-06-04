@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
@@ -13,7 +13,10 @@ $ExpectedRemote = "https://github.com/kairosrepublica/kr-desktop-hub-corehost.gi
 $PrivatePatternFile = Join-Path $RepoRoot "owner_private_docs\PUBLIC_SAFETY_PATTERNS.txt"
 
 function Assert-LastExitCode {
-    param([Parameter(Mandatory = $true)][string]$Message)
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message
+    )
 
     if ($LASTEXITCODE -ne 0) {
         throw $Message
@@ -48,11 +51,17 @@ Write-Host "Message: $Message"
 git add -A
 Assert-LastExitCode "git add failed."
 
-$AllStaged = @(git diff --cached --name-only)
+$AllStaged = @(
+    git diff --cached --name-only
+)
+
 Assert-LastExitCode "Unable to inspect staged files."
 
-$ScanStaged = @(git diff --cached --name-only --diff-filter=ACMR)
-Assert-LastExitCode "Unable to inspect scan-eligible staged files."
+if ($AllStaged.Count -eq 0) {
+    Write-Host "No public changes to commit." -ForegroundColor Yellow
+    git status -sb
+    return
+}
 
 $PrivateLeaks = @(
     $AllStaged |
@@ -62,24 +71,49 @@ $PrivateLeaks = @(
 )
 
 if ($PrivateLeaks.Count -gt 0) {
-    $PrivateLeaks | ForEach-Object { Write-Host $_ -ForegroundColor Red }
+    $PrivateLeaks |
+        ForEach-Object {
+            Write-Host $_ -ForegroundColor Red
+        }
+
     throw "Private Owner files were staged unexpectedly."
 }
 
-if ($AllStaged.Count -eq 0) {
-    Write-Host "No public changes to commit." -ForegroundColor Yellow
-    git status -sb
-    return
-}
+$TextScanFiles = @(
+    git diff --cached --name-only --diff-filter=ACMR
+)
 
-$TextFileNames = @(".gitignore", ".editorconfig")
-$TextExtensions = @(".md", ".txt", ".json", ".yml", ".yaml", ".ps1", ".cs", ".csproj", ".sln", ".props", ".targets", ".xml", ".config")
+Assert-LastExitCode "Unable to inspect staged text files."
+
+$TextFileNames = @(
+    ".gitignore",
+    ".editorconfig"
+)
+
+$TextExtensions = @(
+    ".md",
+    ".txt",
+    ".json",
+    ".yml",
+    ".yaml",
+    ".ps1",
+    ".cs",
+    ".csproj",
+    ".sln",
+    ".props",
+    ".targets",
+    ".xml",
+    ".config"
+)
+
 $Patterns = @()
 
 if (Test-Path -LiteralPath $PrivatePatternFile) {
     $Patterns = @(
         Get-Content -LiteralPath $PrivatePatternFile |
-            ForEach-Object { $_.Trim() } |
+            ForEach-Object {
+                $_.Trim()
+            } |
             Where-Object {
                 ($_ -ne "") -and (-not $_.StartsWith("#"))
             }
@@ -89,7 +123,7 @@ if (Test-Path -LiteralPath $PrivatePatternFile) {
 $Leaks = @()
 
 if ($Patterns.Count -gt 0) {
-    foreach ($File in $ScanStaged) {
+    foreach ($File in $TextScanFiles) {
         if (-not (Test-Path -LiteralPath $File -PathType Leaf)) {
             continue
         }
@@ -115,7 +149,9 @@ if ($Patterns.Count -gt 0) {
 }
 
 if ($Leaks.Count -gt 0) {
-    $Leaks | Format-Table -AutoSize
+    $Leaks |
+        Format-Table -AutoSize
+
     throw "Public-content safety check failed."
 }
 
@@ -129,5 +165,10 @@ git push origin main
 Assert-LastExitCode "git push failed."
 
 Write-Host "`n=== Checkpoint complete ===" -ForegroundColor Green
-git log -n 1 --format="%h | %ad | %an <%ae> | %s" --date=short
+
+git log `
+    -n 1 `
+    --format="%h | %ad | %an <%ae> | %s" `
+    --date=short
+
 git status -sb

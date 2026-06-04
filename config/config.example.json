@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "language": {
+    "ui_language": "en",
+    "fallback_language": "en"
+  },
+  "storage": {
+    "data_root": "%LOCALAPPDATA%\\KR\\KRDesktopHub\\",
+    "allow_manual_json_edit": true
+  },
+  "startup": {
+    "launch_at_login": true,
+    "show_panel_after_login_start": false,
+    "startup_delay_seconds": 10,
+    "panel_close_action": "HideToTray",
+    "crash_recovery_enabled": true,
+    "crash_recovery_max_retries": 5
+  },
+  "resources": {
+    "stop_visual_refresh_when_panel_hidden": true,
+    "stop_network_requests_when_widget_inactive": true
+  },
+  "hotkeys": {
+    "conflict_policy": "ReportAndSuggestFallbacks",
+    "commands": {
+      "panel.toggle": "Ctrl+Alt+K",
+      "panel.hide": "Ctrl+Alt+H",
+      "market.switch_focus": "Ctrl+Alt+M",
+      "widgets.refresh_all": "Ctrl+Alt+R"
+    }
+  }
+}

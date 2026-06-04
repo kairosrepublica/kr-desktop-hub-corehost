@@ -1,31 +1,111 @@
-﻿# KR Desktop Hub CoreHost
+# KR Desktop Hub CoreHost
 
-Portable-first and extensible desktop CoreHost for Windows 11 widgets.
+Portable-first and extensible desktop CoreHost for Windows 11 Widgets.
 
-## Ownership
+## Current status
 
-KR Desktop Hub CoreHost is a Kairos República software product.
+```text
+Project stage: Batch 0 — Repository Bootstrap and Execution Control
+Runnable application: not implemented yet
+Production Widgets: intentionally deferred
+Final panel UI: intentionally unfrozen
+```
 
-## Lead developer
+This repository establishes the public, sanitized engineering baseline for **KR Desktop Hub CoreHost**.
 
-Kent Reis (`@kentreis`)
+The CoreHost will provide:
 
-## Initial target
+- application lifecycle;
+- single-instance execution;
+- system-tray lifecycle;
+- global hotkeys;
+- Windows notifications;
+- configurable startup behavior;
+- localization interfaces;
+- configuration and state management;
+- resource monitoring;
+- Widget discovery, scheduling, health monitoring, quarantine, diagnostics and rollback.
 
-- Windows 11 x64
-- Portable distribution: extract and run
-- English-first interface with a reserved localization layer
-- Optional administrator privileges, disabled by default
-- Configurable login startup
-- Configurable startup delay, recommended default: 10 seconds
-- Hidden panel after login by default
-- Close-to-tray behavior
-- Explicit exit command from the system-tray menu
-- Decoupled CoreHost and Widget SDK architecture
+Future user-facing functions must be developed as independent Widgets rather than embedded inside CoreHost business logic.
 
-## Planned compatibility targets
+## Target platform
 
-- Windows ARM64
-- Apple macOS
+Initial implementation target:
 
-These are planned targets. They are not implemented in the current release.
+```text
+Windows 11 x64
+```
+
+Planned compatibility paths are reserved for:
+
+```text
+Windows ARM64
+Apple macOS
+```
+
+Those platforms are **not implemented or supported yet**.
+
+## Distribution principle
+
+Portable ZIP first:
+
+```text
+extract
+run
+```
+
+A simple installer may be added later. Portable mode must remain available.
+
+## Start here
+
+Run:
+
+```powershell
+.\START_HERE.ps1
+```
+
+Only `START_HERE.ps1` is exposed as the normal operator entry point. Advanced scripts remain under `tools\advanced\`.
+
+## Documentation
+
+Start with:
+
+```text
+docs\Product_Scope.md
+docs\Architecture.md
+docs\ROADMAP_IMPLEMENTATION.md
+docs\governance\PUBLIC_DEVELOPMENT_RECORD_POLICY.md
+```
+
+## Security
+
+Never commit secrets, private logs, personal calendar data, local configuration, API keys, tokens, private certificates or machine-specific private paths.
+
+See:
+
+```text
+SECURITY.md
+```
+
+## License
+
+No open-source license has been selected yet.
+
+A public portfolio repository and a permission grant for third-party reuse are separate decisions.
+
+
+## Canonical GitHub repository
+
+The single canonical public repository target is:
+
+```text
+kairosrepublica/kr-desktop-hub-corehost
+```
+
+Commits are authored through the Kent Reis personal GitHub identity:
+
+```text
+kentreis
+```
+
+Do not create a competing primary repository under the personal account.

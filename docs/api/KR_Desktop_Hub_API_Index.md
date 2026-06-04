@@ -32,3 +32,8 @@ KR_Desktop_Hub_Windows_Shell_API_Batch3.md
 ../release/KR_Desktop_Hub_CoreHost_Portable_RC1_Release_Notes.md
 ../release/KR_Desktop_Hub_CoreHost_Portable_Manual_Acceptance_Checklist.md
 ```
+## Window placement
+
+```text
+KR_Desktop_Hub_Window_Placement_API_Batch8A.md
+```

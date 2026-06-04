@@ -62,3 +62,6 @@ Desktop.ini
 # KR Desktop Hub local release artifacts
 dist/releases/**
 !dist/releases/.gitkeep
+
+# KR Desktop Hub local manual acceptance artifacts
+dist/manual_acceptance/**

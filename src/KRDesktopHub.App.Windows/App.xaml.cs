@@ -28,6 +28,7 @@ public partial class App : Application
     private WindowsTimeZoneChangeService? _timeZone;
     private WindowsProcessResourceMonitorService? _resources;
     private SystemPolicyCoordinator? _systemPolicies;
+    private WindowsWindowPlacementService? _windowPlacement;
 
     protected override async void OnStartup(
         StartupEventArgs e)
@@ -86,6 +87,14 @@ public partial class App : Application
             _panel =
                 new MainWindow();
 
+            _windowPlacement =
+                new WindowsWindowPlacementService(
+                    CoreHostDataRootResolver
+                        .ResolveDefaultDataRoot());
+
+            _windowPlacement.Attach(
+                _panel);
+
             _tray =
                 new WindowsTrayService();
 
@@ -94,7 +103,7 @@ public partial class App : Application
 
             await _tray.SetStatusAsync(
                 new TrayStatus(
-                    "KR Desktop Hub Ã¢â‚¬â€ Ready"),
+                    "KR Desktop Hub ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Ready"),
 
                 CancellationToken.None);
 
@@ -259,6 +268,9 @@ public partial class App : Application
     protected override void OnExit(
         ExitEventArgs e)
     {
+        _windowPlacement?.SaveNow();
+        _windowPlacement?.Dispose();
+
         _systemPolicies?.Dispose();
 
         if (_resources is not null)

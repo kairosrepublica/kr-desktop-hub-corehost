@@ -1,0 +1,25 @@
+<Window
+    x:Class="KRDesktopHub.App.Windows.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="KR Desktop Hub"
+    Width="360"
+    Height="480"
+    WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock
+                FontSize="20"
+                FontWeight="SemiBold"
+                Text="KR Desktop Hub" />
+            <TextBlock
+                Margin="0,12,0,0"
+                TextWrapping="Wrap"
+                Text="Placeholder CoreHost panel. Final visual design remains intentionally unfrozen." />
+            <TextBlock
+                Margin="0,12,0,0"
+                TextWrapping="Wrap"
+                Text="Use Ctrl+Alt+K or the system-tray icon to show or hide this panel." />
+        </StackPanel>
+    </Grid>
+</Window>

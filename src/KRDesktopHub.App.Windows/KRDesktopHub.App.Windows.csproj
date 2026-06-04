@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>KRDesktopHub.App.Windows</AssemblyName>
+    <RootNamespace>KRDesktopHub.App.Windows</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KRDesktopHub.Contracts\KRDesktopHub.Contracts.csproj" />
+    <ProjectReference Include="..\KRDesktopHub.Platform.Abstractions\KRDesktopHub.Platform.Abstractions.csproj" />
+    <ProjectReference Include="..\KRDesktopHub.Platform.Windows\KRDesktopHub.Platform.Windows.csproj" />
+    <ProjectReference Include="..\KRDesktopHub.Core\KRDesktopHub.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,14 @@
+{
+  "widgetId": "kr.sample.hello",
+  "displayName": "Hello Widget",
+  "widgetVersion": "0.1.0",
+  "requiredContractsVersion": "1.0.0",
+  "minimumHostVersion": "0.1.0",
+  "entryAssembly": "bin/Release/net10.0/KRDesktopHub.HelloWidget.dll",
+  "entryType": "KRDesktopHub.HelloWidget.HelloWidget",
+  "activationMode": "OnDemand",
+  "capabilities": [
+    "sample",
+    "state_store"
+  ]
+}

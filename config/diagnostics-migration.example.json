@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "diagnostics": {
+    "log_retention_days": 14,
+    "include_sanitized_configuration": true,
+    "include_log_file_names": true,
+    "include_sanitized_log_tails": false,
+    "maximum_log_tail_lines": 200
+  },
+  "migration": {
+    "include_logs": false,
+    "include_cache": false,
+    "backup_before_import": true,
+    "allowed_directories": [
+      "config",
+      "state",
+      "plugins",
+      "logs",
+      "cache"
+    ]
+  }
+}

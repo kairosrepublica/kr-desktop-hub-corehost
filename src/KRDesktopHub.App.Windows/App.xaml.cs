@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Windows;
 using KRDesktopHub.Contracts;
+using KRDesktopHub.Core;
 using KRDesktopHub.Platform.Abstractions;
 using KRDesktopHub.Platform.Windows;
 
@@ -18,6 +19,12 @@ public partial class App : Application
     private WindowsGlobalHotkeyService? _hotkeys;
     private WindowsStartupRegistrationService? _startup;
     private WindowsTrayBalloonNotificationService? _notifications;
+    private WindowsPowerStateService? _power;
+    private WindowsNetworkStateService? _network;
+    private WindowsSessionStateService? _session;
+    private WindowsTimeZoneChangeService? _timeZone;
+    private WindowsProcessResourceMonitorService? _resources;
+    private SystemPolicyCoordinator? _systemPolicies;
 
     protected override async void OnStartup(
         StartupEventArgs e)
@@ -69,6 +76,36 @@ public partial class App : Application
             _notifications =
                 new WindowsTrayBalloonNotificationService(
                     _tray);
+
+            _power =
+                new WindowsPowerStateService();
+
+            _network =
+                new WindowsNetworkStateService();
+
+            _session =
+                new WindowsSessionStateService();
+
+            _timeZone =
+                new WindowsTimeZoneChangeService();
+
+            _resources =
+                new WindowsProcessResourceMonitorService(
+                    CoreHostPolicyOptions
+                        .Recommended
+                        .ResourceSampleInterval);
+
+            _systemPolicies =
+                new SystemPolicyCoordinator(
+                    new InMemoryEventBus(),
+                    _power,
+                    _network,
+                    _session,
+                    _timeZone,
+                    _resources);
+
+            await _resources.StartAsync(
+                CancellationToken.None);
 
             _startup =
                 new WindowsStartupRegistrationService(
@@ -165,6 +202,8 @@ public partial class App : Application
             else
             {
                 _panel.Hide();
+                _systemPolicies.SetPanelVisibility(
+                    isVisible: false);
             }
         }
         catch (Exception exception)
@@ -182,6 +221,20 @@ public partial class App : Application
     protected override void OnExit(
         ExitEventArgs e)
     {
+        _systemPolicies?.Dispose();
+
+        if (_resources is not null)
+        {
+            _resources.DisposeAsync()
+                .AsTask()
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        _timeZone?.Dispose();
+        _session?.Dispose();
+        _network?.Dispose();
+        _power?.Dispose();
         _hotkeys?.Dispose();
 
         if (_tray is not null)
@@ -211,6 +264,8 @@ public partial class App : Application
         if (_panel.IsVisible)
         {
             _panel.Hide();
+            _systemPolicies?.SetPanelVisibility(
+                isVisible: false);
         }
         else
         {
@@ -226,6 +281,10 @@ public partial class App : Application
         }
 
         _panel.Show();
+
+        _systemPolicies?.SetPanelVisibility(
+            isVisible: true);
+
         _panel.Activate();
     }
 

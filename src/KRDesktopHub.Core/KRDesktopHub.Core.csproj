@@ -8,5 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\KRDesktopHub.Contracts\KRDesktopHub.Contracts.csproj" />
+    <ProjectReference Include="..\KRDesktopHub.Platform.Abstractions\KRDesktopHub.Platform.Abstractions.csproj" />
   </ItemGroup>
 </Project>

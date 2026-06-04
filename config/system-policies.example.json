@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "refresh_only_stale_widgets_after_resume": {
+    "value": true,
+    "recommended_default_reason": "Refresh expired data after wake without replaying every missed task."
+  },
+  "replay_missed_scheduled_runs_after_resume": {
+    "value": false,
+    "recommended_default_reason": "Avoid a task stampede after a long sleep period."
+  },
+  "pause_network_heavy_widgets_when_locked": {
+    "value": true,
+    "recommended_default_reason": "Reduce background traffic while the desktop session is locked."
+  },
+  "pause_low_priority_widgets_on_battery": {
+    "value": true,
+    "recommended_default_reason": "Preserve battery life without disabling essential Widgets."
+  },
+  "refresh_time_widgets_after_time_zone_change": {
+    "value": true,
+    "recommended_default_reason": "Keep clocks and market-session Widgets correct after travel."
+  },
+  "retry_failed_tasks_after_network_recovery": {
+    "value": true,
+    "recommended_default_reason": "Recover automatically after connectivity returns."
+  },
+  "network_recovery_debounce_seconds": {
+    "value": 5,
+    "recommended_default_reason": "Prevent duplicate refresh waves during unstable reconnects."
+  },
+  "resource_sample_interval_seconds": {
+    "value": 30,
+    "recommended_default_reason": "Collect a useful baseline without continuous high-frequency polling."
+  },
+  "idle_cpu_warning_percent": {
+    "value": null,
+    "recommended_default_reason": "Freeze the warning threshold only after measuring the Proof-of-Concept baseline."
+  },
+  "idle_working_set_warning_bytes": {
+    "value": null,
+    "recommended_default_reason": "Freeze the memory threshold only after measuring the Proof-of-Concept baseline."
+  }
+}

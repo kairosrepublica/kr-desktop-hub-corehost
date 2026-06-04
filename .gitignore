@@ -1,0 +1,32 @@
+﻿# Secrets and local configuration
+.env
+.env.*
+secrets/
+credentials/
+config.local.*
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Logs
+logs/
+*.log
+
+# Build output
+bin/
+obj/
+out/
+dist/
+artifacts/
+
+# IDE files
+.vs/
+.idea/
+*.user
+*.suo
+
+# Operating-system files
+Thumbs.db
+.DS_Store
+desktop.ini

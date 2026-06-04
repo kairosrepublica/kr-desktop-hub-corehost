@@ -43,3 +43,17 @@ Prove that new Widgets can be added without editing CoreHost business logic.
 ## Batch 10 — Clean Release and Resource Baseline
 
 Publish the first responsible Windows 11 x64 portable release package.
+
+## Portable RC1 status
+
+The CoreHost Proof-of-Concept implementation is ready for local portable validation.
+
+Remaining workstreams:
+
+```text
+manual desktop interaction acceptance
+final panel visual design
+production Widgets
+Windows ARM64 exploration
+macOS shell exploration
+```

@@ -30,3 +30,9 @@ The project uses meaningful GitHub checkpoints. Changes should represent coheren
 - Added explicit ID-based GitHub noreply-email validation.
 - Added post-push verification of repository identity, uploaded files, author identity and local status.
 - Updated local-only governance handoff to v2.0.
+
+## 0.1.0-rc1
+
+Added the first local portable release-candidate workflow for Windows 11 x64.
+
+The workflow builds, runs all smoke tests, publishes a self-contained application, assembles a portable ZIP, validates clean extraction, runs the extracted self-test, starts the hidden tray host and records a Proof-of-Concept resource baseline.

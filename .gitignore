@@ -57,3 +57,4 @@ Desktop.ini
 ~$*
 **/bin/
 **/obj/
+!dist/releases/.gitkeep

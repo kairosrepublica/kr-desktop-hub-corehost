@@ -1,3 +1,6 @@
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading;
 using System.Windows;
 using KRDesktopHub.Contracts;
@@ -33,11 +36,33 @@ public partial class App : Application
 
         try
         {
+            var options =
+                LaunchOptions.Parse(
+                    e.Args);
+
+            if (!string.IsNullOrWhiteSpace(
+                options.SelfTestMarkerPath))
+            {
+                await WriteSelfTestMarkerAsync(
+                    options.SelfTestMarkerPath);
+
+                Shutdown(
+                    exitCode:
+                        0);
+
+                return;
+            }
+
             _mutex =
                 new Mutex(
-                    initiallyOwned: true,
-                    name: MutexName,
-                    createdNew: out _ownsMutex);
+                    initiallyOwned:
+                        true,
+
+                    name:
+                        MutexName,
+
+                    createdNew:
+                        out _ownsMutex);
 
             if (!_ownsMutex)
             {
@@ -51,12 +76,11 @@ public partial class App : Application
                 return;
             }
 
-            var options =
-                LaunchOptions.Parse(e.Args);
-
-            if (options.StartupDelay > TimeSpan.Zero)
+            if (options.StartupDelay >
+                TimeSpan.Zero)
             {
-                await Task.Delay(options.StartupDelay);
+                await Task.Delay(
+                    options.StartupDelay);
             }
 
             _panel =
@@ -70,7 +94,8 @@ public partial class App : Application
 
             await _tray.SetStatusAsync(
                 new TrayStatus(
-                    "KR Desktop Hub â€” Ready"),
+                    "KR Desktop Hub Ã¢â‚¬â€ Ready"),
+
                 CancellationToken.None);
 
             _notifications =
@@ -116,7 +141,8 @@ public partial class App : Application
             _hotkeys =
                 new WindowsGlobalHotkeyService();
 
-            _hotkeys.Attach(_panel);
+            _hotkeys.Attach(
+                _panel);
 
             _hotkeys.CommandInvoked +=
                 (_, commandId) =>
@@ -136,6 +162,7 @@ public partial class App : Application
                     new HotkeyRegistration(
                         "panel.toggle",
                         "Ctrl+Alt+K"),
+
                     CancellationToken.None);
             }
             catch (Exception hotkeyException)
@@ -147,14 +174,17 @@ public partial class App : Application
                         $"Global hotkey registration failed: {hotkeyException.Message}",
                         NotificationPriority.Important,
                         Array.Empty<NotificationAction>()),
+
                     CancellationToken.None);
             }
 
             _tray.ToggleRequested +=
-                (_, _) => TogglePanel();
+                (_, _) =>
+                    TogglePanel();
 
             _tray.ExitRequested +=
-                (_, _) => ExitApplication();
+                (_, _) =>
+                    ExitApplication();
 
             _tray.TestNotificationRequested +=
                 async (_, _) =>
@@ -165,6 +195,7 @@ public partial class App : Application
                             "System-tray notification is working.",
                             NotificationPriority.Informational,
                             Array.Empty<NotificationAction>()),
+
                         CancellationToken.None);
 
             _tray.StartupToggleRequested +=
@@ -176,8 +207,12 @@ public partial class App : Application
 
                     var next =
                         new StartupRegistration(
-                            Enabled: !current.Enabled,
-                            Delay: TimeSpan.FromSeconds(10));
+                            Enabled:
+                                !current.Enabled,
+
+                            Delay:
+                                TimeSpan.FromSeconds(
+                                    10));
 
                     await _startup.SetAsync(
                         next,
@@ -192,6 +227,7 @@ public partial class App : Application
                                 : "Launch at login is disabled.",
                             NotificationPriority.Informational,
                             Array.Empty<NotificationAction>()),
+
                         CancellationToken.None);
                 };
 
@@ -202,8 +238,10 @@ public partial class App : Application
             else
             {
                 _panel.Hide();
+
                 _systemPolicies.SetPanelVisibility(
-                    isVisible: false);
+                    isVisible:
+                        false);
             }
         }
         catch (Exception exception)
@@ -251,7 +289,57 @@ public partial class App : Application
 
         _mutex?.Dispose();
 
-        base.OnExit(e);
+        base.OnExit(
+            e);
+    }
+
+    private static async Task WriteSelfTestMarkerAsync(
+        string markerPath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            markerPath);
+
+        var parent =
+            Path.GetDirectoryName(
+                markerPath);
+
+        if (!string.IsNullOrWhiteSpace(
+            parent))
+        {
+            Directory.CreateDirectory(
+                parent);
+        }
+
+        var marker =
+            new SelfTestMarker(
+                Status:
+                    "PASS",
+
+                TimestampUtc:
+                    DateTimeOffset.UtcNow,
+
+                ExecutablePath:
+                    Environment.ProcessPath
+                    ?? string.Empty,
+
+                OperatingSystem:
+                    RuntimeInformation.OSDescription,
+
+                Architecture:
+                    RuntimeInformation.OSArchitecture.ToString(),
+
+                Framework:
+                    RuntimeInformation.FrameworkDescription);
+
+        await File.WriteAllTextAsync(
+            markerPath,
+            JsonSerializer.Serialize(
+                marker,
+                new JsonSerializerOptions
+                {
+                    WriteIndented =
+                        true
+                }));
     }
 
     private void TogglePanel()
@@ -264,8 +352,10 @@ public partial class App : Application
         if (_panel.IsVisible)
         {
             _panel.Hide();
+
             _systemPolicies?.SetPanelVisibility(
-                isVisible: false);
+                isVisible:
+                    false);
         }
         else
         {
@@ -283,7 +373,8 @@ public partial class App : Application
         _panel.Show();
 
         _systemPolicies?.SetPanelVisibility(
-            isVisible: true);
+            isVisible:
+                true);
 
         _panel.Activate();
     }
@@ -291,13 +382,23 @@ public partial class App : Application
     private void ExitApplication()
     {
         _panel?.AllowCloseAndExit();
+
         Shutdown();
     }
 }
 
+public sealed record SelfTestMarker(
+    string Status,
+    DateTimeOffset TimestampUtc,
+    string ExecutablePath,
+    string OperatingSystem,
+    string Architecture,
+    string Framework);
+
 public sealed record LaunchOptions(
     bool ShowPanel,
-    TimeSpan StartupDelay)
+    TimeSpan StartupDelay,
+    string? SelfTestMarkerPath)
 {
     public static LaunchOptions Parse(
         IReadOnlyList<string> arguments)
@@ -310,33 +411,45 @@ public sealed record LaunchOptions(
                         "--show-panel",
                         StringComparison.OrdinalIgnoreCase));
 
-        var delaySeconds = 0;
+        var delaySeconds =
+            0;
+
+        string? selfTestMarkerPath =
+            null;
 
         for (var index = 0;
             index < arguments.Count - 1;
             index++)
         {
-            if (!string.Equals(
+            if (string.Equals(
                 arguments[index],
                 "--startup-delay-seconds",
-                StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            if (int.TryParse(
-                arguments[index + 1],
-                out var parsedDelay))
+                StringComparison.OrdinalIgnoreCase)
+                && int.TryParse(
+                    arguments[index + 1],
+                    out var parsedDelay))
             {
                 delaySeconds =
                     Math.Max(
                         0,
                         parsedDelay);
             }
+
+            if (string.Equals(
+                arguments[index],
+                "--self-test-marker",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                selfTestMarkerPath =
+                    arguments[index + 1];
+            }
         }
 
         return new LaunchOptions(
             showPanel,
-            TimeSpan.FromSeconds(delaySeconds));
+            TimeSpan.FromSeconds(
+                delaySeconds),
+
+            selfTestMarkerPath);
     }
 }

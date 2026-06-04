@@ -109,3 +109,19 @@ kentreis
 ```
 
 Do not create a competing primary repository under the personal account.
+
+## Portable release candidate
+
+Build and validate the local Windows 11 x64 portable release candidate:
+
+```powershell
+.\tools\BUILD_VERIFY_PORTABLE_RELEASE.ps1
+```
+
+The generated ZIP, SHA-256 file and resource baseline remain under:
+
+```text
+dist/releases/
+```
+
+Release binaries are local artifacts until manual desktop acceptance is complete.

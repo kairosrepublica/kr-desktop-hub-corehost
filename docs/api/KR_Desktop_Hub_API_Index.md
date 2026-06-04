@@ -37,3 +37,9 @@ KR_Desktop_Hub_Windows_Shell_API_Batch3.md
 ```text
 KR_Desktop_Hub_Window_Placement_API_Batch8A.md
 ```
+
+## CoreHost settings
+
+```text
+KR_Desktop_Hub_CoreHost_Settings_API_Batch8B1.md
+```

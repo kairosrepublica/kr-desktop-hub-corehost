@@ -7,6 +7,10 @@ public partial class MainWindow : Window
 {
     private bool _allowCloseAndExit;
 
+    public bool CloseButtonHidesToTray { get; set; } = true;
+
+    public event EventHandler? CloseExitRequested;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -23,7 +27,18 @@ public partial class MainWindow : Window
         if (!_allowCloseAndExit)
         {
             e.Cancel = true;
-            Hide();
+
+            if (CloseButtonHidesToTray)
+            {
+                Hide();
+            }
+            else
+            {
+                CloseExitRequested?.Invoke(
+                    this,
+                    EventArgs.Empty);
+            }
+
             return;
         }
 

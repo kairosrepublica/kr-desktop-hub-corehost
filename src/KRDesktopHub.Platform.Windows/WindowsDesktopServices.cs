@@ -26,6 +26,10 @@ public sealed class WindowsTrayService : ITrayService
 
     public event EventHandler? StartupToggleRequested;
 
+    public event EventHandler? SettingsReloadRequested;
+
+    public event EventHandler? SettingsFolderRequested;
+
     public Task InitializeAsync(
         CancellationToken cancellationToken)
     {
@@ -53,6 +57,15 @@ public sealed class WindowsTrayService : ITrayService
             image: null,
             (_, _) => StartupToggleRequested?.Invoke(this, EventArgs.Empty));
 
+        menu.Items.Add(
+            "Reload Settings",
+            image: null,
+            (_, _) => SettingsReloadRequested?.Invoke(this, EventArgs.Empty));
+
+        menu.Items.Add(
+            "Open Settings Folder",
+            image: null,
+            (_, _) => SettingsFolderRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add(new Forms.ToolStripSeparator());
 
         menu.Items.Add(
@@ -226,8 +239,11 @@ public sealed class WindowsGlobalHotkeyService
         {
             _registeredCommands.Remove(registration.CommandId);
 
+            var errorCode =
+                Marshal.GetLastWin32Error();
+
             throw new InvalidOperationException(
-                $"Unable to register hotkey: {registration.Gesture}");
+                $"Unable to register hotkey: {registration.Gesture}. Windows error code: {errorCode}");
         }
 
         _commands[id] = registration.CommandId;

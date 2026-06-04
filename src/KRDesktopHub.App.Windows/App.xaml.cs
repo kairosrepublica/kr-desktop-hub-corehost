@@ -1,4 +1,6 @@
 using System.IO;
+using System.Diagnostics;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
@@ -29,6 +31,9 @@ public partial class App : Application
     private WindowsProcessResourceMonitorService? _resources;
     private SystemPolicyCoordinator? _systemPolicies;
     private WindowsWindowPlacementService? _windowPlacement;
+    private JsonCoreHostSettingsStore? _settingsStore;
+    private JsonHotkeyRegistrationRuntimeStateStore? _hotkeyRuntimeStateStore;
+    private CoreHostSettings _settings = CoreHostSettingsCatalog.Recommended;
 
     protected override async void OnStartup(
         StartupEventArgs e)
@@ -95,6 +100,27 @@ public partial class App : Application
             _windowPlacement.Attach(
                 _panel);
 
+            var dataRoot =
+                CoreHostDataRootResolver
+                    .ResolveDefaultDataRoot();
+
+            _settingsStore =
+                new JsonCoreHostSettingsStore(
+                    dataRoot);
+
+            _hotkeyRuntimeStateStore =
+                new JsonHotkeyRegistrationRuntimeStateStore(
+                    dataRoot);
+
+            _settings =
+                _settingsStore.LoadOrCreateRecommended();
+
+            ApplyPanelSettings();
+
+            _panel.CloseExitRequested +=
+                (_, _) =>
+                    ExitApplication();
+
             _tray =
                 new WindowsTrayService();
 
@@ -103,7 +129,7 @@ public partial class App : Application
 
             await _tray.SetStatusAsync(
                 new TrayStatus(
-                    "KR Desktop Hub ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Ready"),
+                    "KR Desktop Hub ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Ready"),
 
                 CancellationToken.None);
 
@@ -147,6 +173,8 @@ public partial class App : Application
                     ?? throw new InvalidOperationException(
                         "Unable to determine executable path."));
 
+            await ApplyStartupSettingsAsync();
+
             _hotkeys =
                 new WindowsGlobalHotkeyService();
 
@@ -165,27 +193,7 @@ public partial class App : Application
                     }
                 };
 
-            try
-            {
-                await _hotkeys.RegisterAsync(
-                    new HotkeyRegistration(
-                        "panel.toggle",
-                        "Ctrl+Alt+K"),
-
-                    CancellationToken.None);
-            }
-            catch (Exception hotkeyException)
-            {
-                await _notifications.PublishAsync(
-                    new SystemNotification(
-                        "hotkey.registration.failed",
-                        "KR Desktop Hub",
-                        $"Global hotkey registration failed: {hotkeyException.Message}",
-                        NotificationPriority.Important,
-                        Array.Empty<NotificationAction>()),
-
-                    CancellationToken.None);
-            }
+            await RegisterConfiguredHotkeyAsync();
 
             _tray.ToggleRequested +=
                 (_, _) =>
@@ -210,37 +218,44 @@ public partial class App : Application
             _tray.StartupToggleRequested +=
                 async (_, _) =>
                 {
-                    var current =
-                        await _startup.GetAsync(
-                            CancellationToken.None);
+                    _settings =
+                        _settings with
+                        {
+                            LoginStartupEnabled =
+                                !_settings.LoginStartupEnabled,
 
-                    var next =
-                        new StartupRegistration(
-                            Enabled:
-                                !current.Enabled,
+                            SavedAtUtc =
+                                DateTimeOffset.UtcNow
+                        };
 
-                            Delay:
-                                TimeSpan.FromSeconds(
-                                    10));
+                    _settingsStore?.Save(
+                        _settings);
 
-                    await _startup.SetAsync(
-                        next,
-                        CancellationToken.None);
+                    await ApplyStartupSettingsAsync();
 
-                    await _notifications.PublishAsync(
+                    await PublishNotificationAsync(
                         new SystemNotification(
                             "startup.registration.changed",
                             "KR Desktop Hub",
-                            next.Enabled
+                            _settings.LoginStartupEnabled
                                 ? "Launch at login is enabled."
                                 : "Launch at login is disabled.",
                             NotificationPriority.Informational,
-                            Array.Empty<NotificationAction>()),
-
-                        CancellationToken.None);
+                            Array.Empty<NotificationAction>()));
                 };
 
-            if (options.ShowPanel)
+            _tray.SettingsReloadRequested +=
+                async (_, _) =>
+                    await ReloadSettingsAsync();
+
+            _tray.SettingsFolderRequested +=
+                (_, _) =>
+                    OpenSettingsFolder();
+
+            if (
+                options.ShowPanel
+                || !_settings.PanelHiddenAfterLogin
+            )
             {
                 ShowPanel();
             }
@@ -305,6 +320,241 @@ public partial class App : Application
             e);
     }
 
+    private void ApplyPanelSettings()
+    {
+        if (_panel is null)
+        {
+            return;
+        }
+
+        _panel.Topmost =
+            _settings.AlwaysOnTop;
+
+        _panel.CloseButtonHidesToTray =
+            _settings.CloseButtonHidesToTray;
+    }
+
+    private async Task ApplyStartupSettingsAsync()
+    {
+        if (_startup is null)
+        {
+            return;
+        }
+
+        await _startup.SetAsync(
+            new StartupRegistration(
+                Enabled:
+                    _settings.LoginStartupEnabled,
+
+                Delay:
+                    TimeSpan.FromSeconds(
+                        _settings.StartupDelaySeconds)),
+
+            CancellationToken.None);
+    }
+
+    private async Task RegisterConfiguredHotkeyAsync()
+    {
+        if (_hotkeys is null)
+        {
+            return;
+        }
+
+        await _hotkeys.UnregisterAllAsync(
+            CancellationToken.None);
+
+        var candidates =
+            CoreHostHotkeyPolicy.GetCandidateGestures(
+                _settings);
+
+        var attempted =
+            new List<string>();
+
+        Exception? lastError =
+            null;
+
+        foreach (var gesture in candidates)
+        {
+            attempted.Add(
+                gesture);
+
+            try
+            {
+                await _hotkeys.RegisterAsync(
+                    new HotkeyRegistration(
+                        "panel.toggle",
+                        gesture),
+
+                    CancellationToken.None);
+
+                _hotkeyRuntimeStateStore?.Save(
+                    new HotkeyRegistrationRuntimeState(
+                        SchemaVersion:
+                            1,
+
+                        CommandId:
+                            "panel.toggle",
+
+                        RequestedGesture:
+                            _settings.TogglePanelHotkey,
+
+                        ActiveGesture:
+                            gesture,
+
+                        Registered:
+                            true,
+
+                        AttemptedGestures:
+                            attempted,
+
+                        LastError:
+                            null,
+
+                        SavedAtUtc:
+                            DateTimeOffset.UtcNow));
+
+                if (!string.Equals(
+                    gesture,
+                    _settings.TogglePanelHotkey,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    await PublishNotificationAsync(
+                        new SystemNotification(
+                            "hotkey.registration.fallback",
+                            "KR Desktop Hub",
+                            $"Requested hotkey {_settings.TogglePanelHotkey} was unavailable. Active fallback: {gesture}.",
+                            NotificationPriority.Important,
+                            Array.Empty<NotificationAction>()),
+
+                        force:
+                            true);
+                }
+
+                return;
+            }
+            catch (Exception exception)
+            {
+                lastError =
+                    exception;
+            }
+        }
+
+        _hotkeyRuntimeStateStore?.Save(
+            new HotkeyRegistrationRuntimeState(
+                SchemaVersion:
+                    1,
+
+                CommandId:
+                    "panel.toggle",
+
+                RequestedGesture:
+                    _settings.TogglePanelHotkey,
+
+                ActiveGesture:
+                    null,
+
+                Registered:
+                    false,
+
+                AttemptedGestures:
+                    attempted,
+
+                LastError:
+                    lastError?.Message,
+
+                SavedAtUtc:
+                    DateTimeOffset.UtcNow));
+
+        await PublishNotificationAsync(
+            new SystemNotification(
+                "hotkey.registration.failed",
+                "KR Desktop Hub",
+                $"Global hotkey registration failed. Attempted: {string.Join(", ", attempted)}. Last error: {lastError?.Message}",
+                NotificationPriority.Important,
+                Array.Empty<NotificationAction>()),
+
+            force:
+                true);
+    }
+
+    private async Task ReloadSettingsAsync()
+    {
+        if (_settingsStore is null)
+        {
+            return;
+        }
+
+        try
+        {
+            _settings =
+                _settingsStore.Reload();
+
+            ApplyPanelSettings();
+
+            await ApplyStartupSettingsAsync();
+            await RegisterConfiguredHotkeyAsync();
+
+            await PublishNotificationAsync(
+                new SystemNotification(
+                    "settings.reload.succeeded",
+                    "KR Desktop Hub",
+                    "CoreHost settings reloaded successfully.",
+                    NotificationPriority.Informational,
+                    Array.Empty<NotificationAction>()));
+        }
+        catch (Exception exception)
+        {
+            await PublishNotificationAsync(
+                new SystemNotification(
+                    "settings.reload.failed",
+                    "KR Desktop Hub",
+                    $"CoreHost settings reload failed: {exception.Message}",
+                    NotificationPriority.Important,
+                    Array.Empty<NotificationAction>()));
+        }
+    }
+
+    private void OpenSettingsFolder()
+    {
+        if (_settingsStore is null)
+        {
+            return;
+        }
+
+        Directory.CreateDirectory(
+            _settingsStore.SettingsDirectory);
+
+        Process.Start(
+            new ProcessStartInfo
+            {
+                FileName =
+                    _settingsStore.SettingsDirectory,
+
+                UseShellExecute =
+                    true
+            });
+    }
+
+    private async Task PublishNotificationAsync(
+        SystemNotification notification,
+        bool force =
+            false)
+    {
+        if (
+            (
+                !_settings.NotificationsEnabled
+                && !force
+            )
+            || _notifications is null
+        )
+        {
+            return;
+        }
+
+        await _notifications.PublishAsync(
+            notification,
+            CancellationToken.None);
+    }
     private static async Task WriteSelfTestMarkerAsync(
         string markerPath)
     {

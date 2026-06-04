@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KR Desktop Hub Widget Manifest",
+  "type": "object",
+  "required": [
+    "widgetId",
+    "displayName",
+    "widgetVersion",
+    "requiredContractsVersion",
+    "minimumHostVersion",
+    "entryAssembly",
+    "entryType",
+    "activationMode",
+    "capabilities"
+  ],
+  "properties": {
+    "widgetId": {
+      "type": "string"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "widgetVersion": {
+      "type": "string"
+    },
+    "requiredContractsVersion": {
+      "type": "string"
+    },
+    "minimumHostVersion": {
+      "type": "string"
+    },
+    "entryAssembly": {
+      "type": "string"
+    },
+    "entryType": {
+      "type": "string"
+    },
+    "activationMode": {
+      "enum": [
+        "AlwaysOn",
+        "OnDemand",
+        "ScheduledWindow",
+        "PeriodicRun",
+        "EventTriggered",
+        "ManualOnly"
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

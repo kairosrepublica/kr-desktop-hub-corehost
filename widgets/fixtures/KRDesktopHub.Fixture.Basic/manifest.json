@@ -1,0 +1,14 @@
+{
+  "widgetId": "kr.fixture.basic",
+  "displayName": "Basic Fixture Widget",
+  "widgetVersion": "0.1.0",
+  "requiredContractsVersion": "1.0.0",
+  "minimumHostVersion": "0.1.0",
+  "entryAssembly": "bin/Release/net10.0/KRDesktopHub.Fixture.Basic.dll",
+  "entryType": "KRDesktopHub.Fixture.Basic.BasicFixtureWidget",
+  "activationMode": "OnDemand",
+  "capabilities": [
+    "lifecycle",
+    "state_store"
+  ]
+}

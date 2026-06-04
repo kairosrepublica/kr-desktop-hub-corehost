@@ -58,3 +58,7 @@ Desktop.ini
 **/bin/
 **/obj/
 !dist/releases/.gitkeep
+
+# KR Desktop Hub local release artifacts
+dist/releases/**
+!dist/releases/.gitkeep

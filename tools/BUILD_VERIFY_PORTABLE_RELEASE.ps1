@@ -45,6 +45,15 @@ $BaselinePath =
         $ReleaseRoot `
         "KRDesktopHub_CoreHost_win-x64_resource_baseline_v$Version.json"
 
+
+# Local release artifacts must remain ignored.
+$ExpectedIgnoredRelativePaths =
+    @(
+        "dist/releases/$ZipName",
+        "dist/releases/$ZipName.sha256.txt",
+        "dist/releases/KRDesktopHub_CoreHost_win-x64_resource_baseline_v$Version.json"
+    )
+
 $WorkRoot =
     Join-Path `
         $env:TEMP `
@@ -158,7 +167,11 @@ function Stop-ValidationProcess {
 }
 
 Set-Location $RepoRoot
+foreach ($RelativeArtifactPath in $ExpectedIgnoredRelativePaths) {
+    git check-ignore -q --no-index -- $RelativeArtifactPath
 
+    Assert-LastExitCode "Local release artifact path is not ignored: $RelativeArtifactPath"
+}
 $StatusBefore = @(
     git status --porcelain
 )

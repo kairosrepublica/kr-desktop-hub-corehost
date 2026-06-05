@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KR Desktop Hub internal Widget package manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_schema_version",
+    "widget_id",
+    "package_version",
+    "minimum_host_version",
+    "entry_assembly",
+    "entry_type",
+    "capabilities"
+  ],
+  "properties": {
+    "manifest_schema_version": {
+      "const": 1
+    },
+    "widget_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+    },
+    "package_version": {
+      "type": "string"
+    },
+    "minimum_host_version": {
+      "type": "string"
+    },
+    "entry_assembly": {
+      "type": "string",
+      "pattern": "\\.dll$"
+    },
+    "entry_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  }
+}

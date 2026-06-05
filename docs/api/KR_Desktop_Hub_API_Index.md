@@ -50,3 +50,4 @@ KR_Desktop_Hub_CoreHost_Settings_API_Batch8B1.md
 KR_Desktop_Hub_System_Policy_And_Notification_Governance_API_Batch8B2A.md
 ```
 - [Widget Runtime Execution Policy API - Batch 8B2B](KR_Desktop_Hub_Widget_Runtime_Execution_Policy_API_Batch8B2B.md)
+- [Internal Widget Package Installer API - Batch 8C1](KR_Desktop_Hub_Widget_Package_Installer_API_Batch8C1.md)

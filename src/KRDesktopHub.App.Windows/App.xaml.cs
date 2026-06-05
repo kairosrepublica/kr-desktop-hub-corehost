@@ -22,7 +22,7 @@ public partial class App : Application
     private MainWindow? _panel;
     private WidgetManagerWindow? _widgetManagerWindow;
     private SettingsCenterWindow? _settingsCenterWindow;
-    private CoreHostSettingsCenterService? _settingsCenterService;
+    private SettingsCenterRuntimeBridge? _settingsCenterBridge;
     private WindowsTrayService? _tray;
     private WindowsGlobalHotkeyService? _hotkeys;
     private WindowsStartupRegistrationService? _startup;
@@ -571,8 +571,8 @@ public partial class App : Application
             return;
         }
 
-        _settingsCenterService ??=
-            new CoreHostSettingsCenterService(
+        _settingsCenterBridge ??=
+            new SettingsCenterRuntimeBridge(
                 CoreHostDataRootResolver
                     .ResolveDefaultDataRoot());
 
@@ -580,10 +580,14 @@ public partial class App : Application
         {
             _settingsCenterWindow =
                 new SettingsCenterWindow(
-                    _settingsCenterService);
+                    _settingsCenterBridge);
 
             _settingsCenterWindow.Owner =
                 _panel;
+
+            _settingsCenterWindow.SettingsSaved +=
+                async (_, _) =>
+                    await ReloadSettingsAsync();
 
             _settingsCenterWindow.Closed +=
                 (_, _) =>

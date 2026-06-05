@@ -121,7 +121,7 @@ public static class CoreHostSettingsCenterCatalog
             Describe("panel-tray", "OnePanelOnly", "One panel only", "Prevent duplicate panel windows.", "true", "A single panel avoids inconsistent state.", CoreHostSettingsApplyMode.Immediate),
             Describe("panel-tray", "RememberWindowPlacement", "Remember panel position and size", "Restore the last valid window placement.", "true", "Stable placement reduces friction on multi-monitor desktops.", CoreHostSettingsApplyMode.Immediate),
 
-            Describe("hotkeys", "ShowHidePanelHotkey", "Show or hide panel hotkey", "Global shortcut for panel visibility.", "Ctrl+Alt+K", "A stable shortcut allows fast panel access.", CoreHostSettingsApplyMode.RestartRequired),
+            Describe("hotkeys", "ShowHidePanelHotkey", "Show or hide panel hotkey", "Global shortcut for panel visibility.", "Ctrl+Alt+K", "A stable shortcut allows fast panel access.", CoreHostSettingsApplyMode.Immediate),
             Describe("hotkeys", "HidePanelHotkey", "Hide panel hotkey", "Optional dedicated shortcut for hiding the panel.", "", "Leave blank unless a separate hide shortcut is useful.", CoreHostSettingsApplyMode.RestartRequired),
             Describe("hotkeys", "RefreshAllWidgetsHotkey", "Refresh all Widgets hotkey", "Optional shortcut for a future Widget refresh command.", "", "Leave blank to reduce global-shortcut collisions.", CoreHostSettingsApplyMode.ReservedForFutureBinding),
             Describe("hotkeys", "SwitchFocusMarketHotkey", "Switch Focus Market hotkey", "Optional shortcut reserved for future financial-market Widgets.", "", "Leave blank until a Widget needs it.", CoreHostSettingsApplyMode.ReservedForFutureBinding),

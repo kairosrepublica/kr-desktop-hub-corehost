@@ -58,3 +58,17 @@ The WPF interface is generated from the descriptor catalog. Adding a new setting
 4. adding a runtime binding when the option is not reserved.
 
 The interface does not hard-code an individual XAML control for every setting.
+## Active runtime bridge
+
+The Windows Settings Center uses `SettingsCenterRuntimeBridge` to keep the UI-facing document and active runtime settings aligned.
+
+The bridge:
+
+- overlays runtime-backed values into the UI document when Settings Center opens;
+- maps supported UI edits into `config/corehost-settings.json`;
+- persists the Settings Center document;
+- allows the application to reload active runtime settings after a successful UI save.
+
+This prevents a UI-only shadow configuration file from diverging from the settings consumed by the running CoreHost.
+
+The bridge is hosted in the Windows application composition root so that platform adapters do not depend on higher-level Core orchestration.

@@ -7,12 +7,13 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using KRDesktopHub.Core;
+using KRDesktopHub.Platform.Windows;
 
 namespace KRDesktopHub.App.Windows;
 
 public partial class SettingsCenterWindow : Window
 {
-    private readonly CoreHostSettingsCenterService _service;
+    private readonly SettingsCenterRuntimeBridge _bridge;
 
     private readonly Dictionary<string, Control> _editors =
         new(
@@ -21,16 +22,16 @@ public partial class SettingsCenterWindow : Window
     private CoreHostSettingsCenterDocument _document;
 
     public SettingsCenterWindow(
-        CoreHostSettingsCenterService service)
+        SettingsCenterRuntimeBridge bridge)
     {
         ArgumentNullException.ThrowIfNull(
-            service);
+            bridge);
 
-        _service =
-            service;
+        _bridge =
+            bridge;
 
         _document =
-            _service.LoadOrCreate();
+            _bridge.LoadOrCreate();
 
         InitializeComponent();
 
@@ -38,6 +39,8 @@ public partial class SettingsCenterWindow : Window
 
         LoadValues();
     }
+
+    public event EventHandler? SettingsSaved;
 
     private void BuildInterface()
     {
@@ -221,11 +224,15 @@ public partial class SettingsCenterWindow : Window
         {
             SaveEditorValues();
 
-            _service.Save(
+            _bridge.Save(
                 _document);
 
+            SettingsSaved?.Invoke(
+                this,
+                EventArgs.Empty);
+
             SetStatus(
-                "Settings saved. Restart-required and reserved settings are labeled explicitly.");
+                "Settings saved and active runtime settings reloaded.");
         }
         catch (
             CoreHostSettingsValidationException exception)
@@ -247,12 +254,12 @@ public partial class SettingsCenterWindow : Window
         try
         {
             _document =
-                _service.LoadOrCreate();
+                _bridge.LoadOrCreate();
 
             LoadValues();
 
             SetStatus(
-                "Settings reloaded.");
+                "Settings reloaded from the active runtime source.");
         }
         catch (Exception exception)
         {
@@ -266,13 +273,13 @@ public partial class SettingsCenterWindow : Window
         RoutedEventArgs e)
     {
         Directory.CreateDirectory(
-            _service.SettingsDirectory);
+            _bridge.SettingsDirectory);
 
         Process.Start(
             new ProcessStartInfo
             {
                 FileName =
-                    _service.SettingsDirectory,
+                    _bridge.SettingsDirectory,
 
                 UseShellExecute =
                     true

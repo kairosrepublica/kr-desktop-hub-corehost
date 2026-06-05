@@ -65,3 +65,7 @@ dist/releases/**
 
 # KR Desktop Hub local manual acceptance artifacts
 dist/manual_acceptance/**
+dist/releases/*.sha256.txt
+dist/release_validation/
+dist/publish/
+dist/manual_acceptance/

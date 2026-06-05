@@ -26,6 +26,12 @@
                 Padding="10,6"
                 Click="OpenWidgetManagerButton_Click"
                 Content="Open Widget Manager" />
+            <Button
+                Margin="0,8,0,0"
+                HorizontalAlignment="Left"
+                Padding="10,6"
+                Click="OpenSettingsCenterButton_Click"
+                Content="Open Settings Center" />
         </StackPanel>
     </Grid>
 </Window>

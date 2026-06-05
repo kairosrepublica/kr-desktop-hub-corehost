@@ -32,6 +32,8 @@ public sealed class WindowsTrayService : ITrayService
 
     public event EventHandler? WidgetManagerRequested;
 
+    public event EventHandler? SettingsCenterRequested;
+
     public Task InitializeAsync(
         CancellationToken cancellationToken)
     {
@@ -48,6 +50,11 @@ public sealed class WindowsTrayService : ITrayService
             "Show or Hide Panel",
             image: null,
             (_, _) => ToggleRequested?.Invoke(this, EventArgs.Empty));
+
+        menu.Items.Add(
+            "Open Settings Center",
+            image: null,
+            (_, _) => SettingsCenterRequested?.Invoke(this, EventArgs.Empty));
 
         menu.Items.Add(
             "Open Widget Manager",

@@ -54,3 +54,4 @@ KR_Desktop_Hub_System_Policy_And_Notification_Governance_API_Batch8B2A.md
 - [Internal Widget Manager API - Batch 8C2](KR_Desktop_Hub_Widget_Manager_API_Batch8C2.md)
 - [Widget Capability Governance API - Batch 8D1](KR_Desktop_Hub_Widget_Capability_Governance_API_Batch8D1.md)
 - [Widget Broker Contracts API - Batch 8D1](KR_Desktop_Hub_Widget_Broker_Contracts_API_Batch8D1.md)
+- [Settings Center API - Batch 8D2](KR_Desktop_Hub_Settings_Center_API_Batch8D2.md)

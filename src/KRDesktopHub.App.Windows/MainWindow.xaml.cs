@@ -13,6 +13,8 @@ public partial class MainWindow : Window
 
     public event EventHandler? WidgetManagerRequested;
 
+    public event EventHandler? SettingsCenterRequested;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -21,6 +23,15 @@ public partial class MainWindow : Window
     public void AllowCloseAndExit()
     {
         _allowCloseAndExit = true;
+    }
+
+    private void OpenSettingsCenterButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        SettingsCenterRequested?.Invoke(
+            this,
+            EventArgs.Empty);
     }
 
     private void OpenWidgetManagerButton_Click(

@@ -21,6 +21,8 @@ public partial class App : Application
     private bool _ownsMutex;
     private MainWindow? _panel;
     private WidgetManagerWindow? _widgetManagerWindow;
+    private SettingsCenterWindow? _settingsCenterWindow;
+    private CoreHostSettingsCenterService? _settingsCenterService;
     private WindowsTrayService? _tray;
     private WindowsGlobalHotkeyService? _hotkeys;
     private WindowsStartupRegistrationService? _startup;
@@ -127,6 +129,10 @@ public partial class App : Application
             _panel.WidgetManagerRequested +=
                 (_, _) =>
                     ShowWidgetManager();
+
+            _panel.SettingsCenterRequested +=
+                (_, _) =>
+                    ShowSettingsCenter();
 
             _tray =
                 new WindowsTrayService();
@@ -275,6 +281,10 @@ public partial class App : Application
             _tray.WidgetManagerRequested +=
                 (_, _) =>
                     ShowWidgetManager();
+
+            _tray.SettingsCenterRequested +=
+                (_, _) =>
+                    ShowSettingsCenter();
 
             if (
                 options.ShowPanel
@@ -552,6 +562,37 @@ public partial class App : Application
                     NotificationPriority.Important,
                     Array.Empty<NotificationAction>()));
         }
+    }
+
+    private void ShowSettingsCenter()
+    {
+        if (_panel is null)
+        {
+            return;
+        }
+
+        _settingsCenterService ??=
+            new CoreHostSettingsCenterService(
+                CoreHostDataRootResolver
+                    .ResolveDefaultDataRoot());
+
+        if (_settingsCenterWindow is null)
+        {
+            _settingsCenterWindow =
+                new SettingsCenterWindow(
+                    _settingsCenterService);
+
+            _settingsCenterWindow.Owner =
+                _panel;
+
+            _settingsCenterWindow.Closed +=
+                (_, _) =>
+                    _settingsCenterWindow =
+                        null;
+        }
+
+        _settingsCenterWindow.Show();
+        _settingsCenterWindow.Activate();
     }
 
     private void ShowWidgetManager()

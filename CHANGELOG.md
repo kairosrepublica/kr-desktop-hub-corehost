@@ -24,6 +24,11 @@ The project uses meaningful GitHub checkpoints. Changes should represent coheren
 - Empty commits and artificial commit volume remain prohibited.
 ## [Unreleased]
 
+### Fixed
+
+- Corrected installed review-shell iframe paths for KR World Time-Space and KR Trading Clock.
+- Added installed-topology path-resolution validation before opening the review shell.
+
 ### Added
 
 - Phase 1 final HTML interaction gate.

@@ -18,7 +18,7 @@ The CoreHost architecture is frozen unless production Widget development exposes
 
 ## Phase 1 Widget sequence
 
-### Checkpoint 1 â€” Public CoreHost narrative synchronization
+### Checkpoint 1 Ã¢â‚¬â€ Public CoreHost narrative synchronization
 
 Scope:
 
@@ -28,7 +28,7 @@ Scope:
 - add public development-record policy;
 - tag the frozen public baseline.
 
-### Checkpoint 2 â€” Phase 1 HTML/CSS interaction prototype
+### Checkpoint 2 Ã¢â‚¬â€ Phase 1 HTML/CSS interaction prototype
 
 Scope:
 
@@ -37,7 +37,7 @@ Scope:
 - Owner review;
 - interaction-specification freeze.
 
-### Checkpoint 3 â€” KR World Time-Space specification
+### Checkpoint 3 Ã¢â‚¬â€ KR World Time-Space specification
 
 Scope:
 
@@ -46,7 +46,7 @@ Scope:
 - freeze user-facing layout;
 - define tests.
 
-### Checkpoint 4 â€” KR World Time-Space implementation
+### Checkpoint 4 Ã¢â‚¬â€ KR World Time-Space implementation
 
 Scope:
 
@@ -56,7 +56,7 @@ Scope:
 - run regression tests;
 - complete manual acceptance.
 
-### Checkpoint 5 â€” KR Trading Clock specification
+### Checkpoint 5 Ã¢â‚¬â€ KR Trading Clock specification
 
 Scope:
 
@@ -65,7 +65,7 @@ Scope:
 - freeze annual market-calendar boundary;
 - define tests.
 
-### Checkpoint 6 â€” KR Trading Clock implementation
+### Checkpoint 6 Ã¢â‚¬â€ KR Trading Clock implementation
 
 Scope:
 
@@ -75,7 +75,7 @@ Scope:
 - run regression tests;
 - complete manual acceptance.
 
-### Checkpoint 7 â€” Phase 1 release
+### Checkpoint 7 Ã¢â‚¬â€ Phase 1 release
 
 Scope:
 
@@ -114,3 +114,17 @@ Next production track:
 ```text
 KR World Time-Space
 ```
+
+## Installed-topology path-resolution repair
+
+The Phase 1 review shell now validates installed relative paths before browser acceptance:
+
+```text
+World Time-Space:
+../../world-time-space-widget/v0.7/index.html
+
+Trading Clock:
+../../trading-clock-widget/v0.5/index.html
+```
+
+Future HTML review shells and launchers must validate installed topology rather than assuming the source-package topology remains unchanged after installation.

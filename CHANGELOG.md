@@ -4,6 +4,24 @@ All notable changes to KR Desktop Hub CoreHost will be documented in this file.
 
 The project uses meaningful GitHub checkpoints. Changes should represent coherent engineering units rather than artificial commit volume.
 
+## [0.2.1-rc1] - 2026-06-05
+
+### Added
+
+- Public atomic-checkpoint and narrative-synchronization policy.
+- Phase 1 production-Widget roadmap for KR World Time-Space and KR Trading Clock.
+
+### Changed
+
+- Public project status now reflects the frozen CoreHost `v0.2.1-rc1` baseline.
+- Public roadmap now separates the frozen CoreHost platform from Phase 1 Widget development.
+- The popup panel is documented as an intentionally blank `WidgetHostSurface` reserved for production Widgets.
+
+### Governance
+
+- Every validated Owner-approved engineering step must create a scoped commit and immediate push.
+- Narrative evidence must be updated in the same checkpoint whenever public project state changes.
+- Empty commits and artificial commit volume remain prohibited.
 ## [Unreleased]
 
 ### Added

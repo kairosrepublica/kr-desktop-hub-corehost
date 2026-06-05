@@ -1,45 +1,92 @@
-# Roadmap
+﻿# Implementation Roadmap
 
-## Batch 0 — Repository Bootstrap and Execution Control
+## Frozen CoreHost baseline
 
-Status: completed in the generated bootstrap package; requires Owner-side extraction, validation and first GitHub push.
+Version:
 
-## Batch 1 — Contracts and Platform Abstractions
+```text
+v0.2.1-rc1
+```
 
-Freeze the platform-neutral CoreHost and Widget API boundary.
+Code checkpoint before the public narrative-sync commit:
 
-## Batch 2 — Core Hosting Foundation
+```text
+dabca8f78f26918ebbf0e543175013b46cf244f3
+```
 
-Implement configuration, logging, localization, state-root resolution, event bus and command registry.
+The CoreHost architecture is frozen unless production Widget development exposes a real blocking defect.
 
-## Batch 3 — Windows Platform Adapter
+## Phase 1 Widget sequence
 
-Implement tray icon, global hotkeys, single-instance behavior, startup registration, notifications and placeholder panel.
+### Checkpoint 1 â€” Public CoreHost narrative synchronization
 
-## Batch 4 — Resource Governance and Crash Recovery
+Scope:
 
-Implement resource monitoring, hidden-panel refresh suspension and capped crash recovery.
+- synchronize README;
+- synchronize changelog;
+- synchronize public roadmap;
+- add public development-record policy;
+- tag the frozen public baseline.
 
-## Batch 5 — Widget Discovery and Manifest Validation
+### Checkpoint 2 â€” Phase 1 HTML/CSS interaction prototype
 
-Implement internal Widget discovery, loading, compatibility checks and quarantine.
+Scope:
 
-## Batch 6 — Widget Runtime Controller and Scheduler
+- KR World Time-Space prototype;
+- KR Trading Clock prototype;
+- Owner review;
+- interaction-specification freeze.
 
-Implement start, stop, pause, resume, retry, timeout, overlap and concurrency policies.
+### Checkpoint 3 â€” KR World Time-Space specification
 
-## Batch 7 — Notifications and System Events
+Scope:
 
-Implement notification policy, sleep, resume, lock, battery, time-zone and reconnect handling.
+- freeze requirements;
+- freeze offline holiday-pack boundary;
+- freeze user-facing layout;
+- define tests.
 
-## Batch 8 — Diagnostics, Migration, Upgrade and Rollback
+### Checkpoint 4 â€” KR World Time-Space implementation
 
-Implement diagnostics export, migration package, backups, staging and rollback.
+Scope:
 
-## Batch 9 — Widget SDK and Fixture Widgets
+- implement production Widget;
+- package `.krwidget.zip`;
+- validate installation;
+- run regression tests;
+- complete manual acceptance.
 
-Prove that new Widgets can be added without editing CoreHost business logic.
+### Checkpoint 5 â€” KR Trading Clock specification
 
-## Batch 10 — Clean Release and Resource Baseline
+Scope:
 
-Publish the first responsible Windows 11 x64 portable release package.
+- freeze exchange-local timelines;
+- freeze user-local timelines;
+- freeze annual market-calendar boundary;
+- define tests.
+
+### Checkpoint 6 â€” KR Trading Clock implementation
+
+Scope:
+
+- implement production Widget;
+- package `.krwidget.zip`;
+- validate installation;
+- run regression tests;
+- complete manual acceptance.
+
+### Checkpoint 7 â€” Phase 1 release
+
+Scope:
+
+- publish Phase 1 release notes;
+- publish validated packages;
+- update public roadmap;
+- tag milestone;
+- publish GitHub Release when approved.
+
+## Atomic GitHub rule
+
+Every checkpoint above is committed and pushed immediately after validation.
+
+If a checkpoint contains several independently meaningful engineering steps, split it into smaller atomic checkpoints rather than delaying synchronization.

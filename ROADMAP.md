@@ -1,59 +1,58 @@
-# Roadmap
+﻿# Roadmap
 
-## Batch 0 — Repository Bootstrap and Execution Control
+## CoreHost baseline
 
-Status: completed in the generated bootstrap package; requires Owner-side extraction, validation and first GitHub push.
+Status: frozen at `v0.2.1-rc1`.
 
-## Batch 1 — Contracts and Platform Abstractions
-
-Freeze the platform-neutral CoreHost and Widget API boundary.
-
-## Batch 2 — Core Hosting Foundation
-
-Implement configuration, logging, localization, state-root resolution, event bus and command registry.
-
-## Batch 3 — Windows Platform Adapter
-
-Implement tray icon, global hotkeys, single-instance behavior, startup registration, notifications and placeholder panel.
-
-## Batch 4 — Resource Governance and Crash Recovery
-
-Implement resource monitoring, hidden-panel refresh suspension and capped crash recovery.
-
-## Batch 5 — Widget Discovery and Manifest Validation
-
-Implement internal Widget discovery, loading, compatibility checks and quarantine.
-
-## Batch 6 — Widget Runtime Controller and Scheduler
-
-Implement start, stop, pause, resume, retry, timeout, overlap and concurrency policies.
-
-## Batch 7 — Notifications and System Events
-
-Implement notification policy, sleep, resume, lock, battery, time-zone and reconnect handling.
-
-## Batch 8 — Diagnostics, Migration, Upgrade and Rollback
-
-Implement diagnostics export, migration package, backups, staging and rollback.
-
-## Batch 9 — Widget SDK and Fixture Widgets
-
-Prove that new Widgets can be added without editing CoreHost business logic.
-
-## Batch 10 — Clean Release and Resource Baseline
-
-Publish the first responsible Windows 11 x64 portable release package.
-
-## Portable RC1 status
-
-The CoreHost Proof-of-Concept implementation is ready for local portable validation.
-
-Remaining workstreams:
+Public code checkpoint before the narrative-sync commit:
 
 ```text
-manual desktop interaction acceptance
-final panel visual design
-production Widgets
-Windows ARM64 exploration
-macOS shell exploration
+dabca8f78f26918ebbf0e543175013b46cf244f3
 ```
+
+Completed CoreHost capabilities include:
+
+- Windows tray lifecycle;
+- panel show-hide lifecycle;
+- window-placement persistence;
+- durable CoreHost settings;
+- Settings Center;
+- notification governance;
+- system-policy handling;
+- resource governance;
+- diagnostics export;
+- migration import and export;
+- Widget manifest validation;
+- Widget package installer;
+- Widget Manager;
+- broker contracts;
+- Widget SDK sample;
+- portable self-test mode.
+
+The popup panel is intentionally blank and reserved for production Widgets.
+
+## Phase 1 â€” Production Widget foundation
+
+### Step 1 â€” HTML/CSS interaction prototype gate
+
+Status: in progress.
+
+Prepare and approve an interactive browser prototype before writing Windows Widget production code.
+
+### Step 2 â€” KR World Time-Space Widget
+
+Status: planned.
+
+Build a synchronized multi-city time-comparison Widget with date, local time, time-zone and holiday context.
+
+### Step 3 â€” KR Trading Clock Widget
+
+Status: planned.
+
+Build United States and Hong Kong market-clock comparisons with exchange-local and user-local 24-hour timelines.
+
+## Public checkpoint discipline
+
+Every validated Owner-approved engineering step receives an immediate scoped commit and immediate push to `origin/main`.
+
+Narrative evidence is synchronized at the same checkpoint when the public product state changes.

@@ -1,33 +1,25 @@
-# KR Desktop Hub CoreHost
+﻿# KR Desktop Hub CoreHost
 
 Portable-first and extensible desktop CoreHost for Windows 11 Widgets.
 
 ## Current status
 
 ```text
-Project stage: Batch 0 — Repository Bootstrap and Execution Control
-Runnable application: not implemented yet
-Production Widgets: intentionally deferred
-Final panel UI: intentionally unfrozen
+Project stage: CoreHost v0.2.1-rc1 frozen baseline
+Runnable application: implemented and locally validated
+CoreHost panel: intentionally blank WidgetHostSurface reserved for production Widgets
+Production Widgets: Phase 1 HTML/CSS interaction prototype gate in progress
+Canonical public checkpoint before this documentation sync: dabca8f
 ```
 
-This repository establishes the public, sanitized engineering baseline for **KR Desktop Hub CoreHost**.
+The CoreHost foundation is complete enough to begin production Widget development. Future user-facing functions remain independent Widgets rather than embedded CoreHost business logic.
 
-The CoreHost will provide:
+The first Phase 1 production-Widget sequence is:
 
-- application lifecycle;
-- single-instance execution;
-- system-tray lifecycle;
-- global hotkeys;
-- Windows notifications;
-- configurable startup behavior;
-- localization interfaces;
-- configuration and state management;
-- resource monitoring;
-- Widget discovery, scheduling, health monitoring, quarantine, diagnostics and rollback.
-
-Future user-facing functions must be developed as independent Widgets rather than embedded inside CoreHost business logic.
-
+```text
+Widget 01: KR World Time-Space
+Widget 02: KR Trading Clock
+```
 ## Target platform
 
 Initial implementation target:
@@ -125,3 +117,13 @@ dist/releases/
 ```
 
 Release binaries are local artifacts until manual desktop acceptance is complete.
+
+## Public checkpoint discipline
+
+Every validated, Owner-approved engineering step is committed and pushed immediately as a scoped public checkpoint. Public narrative evidence is updated in the same checkpoint whenever the product state changes.
+
+See:
+
+```text
+docs\governance\PUBLIC_DEVELOPMENT_RECORD_POLICY.md
+```

@@ -11,6 +11,8 @@ public partial class MainWindow : Window
 
     public event EventHandler? CloseExitRequested;
 
+    public event EventHandler? WidgetManagerRequested;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -19,6 +21,15 @@ public partial class MainWindow : Window
     public void AllowCloseAndExit()
     {
         _allowCloseAndExit = true;
+    }
+
+    private void OpenWidgetManagerButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        WidgetManagerRequested?.Invoke(
+            this,
+            EventArgs.Empty);
     }
 
     protected override void OnClosing(

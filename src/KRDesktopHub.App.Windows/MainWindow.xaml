@@ -20,6 +20,12 @@
                 Margin="0,12,0,0"
                 TextWrapping="Wrap"
                 Text="Use Ctrl+Alt+K or the system-tray icon to show or hide this panel." />
+            <Button
+                Margin="0,16,0,0"
+                HorizontalAlignment="Left"
+                Padding="10,6"
+                Click="OpenWidgetManagerButton_Click"
+                Content="Open Widget Manager" />
         </StackPanel>
     </Grid>
 </Window>

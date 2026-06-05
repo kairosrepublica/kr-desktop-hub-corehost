@@ -30,6 +30,8 @@ public sealed class WindowsTrayService : ITrayService
 
     public event EventHandler? SettingsFolderRequested;
 
+    public event EventHandler? WidgetManagerRequested;
+
     public Task InitializeAsync(
         CancellationToken cancellationToken)
     {
@@ -46,6 +48,11 @@ public sealed class WindowsTrayService : ITrayService
             "Show or Hide Panel",
             image: null,
             (_, _) => ToggleRequested?.Invoke(this, EventArgs.Empty));
+
+        menu.Items.Add(
+            "Open Widget Manager",
+            image: null,
+            (_, _) => WidgetManagerRequested?.Invoke(this, EventArgs.Empty));
 
         menu.Items.Add(
             "Send Test Notification",

@@ -20,6 +20,7 @@ public partial class App : Application
     private Mutex? _mutex;
     private bool _ownsMutex;
     private MainWindow? _panel;
+    private WidgetManagerWindow? _widgetManagerWindow;
     private WindowsTrayService? _tray;
     private WindowsGlobalHotkeyService? _hotkeys;
     private WindowsStartupRegistrationService? _startup;
@@ -122,6 +123,10 @@ public partial class App : Application
             _panel.CloseExitRequested +=
                 (_, _) =>
                     ExitApplication();
+
+            _panel.WidgetManagerRequested +=
+                (_, _) =>
+                    ShowWidgetManager();
 
             _tray =
                 new WindowsTrayService();
@@ -266,6 +271,10 @@ public partial class App : Application
             _tray.SettingsFolderRequested +=
                 (_, _) =>
                     OpenSettingsFolder();
+
+            _tray.WidgetManagerRequested +=
+                (_, _) =>
+                    ShowWidgetManager();
 
             if (
                 options.ShowPanel
@@ -543,6 +552,71 @@ public partial class App : Application
                     NotificationPriority.Important,
                     Array.Empty<NotificationAction>()));
         }
+    }
+
+    private void ShowWidgetManager()
+    {
+        if (_panel is null)
+        {
+            return;
+        }
+
+        if (_widgetManagerWindow is null)
+        {
+            _widgetManagerWindow =
+                new WidgetManagerWindow(
+                    CreateWidgetManager(
+                        allowDevelopmentFolderInstall:
+                            false),
+
+                    () =>
+                        CreateWidgetManager(
+                            allowDevelopmentFolderInstall:
+                                true));
+
+            _widgetManagerWindow.Owner =
+                _panel;
+
+            _widgetManagerWindow.Closed +=
+                (_, _) =>
+                    _widgetManagerWindow =
+                        null;
+        }
+
+        _widgetManagerWindow.Show();
+        _widgetManagerWindow.Activate();
+    }
+
+    private static InternalWidgetManagerService CreateWidgetManager(
+        bool allowDevelopmentFolderInstall)
+    {
+        var options =
+            WidgetPackageInstallerOptions
+                .CreateRecommended(
+                    CoreHostDataRootResolver
+                        .ResolveDefaultDataRoot(),
+
+                    new Version(
+                        0,
+                        1,
+                        0),
+
+                    allowedCapabilities:
+                        Array.Empty<string>());
+
+        if (allowDevelopmentFolderInstall)
+        {
+            options =
+                options with
+                {
+                    AllowDevelopmentFolderInstall =
+                        true
+                };
+        }
+
+        return new InternalWidgetManagerService(
+            new InternalWidgetPackageInstaller(
+                options));
     }
 
     private void OpenSettingsFolder()

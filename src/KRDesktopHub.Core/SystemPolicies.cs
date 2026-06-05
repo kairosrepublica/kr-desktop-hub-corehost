@@ -4,6 +4,7 @@ using KRDesktopHub.Platform.Abstractions;
 namespace KRDesktopHub.Core;
 
 public sealed record CoreHostPolicyOptions(
+    bool BatteryAwareRefreshThrottling,
     bool RefreshOnlyStaleWidgetsAfterResume,
     bool ReplayMissedScheduledRunsAfterResume,
     bool PauseNetworkHeavyWidgetsWhenLocked,
@@ -19,6 +20,9 @@ public sealed record CoreHostPolicyOptions(
 {
     public static CoreHostPolicyOptions Recommended =>
         new(
+            BatteryAwareRefreshThrottling:
+                true,
+
             RefreshOnlyStaleWidgetsAfterResume:
                 true,
 
@@ -44,10 +48,12 @@ public sealed record CoreHostPolicyOptions(
                 true,
 
             NetworkRecoveryDebounce:
-                TimeSpan.FromSeconds(5),
+                TimeSpan.FromSeconds(
+                    5),
 
             ResourceSampleInterval:
-                TimeSpan.FromSeconds(30),
+                TimeSpan.FromSeconds(
+                    30),
 
             IdleCpuWarningPercent:
                 null,
@@ -60,25 +66,29 @@ public sealed record CoreHostPolicyOptions(
         if (NetworkRecoveryDebounce < TimeSpan.Zero)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(NetworkRecoveryDebounce));
+                nameof(
+                    NetworkRecoveryDebounce));
         }
 
         if (ResourceSampleInterval <= TimeSpan.Zero)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(ResourceSampleInterval));
+                nameof(
+                    ResourceSampleInterval));
         }
 
         if (IdleCpuWarningPercent is < 0 or > 100)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(IdleCpuWarningPercent));
+                nameof(
+                    IdleCpuWarningPercent));
         }
 
         if (IdleWorkingSetWarningBytes is < 0)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(IdleWorkingSetWarningBytes));
+                nameof(
+                    IdleWorkingSetWarningBytes));
         }
     }
 }
@@ -115,40 +125,59 @@ public sealed class SystemPolicyEvaluator
     public SystemPolicyEvaluator(
         CoreHostPolicyOptions options)
     {
+        ArgumentNullException.ThrowIfNull(
+            options);
+
         options.Validate();
-        _options = options;
+
+        _options =
+            options;
     }
 
     public WidgetPolicyDecision Evaluate(
         WidgetWorkloadProfile widget,
         SystemPolicyState state)
     {
-        ArgumentNullException.ThrowIfNull(widget);
-        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(
+            widget);
+
+        ArgumentNullException.ThrowIfNull(
+            state);
 
         var isBatteryMode =
-            state.PowerState is
-                PowerState.Battery
-                or PowerState.BatterySaver;
+            state.PowerState
+            is PowerState.Battery
+            or PowerState.BatterySaver;
+
+        var applyBatteryConstraints =
+            _options.BatteryAwareRefreshThrottling
+            && isBatteryMode;
 
         var allowExecution =
-            !(isBatteryMode
+            !(
+                applyBatteryConstraints
                 && _options.PauseLowPriorityWidgetsOnBattery
-                && widget.IsLowPriority);
+                && widget.IsLowPriority
+            );
 
         var allowNetworkRequests =
             state.IsNetworkAvailable;
 
-        if (_options.StopNetworkRequestsWhenWidgetInactive
-            && !widget.IsActive)
+        if (
+            _options.StopNetworkRequestsWhenWidgetInactive
+            && !widget.IsActive
+        )
         {
             allowNetworkRequests =
                 false;
         }
 
-        if (_options.PauseNetworkHeavyWidgetsWhenLocked
-            && state.SessionState == SessionState.Locked
-            && widget.IsNetworkHeavy)
+        if (
+            _options.PauseNetworkHeavyWidgetsWhenLocked
+            && state.SessionState ==
+                SessionState.Locked
+            && widget.IsNetworkHeavy
+        )
         {
             allowNetworkRequests =
                 false;
@@ -164,10 +193,11 @@ public sealed class SystemPolicyEvaluator
             widget.RequiresVisualRefresh
             && (
                 state.IsPanelVisible
-                || !_options.StopVisualRefreshWhenPanelHidden);
+                || !_options.StopVisualRefreshWhenPanelHidden
+            );
 
         var refreshIntervalMultiplier =
-            isBatteryMode
+            applyBatteryConstraints
             && widget.IsLowPriority
                 ? 4.0
                 : state.IsPanelVisible
@@ -215,7 +245,8 @@ public sealed class SystemPolicyEvaluator
             return true;
         }
 
-        return resumedAtUtc - lastSuccessAtUtc.Value
+        return resumedAtUtc
+            - lastSuccessAtUtc.Value
             >= staleAfter;
     }
 }
@@ -237,7 +268,9 @@ public sealed record SystemPolicySignal(
 public sealed class SystemPolicyCoordinator
     : IDisposable
 {
-    private readonly object _sync = new();
+    private readonly object _sync =
+        new();
+
     private readonly IEventBus _eventBus;
     private readonly IPowerStateService _power;
     private readonly INetworkStateService _network;
@@ -246,6 +279,7 @@ public sealed class SystemPolicyCoordinator
     private readonly IResourceMonitorService _resources;
 
     private SystemPolicyState _state;
+    private SystemPolicyEvaluator _evaluator;
 
     public SystemPolicyCoordinator(
         IEventBus eventBus,
@@ -253,14 +287,50 @@ public sealed class SystemPolicyCoordinator
         INetworkStateService network,
         ISessionStateService session,
         ITimeZoneChangeService timeZone,
-        IResourceMonitorService resources)
+        IResourceMonitorService resources,
+        SystemPolicyEvaluator? evaluator =
+            null)
     {
-        _eventBus = eventBus;
-        _power = power;
-        _network = network;
-        _session = session;
-        _timeZone = timeZone;
-        _resources = resources;
+        ArgumentNullException.ThrowIfNull(
+            eventBus);
+
+        ArgumentNullException.ThrowIfNull(
+            power);
+
+        ArgumentNullException.ThrowIfNull(
+            network);
+
+        ArgumentNullException.ThrowIfNull(
+            session);
+
+        ArgumentNullException.ThrowIfNull(
+            timeZone);
+
+        ArgumentNullException.ThrowIfNull(
+            resources);
+
+        _eventBus =
+            eventBus;
+
+        _power =
+            power;
+
+        _network =
+            network;
+
+        _session =
+            session;
+
+        _timeZone =
+            timeZone;
+
+        _resources =
+            resources;
+
+        _evaluator =
+            evaluator
+            ?? new SystemPolicyEvaluator(
+                CoreHostPolicyOptions.Recommended);
 
         _state =
             new SystemPolicyState(
@@ -270,15 +340,23 @@ public sealed class SystemPolicyCoordinator
                 timeZone.CurrentTimeZoneId,
                 IsPanelVisible:
                     false,
-
                 LastResumeAtUtc:
                     null);
 
-        _power.Changed += OnPowerChanged;
-        _network.Changed += OnNetworkChanged;
-        _session.Changed += OnSessionChanged;
-        _timeZone.Changed += OnTimeZoneChanged;
-        _resources.Sampled += OnResourceSampled;
+        _power.Changed +=
+            OnPowerChanged;
+
+        _network.Changed +=
+            OnNetworkChanged;
+
+        _session.Changed +=
+            OnSessionChanged;
+
+        _timeZone.Changed +=
+            OnTimeZoneChanged;
+
+        _resources.Sampled +=
+            OnResourceSampled;
     }
 
     public SystemPolicyState Current
@@ -300,18 +378,59 @@ public sealed class SystemPolicyCoordinator
             _state =
                 _state with
                 {
-                    IsPanelVisible = isVisible
+                    IsPanelVisible =
+                        isVisible
                 };
+        }
+    }
+
+    public void UpdateOptions(
+        CoreHostPolicyOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(
+            options);
+
+        var evaluator =
+            new SystemPolicyEvaluator(
+                options);
+
+        lock (_sync)
+        {
+            _evaluator =
+                evaluator;
+        }
+    }
+
+    public WidgetPolicyDecision Evaluate(
+        WidgetWorkloadProfile widget)
+    {
+        ArgumentNullException.ThrowIfNull(
+            widget);
+
+        lock (_sync)
+        {
+            return _evaluator.Evaluate(
+                widget,
+                _state);
         }
     }
 
     public void Dispose()
     {
-        _power.Changed -= OnPowerChanged;
-        _network.Changed -= OnNetworkChanged;
-        _session.Changed -= OnSessionChanged;
-        _timeZone.Changed -= OnTimeZoneChanged;
-        _resources.Sampled -= OnResourceSampled;
+        _power.Changed -=
+            OnPowerChanged;
+
+        _network.Changed -=
+            OnNetworkChanged;
+
+        _session.Changed -=
+            OnSessionChanged;
+
+        _timeZone.Changed -=
+            OnTimeZoneChanged;
+
+        _resources.Sampled -=
+            OnResourceSampled;
     }
 
     private void OnPowerChanged(
@@ -323,9 +442,12 @@ public sealed class SystemPolicyCoordinator
             _state =
                 _state with
                 {
-                    PowerState = change.State,
+                    PowerState =
+                        change.State,
+
                     LastResumeAtUtc =
-                        change.State == PowerState.Resumed
+                        change.State ==
+                            PowerState.Resumed
                             ? change.ChangedAtUtc
                             : _state.LastResumeAtUtc
                 };
@@ -417,8 +539,9 @@ public sealed class SystemPolicyCoordinator
     private void Publish(
         SystemPolicySignal signal)
     {
-        _ = _eventBus.PublishAsync(
-            signal,
-            CancellationToken.None);
+        _ =
+            _eventBus.PublishAsync(
+                signal,
+                CancellationToken.None);
     }
 }

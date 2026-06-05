@@ -43,3 +43,9 @@ KR_Desktop_Hub_Window_Placement_API_Batch8A.md
 ```text
 KR_Desktop_Hub_CoreHost_Settings_API_Batch8B1.md
 ```
+
+## System policy and notification governance
+
+```text
+KR_Desktop_Hub_System_Policy_And_Notification_Governance_API_Batch8B2A.md
+```

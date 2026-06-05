@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "language": "en",
   "login_startup_enabled": true,
   "startup_delay_seconds": 10,
@@ -16,6 +16,8 @@
   "notification_sounds_enabled": false,
   "normal_notification_limit_per_ten_minutes": 6,
   "merge_duplicate_notifications": true,
+  "duplicate_notification_merge_window_seconds": 600,
+  "quiet_hours_enabled": true,
   "quiet_hours_start_local": "23:00",
   "quiet_hours_end_local": "08:00",
   "battery_aware_refresh_throttling": true,
@@ -31,5 +33,9 @@
   "pause_low_priority_widgets_on_battery": true,
   "refresh_time_widgets_after_time_zone_change": true,
   "refresh_failed_widgets_after_network_recovery": true,
+  "network_recovery_debounce_seconds": 5,
+  "resource_sample_interval_seconds": 30,
+  "idle_cpu_warning_percent": null,
+  "idle_working_set_warning_megabytes": null,
   "saved_at_utc": ""
 }

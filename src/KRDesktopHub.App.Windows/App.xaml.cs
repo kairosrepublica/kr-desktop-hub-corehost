@@ -24,6 +24,8 @@ public partial class App : Application
     private WindowsGlobalHotkeyService? _hotkeys;
     private WindowsStartupRegistrationService? _startup;
     private WindowsTrayBalloonNotificationService? _notifications;
+    private GovernedSystemNotificationService? _governedNotifications;
+    private CoreHostPolicyOptions _policyOptions = CoreHostPolicyOptions.Recommended;
     private WindowsPowerStateService? _power;
     private WindowsNetworkStateService? _network;
     private WindowsSessionStateService? _session;
@@ -129,13 +131,25 @@ public partial class App : Application
 
             await _tray.SetStatusAsync(
                 new TrayStatus(
-                    "KR Desktop Hub ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Ready"),
+                    "KR Desktop Hub ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â Ready"),
 
                 CancellationToken.None);
 
             _notifications =
                 new WindowsTrayBalloonNotificationService(
                     _tray);
+
+            _policyOptions =
+                CoreHostSettingsRuntimeBindings
+                    .ToSystemPolicyOptions(
+                        _settings);
+
+            _governedNotifications =
+                new GovernedSystemNotificationService(
+                    _notifications,
+                    CoreHostSettingsRuntimeBindings
+                        .ToNotificationGovernanceOptions(
+                            _settings));
 
             _power =
                 new WindowsPowerStateService();
@@ -151,8 +165,7 @@ public partial class App : Application
 
             _resources =
                 new WindowsProcessResourceMonitorService(
-                    CoreHostPolicyOptions
-                        .Recommended
+                    _policyOptions
                         .ResourceSampleInterval);
 
             _systemPolicies =
@@ -162,7 +175,9 @@ public partial class App : Application
                     _network,
                     _session,
                     _timeZone,
-                    _resources);
+                    _resources,
+                    new SystemPolicyEvaluator(
+                        _policyOptions));
 
             await _resources.StartAsync(
                 CancellationToken.None);
@@ -205,7 +220,7 @@ public partial class App : Application
 
             _tray.TestNotificationRequested +=
                 async (_, _) =>
-                    await _notifications.PublishAsync(
+                    await PublishNotificationAsync(
                         new SystemNotification(
                             "notification.test",
                             "KR Desktop Hub",
@@ -213,7 +228,8 @@ public partial class App : Application
                             NotificationPriority.Informational,
                             Array.Empty<NotificationAction>()),
 
-                        CancellationToken.None);
+                        force:
+                            true);
 
             _tray.StartupToggleRequested +=
                 async (_, _) =>
@@ -334,6 +350,21 @@ public partial class App : Application
             _settings.CloseButtonHidesToTray;
     }
 
+    private void ApplyPolicySettings()
+    {
+        _policyOptions =
+            CoreHostSettingsRuntimeBindings
+                .ToSystemPolicyOptions(
+                    _settings);
+
+        _systemPolicies?.UpdateOptions(
+            _policyOptions);
+
+        _governedNotifications?.UpdateOptions(
+            CoreHostSettingsRuntimeBindings
+                .ToNotificationGovernanceOptions(
+                    _settings));
+    }
     private async Task ApplyStartupSettingsAsync()
     {
         if (_startup is null)
@@ -490,6 +521,7 @@ public partial class App : Application
                 _settingsStore.Reload();
 
             ApplyPanelSettings();
+            ApplyPolicySettings();
 
             await ApplyStartupSettingsAsync();
             await RegisterConfiguredHotkeyAsync();
@@ -540,20 +572,16 @@ public partial class App : Application
         bool force =
             false)
     {
-        if (
-            (
-                !_settings.NotificationsEnabled
-                && !force
-            )
-            || _notifications is null
-        )
+        if (_governedNotifications is null)
         {
             return;
         }
 
-        await _notifications.PublishAsync(
-            notification,
-            CancellationToken.None);
+        _ =
+            await _governedNotifications.PublishAsync(
+                notification,
+                force,
+                CancellationToken.None);
     }
     private static async Task WriteSelfTestMarkerAsync(
         string markerPath)

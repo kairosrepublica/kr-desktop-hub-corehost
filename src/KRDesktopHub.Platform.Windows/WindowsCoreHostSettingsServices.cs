@@ -19,6 +19,8 @@ public sealed record CoreHostSettings(
     bool NotificationSoundsEnabled,
     int NormalNotificationLimitPerTenMinutes,
     bool MergeDuplicateNotifications,
+    int DuplicateNotificationMergeWindowSeconds,
+    bool QuietHoursEnabled,
     string QuietHoursStartLocal,
     string QuietHoursEndLocal,
     bool BatteryAwareRefreshThrottling,
@@ -34,6 +36,10 @@ public sealed record CoreHostSettings(
     bool PauseLowPriorityWidgetsOnBattery,
     bool RefreshTimeWidgetsAfterTimeZoneChange,
     bool RefreshFailedWidgetsAfterNetworkRecovery,
+    int NetworkRecoveryDebounceSeconds,
+    int ResourceSampleIntervalSeconds,
+    double? IdleCpuWarningPercent,
+    int? IdleWorkingSetWarningMegabytes,
     DateTimeOffset SavedAtUtc);
 
 public sealed record CoreHostSettingRecommendation(
@@ -54,7 +60,7 @@ public sealed record HotkeyRegistrationRuntimeState(
 public static class CoreHostSettingsCatalog
 {
     public const int CurrentSchemaVersion =
-        1;
+        2;
 
     public static CoreHostSettings Recommended =>
         new(
@@ -102,6 +108,12 @@ public static class CoreHostSettingsCatalog
             MergeDuplicateNotifications:
                 true,
 
+            DuplicateNotificationMergeWindowSeconds:
+                600,
+
+            QuietHoursEnabled:
+                true,
+
             QuietHoursStartLocal:
                 "23:00",
 
@@ -146,6 +158,18 @@ public static class CoreHostSettingsCatalog
 
             RefreshFailedWidgetsAfterNetworkRecovery:
                 true,
+
+            NetworkRecoveryDebounceSeconds:
+                5,
+
+            ResourceSampleIntervalSeconds:
+                30,
+
+            IdleCpuWarningPercent:
+                null,
+
+            IdleWorkingSetWarningMegabytes:
+                null,
 
             SavedAtUtc:
                 DateTimeOffset.UtcNow);
@@ -211,7 +235,7 @@ public static class CoreHostSettingsCatalog
                 nameof(
                     CoreHostSettings.NotificationSoundsEnabled),
                 "false",
-                "Avoid unnecessary interruption. Urgent-notification sound policy can be refined later."),
+                "Avoid unnecessary interruption. A future modern notification provider may expose richer sound control."),
 
             new CoreHostSettingRecommendation(
                 nameof(
@@ -227,9 +251,21 @@ public static class CoreHostSettingsCatalog
 
             new CoreHostSettingRecommendation(
                 nameof(
+                    CoreHostSettings.DuplicateNotificationMergeWindowSeconds),
+                "600",
+                "Merge repeated ordinary alerts within ten minutes."),
+
+            new CoreHostSettingRecommendation(
+                nameof(
+                    CoreHostSettings.QuietHoursEnabled),
+                "true",
+                "Suppress ordinary interruptions during the configured rest window."),
+
+            new CoreHostSettingRecommendation(
+                nameof(
                     CoreHostSettings.QuietHoursStartLocal),
                 "23:00",
-                "Suppress low-priority interruptions during the Owner's normal rest window."),
+                "Start ordinary-notification suppression late in the evening by default."),
 
             new CoreHostSettingRecommendation(
                 nameof(
@@ -241,7 +277,7 @@ public static class CoreHostSettingsCatalog
                 nameof(
                     CoreHostSettings.BatteryAwareRefreshThrottling),
                 "true",
-                "Reduce background work on battery power."),
+                "Reduce low-priority background work while using battery power."),
 
             new CoreHostSettingRecommendation(
                 nameof(
@@ -295,7 +331,7 @@ public static class CoreHostSettingsCatalog
                 nameof(
                     CoreHostSettings.PauseNetworkHeavyWidgetsWhenLocked),
                 "true",
-                "Reduce unnecessary background traffic while the session is locked."),
+                "Reduce unnecessary background traffic while the Windows session is locked."),
 
             new CoreHostSettingRecommendation(
                 nameof(
@@ -313,9 +349,32 @@ public static class CoreHostSettingsCatalog
                 nameof(
                     CoreHostSettings.RefreshFailedWidgetsAfterNetworkRecovery),
                 "true",
-                "Retry stale failed work after connectivity returns while preserving later rate limits.")
-        };
+                "Retry stale failed work after connectivity returns while preserving rate limits."),
 
+            new CoreHostSettingRecommendation(
+                nameof(
+                    CoreHostSettings.NetworkRecoveryDebounceSeconds),
+                "5",
+                "Avoid a task stampede immediately after connectivity returns."),
+
+            new CoreHostSettingRecommendation(
+                nameof(
+                    CoreHostSettings.ResourceSampleIntervalSeconds),
+                "30",
+                "Collect low-frequency process telemetry without creating a monitoring burden."),
+
+            new CoreHostSettingRecommendation(
+                nameof(
+                    CoreHostSettings.IdleCpuWarningPercent),
+                "null",
+                "Do not freeze an idle CPU warning threshold before repeated real-world baselines exist."),
+
+            new CoreHostSettingRecommendation(
+                nameof(
+                    CoreHostSettings.IdleWorkingSetWarningMegabytes),
+                "null",
+                "Do not freeze an idle-memory warning threshold before repeated real-world baselines exist.")
+        };
 }
 
 public static class CoreHostHotkeyPolicy
@@ -380,12 +439,16 @@ public static class CoreHostSettingsValidator
 
         if (
             candidate is null
-            || candidate.SchemaVersion !=
+            || candidate.SchemaVersion < 1
+            || candidate.SchemaVersion >
                 CoreHostSettingsCatalog.CurrentSchemaVersion
         )
         {
             return defaults;
         }
+
+        var isLegacyV1 =
+            candidate.SchemaVersion == 1;
 
         var primaryGesture =
             CoreHostHotkeyPolicy.NormalizeGesture(
@@ -445,6 +508,29 @@ public static class CoreHostSettingsValidator
                     0,
                     120),
 
+            DuplicateNotificationMergeWindowSeconds =
+                isLegacyV1
+                    ? defaults.DuplicateNotificationMergeWindowSeconds
+                    : Math.Clamp(
+                        candidate.DuplicateNotificationMergeWindowSeconds,
+                        1,
+                        86400),
+
+            QuietHoursEnabled =
+                isLegacyV1
+                    ? defaults.QuietHoursEnabled
+                    : candidate.QuietHoursEnabled,
+
+            QuietHoursStartLocal =
+                NormalizeLocalTime(
+                    candidate.QuietHoursStartLocal,
+                    defaults.QuietHoursStartLocal),
+
+            QuietHoursEndLocal =
+                NormalizeLocalTime(
+                    candidate.QuietHoursEndLocal,
+                    defaults.QuietHoursEndLocal),
+
             WidgetRetryCount =
                 Math.Clamp(
                     candidate.WidgetRetryCount,
@@ -469,15 +555,37 @@ public static class CoreHostSettingsValidator
                     1,
                     3600),
 
-            QuietHoursStartLocal =
-                NormalizeLocalTime(
-                    candidate.QuietHoursStartLocal,
-                    defaults.QuietHoursStartLocal),
+            NetworkRecoveryDebounceSeconds =
+                isLegacyV1
+                    ? defaults.NetworkRecoveryDebounceSeconds
+                    : Math.Clamp(
+                        candidate.NetworkRecoveryDebounceSeconds,
+                        0,
+                        300),
 
-            QuietHoursEndLocal =
-                NormalizeLocalTime(
-                    candidate.QuietHoursEndLocal,
-                    defaults.QuietHoursEndLocal),
+            ResourceSampleIntervalSeconds =
+                isLegacyV1
+                    ? defaults.ResourceSampleIntervalSeconds
+                    : Math.Clamp(
+                        candidate.ResourceSampleIntervalSeconds,
+                        1,
+                        3600),
+
+            IdleCpuWarningPercent =
+                isLegacyV1
+                    ? defaults.IdleCpuWarningPercent
+                    : NormalizeNullableDouble(
+                        candidate.IdleCpuWarningPercent,
+                        0,
+                        100),
+
+            IdleWorkingSetWarningMegabytes =
+                isLegacyV1
+                    ? defaults.IdleWorkingSetWarningMegabytes
+                    : NormalizeNullableInteger(
+                        candidate.IdleWorkingSetWarningMegabytes,
+                        0,
+                        1048576),
 
             SavedAtUtc =
                 DateTimeOffset.UtcNow
@@ -494,6 +602,32 @@ public static class CoreHostSettingsValidator
                 ? parsed.ToString(
                     "HH:mm")
                 : fallback;
+    }
+
+    private static double? NormalizeNullableDouble(
+        double? candidate,
+        double minimum,
+        double maximum)
+    {
+        return candidate is null
+            ? null
+            : Math.Clamp(
+                candidate.Value,
+                minimum,
+                maximum);
+    }
+
+    private static int? NormalizeNullableInteger(
+        int? candidate,
+        int minimum,
+        int maximum)
+    {
+        return candidate is null
+            ? null
+            : Math.Clamp(
+                candidate.Value,
+                minimum,
+                maximum);
     }
 }
 

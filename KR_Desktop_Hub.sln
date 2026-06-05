@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KRDesktopHub.WindowPlacemen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KRDesktopHub.CoreHostSettings.SmokeTests", "tests\KRDesktopHub.CoreHostSettings.SmokeTests\KRDesktopHub.CoreHostSettings.SmokeTests.csproj", "{9A129534-F103-46A3-9125-F724735D1663}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KRDesktopHub.PolicyBinding.SmokeTests", "tests\KRDesktopHub.PolicyBinding.SmokeTests\KRDesktopHub.PolicyBinding.SmokeTests.csproj", "{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -249,6 +251,18 @@ Global
 		{9A129534-F103-46A3-9125-F724735D1663}.Release|x64.Build.0 = Release|Any CPU
 		{9A129534-F103-46A3-9125-F724735D1663}.Release|x86.ActiveCfg = Release|Any CPU
 		{9A129534-F103-46A3-9125-F724735D1663}.Release|x86.Build.0 = Release|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Debug|x64.Build.0 = Debug|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Debug|x86.Build.0 = Debug|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|x64.ActiveCfg = Release|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|x64.Build.0 = Release|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|x86.ActiveCfg = Release|Any CPU
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -272,5 +286,6 @@ Global
 		{85F3849B-EDB0-4F32-B699-3A451F9A92A8} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{D448F17C-0AC5-462E-8C74-EE08C15B5062} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{9A129534-F103-46A3-9125-F724735D1663} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

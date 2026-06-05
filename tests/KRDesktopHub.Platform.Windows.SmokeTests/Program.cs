@@ -43,5 +43,19 @@ if (string.IsNullOrWhiteSpace(
         "Platform information validation failed.");
 }
 
+if (CoreHostTrayStatusText.Ready != "KR Desktop Hub - Ready")
+{
+    throw new InvalidOperationException(
+        "Tray tooltip exact-text regression validation failed.");
+}
+
+foreach (var character in CoreHostTrayStatusText.Ready)
+{
+    if (character > 127)
+    {
+        throw new InvalidOperationException(
+            "Tray tooltip ASCII regression validation failed.");
+    }
+}
 Console.WriteLine(
     "Batch 3 Windows platform smoke test passed.");

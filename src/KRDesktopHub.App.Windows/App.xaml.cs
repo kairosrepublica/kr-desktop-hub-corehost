@@ -130,8 +130,7 @@ public partial class App : Application
                 CancellationToken.None);
 
             await _tray.SetStatusAsync(
-                new TrayStatus(
-                    "KR Desktop Hub ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â Ready"),
+                new TrayStatus( CoreHostTrayStatusText.Ready),
 
                 CancellationToken.None);
 

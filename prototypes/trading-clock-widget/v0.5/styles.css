@@ -1,0 +1,237 @@
+:root{
+  --widget-width:600px;
+  --bg:#ffffff;
+  --soft:#f5f7fa;
+  --soft-2:#eef2f6;
+  --line:#d8dee7;
+  --line-strong:#c7d0dc;
+  --text:#18212b;
+  --muted:#647180;
+  --quiet:#8793a1;
+  --accent:#2463eb;
+  --regular:#67b982;
+  --extended:#8db9f6;
+  --break:#c8ced7;
+  --marker:#cc7a18;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,Manrope,"Segoe UI",Arial,sans-serif
+}
+.widget{
+  width:min(100vw,var(--widget-width));
+  padding:10px;
+  background:#fff
+}
+.compact-control{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:10px;
+  align-items:center;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 9px;
+  background:var(--soft)
+}
+.compact-control strong{
+  font-size:14px;
+  line-height:1.1
+}
+.slider-wrap{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:6px;
+  align-items:center
+}
+.slider-wrap input{
+  width:100%;
+  accent-color:var(--accent)
+}
+.slider-wrap small{
+  min-width:42px;
+  color:var(--muted);
+  font-size:10px;
+  text-align:right
+}
+button{
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:#fff;
+  color:var(--text);
+  padding:6px 8px;
+  font:inherit;
+  font-size:11px;
+  cursor:pointer
+}
+button:hover{background:var(--soft-2)}
+.market-grid{
+  display:grid;
+  gap:7px;
+  margin-top:8px
+}
+.market{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff
+}
+.market-header{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+  align-items:center;
+  width:100%;
+  padding:7px 8px;
+  border:0;
+  border-bottom:1px solid var(--line);
+  border-radius:0;
+  background:var(--soft);
+  text-align:left
+}
+.market-title{
+  font-size:12px;
+  font-weight:800
+}
+.market-status{
+  font-size:11px;
+  font-weight:800
+}
+.market-status.open{
+  color:#168647
+}
+.market-status.closed{
+  color:var(--quiet)
+}
+.market-toggle{
+  color:var(--muted);
+  font-size:11px
+}
+.market-body{
+  padding:7px 8px 8px
+}
+.market.collapsed .market-body{
+  display:none
+}
+.track{
+  display:grid;
+  grid-template-columns:54px 1fr;
+  gap:6px;
+  align-items:start;
+  margin-bottom:7px
+}
+.track:last-of-type{
+  margin-bottom:4px
+}
+.track-label{
+  padding-top:7px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700
+}
+.timeline-wrap{
+  min-width:0
+}
+.timeline{
+  position:relative;
+  height:24px;
+  overflow:visible;
+  border:1px solid var(--line-strong);
+  border-radius:6px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #fafbfc 0,
+      #fafbfc calc(4.166% - 1px),
+      #e8edf3 calc(4.166% - 1px),
+      #e8edf3 4.166%
+    )
+}
+.segment{
+  position:absolute;
+  top:0;
+  bottom:0;
+  border-radius:4px
+}
+.segment.regular{background:var(--regular)}
+.segment.extended{background:var(--extended)}
+.segment.break{background:var(--break)}
+.marker{
+  position:absolute;
+  top:-4px;
+  bottom:-4px;
+  width:2px;
+  background:var(--marker);
+  z-index:8
+}
+.marker-time{
+  position:absolute;
+  top:-16px;
+  z-index:9;
+  color:var(--marker);
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap
+}
+.marker-time.center{transform:translateX(-50%)}
+.marker-time.left{transform:translateX(2px)}
+.marker-time.right{transform:translateX(calc(-100% - 2px))}
+.boundary{
+  position:absolute;
+  top:7px;
+  z-index:7;
+  color:#1d2731;
+  font-size:8px;
+  font-weight:800;
+  line-height:1;
+  white-space:nowrap
+}
+.boundary.center{transform:translateX(-50%)}
+.boundary.left{transform:translateX(2px)}
+.boundary.right{transform:translateX(calc(-100% - 2px))}
+.axis{
+  position:relative;
+  height:11px;
+  margin-top:2px;
+  color:var(--quiet);
+  font-size:8px
+}
+.axis span{
+  position:absolute;
+  transform:translateX(-50%)
+}
+.axis span:first-child{transform:none}
+.axis span:last-child{transform:translateX(-100%)}
+.sessions{
+  display:flex;
+  flex-wrap:nowrap;
+  gap:5px;
+  overflow-x:auto;
+  padding-top:2px
+}
+.session-chip{
+  flex:0 0 auto;
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:4px 5px;
+  background:var(--soft);
+  color:var(--muted);
+  font-size:9px;
+  white-space:nowrap
+}
+.session-chip strong{color:var(--text)}
+@media(max-width:470px){
+  .widget{padding:8px}
+  .compact-control{
+    grid-template-columns:1fr auto
+  }
+  .slider-wrap{
+    grid-column:1/-1;
+    grid-row:2
+  }
+  .track{
+    grid-template-columns:45px 1fr
+  }
+}

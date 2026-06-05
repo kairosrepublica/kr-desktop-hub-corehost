@@ -1,4 +1,4 @@
-﻿# Roadmap
+# Roadmap
 
 ## CoreHost baseline
 
@@ -56,3 +56,20 @@ Build United States and Hong Kong market-clock comparisons with exchange-local a
 Every validated Owner-approved engineering step receives an immediate scoped commit and immediate push to `origin/main`.
 
 Narrative evidence is synchronized at the same checkpoint when the public product state changes.
+
+## Phase 1 final HTML-gate approval
+
+Status: final HTML/CSS/JavaScript interaction gate prepared for Owner browser review.
+
+```text
+World Time-Space:
+v0.7
+
+Trading Clock:
+approved v0.5, preserved byte-for-byte
+
+Review shell:
+v0.7
+```
+
+After Owner approval, production engineering begins with KR World Time-Space as a standalone Widget.

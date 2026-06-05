@@ -1,4 +1,4 @@
-﻿# KR Desktop Hub CoreHost
+# KR Desktop Hub CoreHost
 
 Portable-first and extensible desktop CoreHost for Windows 11 Widgets.
 
@@ -126,4 +126,47 @@ See:
 
 ```text
 docs\governance\PUBLIC_DEVELOPMENT_RECORD_POLICY.md
+```
+
+## Phase 1 final HTML interaction gate
+
+Final Owner-review prototype:
+
+```text
+prototypes/phase1-review-shell/v0.7
+```
+
+Independent Widget prototypes:
+
+```text
+prototypes/world-time-space-widget/v0.7
+prototypes/trading-clock-widget/v0.5
+```
+
+Frozen interaction targets:
+
+```text
+World Time-Space default height:
+220 DIP
+
+Trading Clock default height:
+500 DIP
+
+World Time-Space:
+row-based auto-height growth
+right-click Add city...
+floating Add City chooser
+right-click Remove city
+
+Trading Clock:
+approved v0.5 visual baseline
+collapse-based auto-height shrink in the host review shell
+```
+
+Widget release distribution:
+
+```text
+GitHub downloadable Widget releases use an outer AES-256 encrypted .7z archive.
+To request free authorization and the extraction password,
+email kr@kairosrepublica.com.
 ```

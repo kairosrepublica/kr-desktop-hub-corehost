@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KR Desktop Hub Final HTML Gate v0.7</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="popup">
+    <section class="widget-frame world-frame">
+      <iframe id="worldFrame" title="KR World Time-Space prototype" src="../world_time_space_widget_prototype_v0.7/index.html"></iframe>
+    </section>
+
+    <section class="widget-frame trading-frame">
+      <iframe id="tradingFrame" title="KR Trading Clock prototype" src="../trading_clock_widget_prototype_v0.5/index.html"></iframe>
+    </section>
+  </main>
+
+  <section id="addCityOverlay" class="overlay" hidden aria-label="Add City chooser">
+    <div class="chooser-card">
+      <div class="chooser-head">
+        <strong>Add city</strong>
+        <button id="overlayClose" type="button">Close</button>
+      </div>
+      <input id="overlaySearch" class="chooser-search" type="search" placeholder="Search city or time zone" />
+      <div id="overlayCityList" class="chooser-list"></div>
+      <div id="overlayLimit" class="chooser-limit"></div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

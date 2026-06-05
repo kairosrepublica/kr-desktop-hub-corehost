@@ -1,4 +1,4 @@
-﻿# Implementation Roadmap
+# Implementation Roadmap
 
 ## Frozen CoreHost baseline
 
@@ -90,3 +90,27 @@ Scope:
 Every checkpoint above is committed and pushed immediately after validation.
 
 If a checkpoint contains several independently meaningful engineering steps, split it into smaller atomic checkpoints rather than delaying synchronization.
+
+## Final HTML interaction gate v0.7
+
+Validated review targets:
+
+```text
+600 DIP popup width
+World Time-Space default height: 220 DIP
+Trading Clock default height: 500 DIP
+World Time-Space row-based height growth
+World Time-Space root right-click Add city...
+floating Add City chooser above the complete popup
+World Time-Space city-card right-click Remove city
+Trading Clock byte-identical approved v0.5 layout
+Trading Clock collapse-based height shrink in host review shell
+Trading Clock expansion-based height restoration
+encrypted GitHub Widget-release outer archive
+```
+
+Next production track:
+
+```text
+KR World Time-Space
+```

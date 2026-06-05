@@ -26,6 +26,22 @@ The project uses meaningful GitHub checkpoints. Changes should represent coheren
 
 ### Added
 
+- Phase 1 final HTML interaction gate.
+- KR World Time-Space `v0.7` prototype with `220 DIP` default height and automatic row-based growth.
+- World Time-Space root context menu with `Add city...`.
+- Floating Add City chooser above the complete popup review shell.
+- World Time-Space city-card context menu with `Remove city`.
+- KR Trading Clock approved `v0.5` prototype, preserved byte-for-byte.
+- Host-review-shell demonstration of Trading Clock height shrink after market collapse and restoration after expansion.
+- Public encrypted Widget-release distribution policy.
+
+### Governance
+
+- Public downloadable Widget releases use an outer AES-256 encrypted `.7z` archive.
+- Users request free authorization and the extraction password by emailing `kr@kairosrepublica.com`.
+
+### Added
+
 - Batch 0 repository bootstrap.
 - Canonical folder structure.
 - Single public launcher: `START_HERE.ps1`.

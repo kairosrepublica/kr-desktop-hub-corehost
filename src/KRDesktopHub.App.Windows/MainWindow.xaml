@@ -6,32 +6,7 @@
     Width="360"
     Height="480"
     WindowStartupLocation="CenterScreen">
-    <Grid Margin="20">
-        <StackPanel>
-            <TextBlock
-                FontSize="20"
-                FontWeight="SemiBold"
-                Text="KR Desktop Hub" />
-            <TextBlock
-                Margin="0,12,0,0"
-                TextWrapping="Wrap"
-                Text="Placeholder CoreHost panel. Final visual design remains intentionally unfrozen." />
-            <TextBlock
-                Margin="0,12,0,0"
-                TextWrapping="Wrap"
-                Text="Use Ctrl+Alt+K or the system-tray icon to show or hide this panel." />
-            <Button
-                Margin="0,16,0,0"
-                HorizontalAlignment="Left"
-                Padding="10,6"
-                Click="OpenWidgetManagerButton_Click"
-                Content="Open Widget Manager" />
-            <Button
-                Margin="0,8,0,0"
-                HorizontalAlignment="Left"
-                Padding="10,6"
-                Click="OpenSettingsCenterButton_Click"
-                Content="Open Settings Center" />
-        </StackPanel>
-    </Grid>
+    <Grid
+        x:Name="WidgetHostSurface"
+        Background="Transparent" />
 </Window>

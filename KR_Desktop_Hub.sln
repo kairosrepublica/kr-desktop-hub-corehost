@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KRDesktopHub.CoreHostSettin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KRDesktopHub.PolicyBinding.SmokeTests", "tests\KRDesktopHub.PolicyBinding.SmokeTests\KRDesktopHub.PolicyBinding.SmokeTests.csproj", "{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KRDesktopHub.WidgetExecutionPolicies.SmokeTests", "tests\KRDesktopHub.WidgetExecutionPolicies.SmokeTests\KRDesktopHub.WidgetExecutionPolicies.SmokeTests.csproj", "{0C717ACB-F952-402D-8E79-5C2C6C820019}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -263,6 +265,18 @@ Global
 		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|x64.Build.0 = Release|Any CPU
 		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|x86.ActiveCfg = Release|Any CPU
 		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE}.Release|x86.Build.0 = Release|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Debug|x64.Build.0 = Debug|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Debug|x86.Build.0 = Debug|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Release|x64.ActiveCfg = Release|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Release|x64.Build.0 = Release|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Release|x86.ActiveCfg = Release|Any CPU
+		{0C717ACB-F952-402D-8E79-5C2C6C820019}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -287,5 +301,6 @@ Global
 		{D448F17C-0AC5-462E-8C74-EE08C15B5062} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{9A129534-F103-46A3-9125-F724735D1663} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{72D968D1-2CDA-40A6-8ED5-4D0AAF9ABDBE} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{0C717ACB-F952-402D-8E79-5C2C6C820019} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

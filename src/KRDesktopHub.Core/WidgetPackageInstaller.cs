@@ -611,6 +611,8 @@ public sealed class InternalWidgetPackageInstaller
             if (
                 string.IsNullOrWhiteSpace(
                     capability)
+                || !WidgetCapabilityCatalog.IsPackageApprovable(
+                    capability)
                 || !_options.AllowedCapabilities.Contains(
                     capability)
             )

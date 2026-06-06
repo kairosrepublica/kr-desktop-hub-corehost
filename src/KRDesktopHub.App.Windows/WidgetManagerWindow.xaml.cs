@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using Microsoft.Win32;
+using KRDesktopHub.Contracts;
 using KRDesktopHub.Core;
 
 namespace KRDesktopHub.App.Windows;
@@ -46,11 +47,17 @@ public partial class WidgetManagerWindow
 
     public event EventHandler? InstalledWidgetsChanged;
 
+    public event EventHandler? InstalledWidgetStateChanged;
+
     private async void RefreshInstalledWidgetsButton_Click(
         object sender,
         RoutedEventArgs e)
     {
         await RefreshInstalledWidgetsAsync();
+
+        InstalledWidgetsChanged?.Invoke(
+            this,
+            EventArgs.Empty);
     }
 
     private void RefreshInboxButton_Click(
@@ -375,8 +382,8 @@ public partial class WidgetManagerWindow
         }
     }
 
-    private async Task MutateSelectedInstalledWidgetAsync(
-        Action<InstalledWidgetCatalogItem> mutation,
+    private Task MutateSelectedInstalledWidgetAsync(
+        Func<InstalledWidgetCatalogItem, WidgetHostLayoutSnapshot> mutation,
         string actionName)
     {
         ArgumentNullException.ThrowIfNull(
@@ -388,15 +395,17 @@ public partial class WidgetManagerWindow
             SetStatus(
                 "Choose one installed Widget first.");
 
-            return;
+            return Task.CompletedTask;
         }
 
-        mutation(
-            widget);
+        var layout =
+            mutation(
+                widget);
 
-        await RefreshInstalledWidgetsAsync();
+        ApplyStateOnlyLayout(
+            layout);
 
-        InstalledWidgetsChanged?.Invoke(
+        InstalledWidgetStateChanged?.Invoke(
             this,
             EventArgs.Empty);
 
@@ -405,9 +414,11 @@ public partial class WidgetManagerWindow
             + " "
             + widget.WidgetId
             + ".");
+
+        return Task.CompletedTask;
     }
 
-    private async Task MoveSelectedInstalledWidgetAsync(
+    private Task MoveSelectedInstalledWidgetAsync(
         int direction)
     {
         if (_installedSnapshot is null
@@ -417,7 +428,7 @@ public partial class WidgetManagerWindow
             SetStatus(
                 "Choose one installed Widget first.");
 
-            return;
+            return Task.CompletedTask;
         }
 
         var ordered =
@@ -452,7 +463,7 @@ public partial class WidgetManagerWindow
             SetStatus(
                 "Selected Widget is already at the requested boundary.");
 
-            return;
+            return Task.CompletedTask;
         }
 
         _ =
@@ -461,20 +472,42 @@ public partial class WidgetManagerWindow
                     ordered[index].WidgetId,
                     ordered[targetIndex].Order);
 
-        _ =
+        var layout =
             _defaultManager
                 .SetInstalledWidgetOrder(
                     ordered[targetIndex].WidgetId,
                     ordered[index].Order);
 
-        await RefreshInstalledWidgetsAsync();
+        ApplyStateOnlyLayout(
+            layout);
 
-        InstalledWidgetsChanged?.Invoke(
+        InstalledWidgetStateChanged?.Invoke(
             this,
             EventArgs.Empty);
 
         SetStatus(
             "Updated Widget order.");
+
+        return Task.CompletedTask;
+    }
+
+
+    private void ApplyStateOnlyLayout(
+        WidgetHostLayoutSnapshot layout)
+    {
+        _installedSnapshot =
+            InstalledWidgetCatalogProjection
+                .ApplyLayout(
+                    _installedSnapshot
+                    ?? throw new InvalidOperationException(
+                        "Installed Widget inventory must be refreshed before state-only mutation."),
+                    layout);
+
+        InstalledWidgetsListBox.ItemsSource =
+            null;
+
+        InstalledWidgetsListBox.ItemsSource =
+            _installedSnapshot.Widgets;
     }
 
     private void RefreshInbox()

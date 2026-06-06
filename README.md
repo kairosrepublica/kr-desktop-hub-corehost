@@ -1,21 +1,23 @@
 # KR Desktop Hub CoreHost
 
+> CoreHost stabilization status: normal Widget-host state mutations now use an in-memory accepted-catalog projection and no longer rediscover installed packages. Production business Widgets remain blocked until the remaining CoreHost catalog-transaction and Windows-shell stabilization gates pass.
+
 Portable-first and extensible desktop CoreHost for Windows 11 Widgets.
 
 ## Current status
 
 ```text
-Project stage: CoreHost v0.2.1-rc1 frozen baseline
-Runnable application: implemented and locally validated
+Project stage: CoreHost stabilization in progress
+Runnable application: implemented; release-candidate revalidation required after each scoped checkpoint
 CoreHost panel: universal adaptive WidgetHostSurface foundation implemented
-Installed Widget catalog: package-to-runtime manifest adapter implemented
-Production Widgets: begin after Widget Management UI composition and activation wiring
-Canonical public checkpoint before this engineering step: 529d342
+Installed Widget catalog: explicit discovery remains available; state-only operations now use in-memory projection
+Production Widgets: blocked until remaining CoreHost stabilization gates and Owner manual acceptance pass
+Frozen source baseline before this checkpoint: ba2b9fb5236362d1760aa895c244ab06e4800f3f
 ```
 
-The CoreHost foundation is complete enough to begin production Widget development. Future user-facing functions remain independent Widgets rather than embedded CoreHost business logic.
+The CoreHost platform remains under stabilization. Future user-facing functions remain independent Widgets rather than embedded CoreHost business logic, but their production implementation stays blocked until CoreHost delivery is complete.
 
-The first Phase 1 production-Widget sequence is:
+The blocked Phase 1 production-Widget sequence is:
 
 ```text
 Widget 01: KR World Time-Space

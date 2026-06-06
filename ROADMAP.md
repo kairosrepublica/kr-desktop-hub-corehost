@@ -181,3 +181,29 @@ host-level scrolling
 outer shell:
 no Widget-driven width or height mutation
 ```
+
+## CoreHost stabilization checkpoint — state-only Widget-host transitions
+
+Completed scope:
+
+```text
+state-only Collapse / Expand path separated from filesystem discovery
+state-only enable / disable / ordering path separated from filesystem discovery
+framework-owned Widget-chrome transition seam added
+sample card converted into canonical transition consumer
+visible cards reconciled by Widget ID without unrelated surface recreation
+close-to-tray visibility path centralized
+600-DIP minimum-width contract unified
+```
+
+Remaining CoreHost delivery gates:
+
+```text
+transactional staged catalog refresh
+exact registration and capability pruning
+LayoutChanged host subscription
+Windows popup activation and focus policy
+popup shadow and notification-area darkening replay
+Microsoft Pinyin indicator replay
+Owner manual acceptance
+```

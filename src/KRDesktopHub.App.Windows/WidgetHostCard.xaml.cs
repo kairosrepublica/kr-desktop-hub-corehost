@@ -1,4 +1,3 @@
-
 using System.Windows;
 using System.Windows.Controls;
 using KRDesktopHub.Core;
@@ -9,19 +8,13 @@ public sealed class WidgetCollapseRequestedEventArgs
     : EventArgs
 {
     public WidgetCollapseRequestedEventArgs(
-        string widgetId,
-        bool collapsed)
+        string widgetId)
     {
         WidgetId =
             widgetId;
-
-        Collapsed =
-            collapsed;
     }
 
     public string WidgetId { get; }
-
-    public bool Collapsed { get; }
 }
 
 public partial class WidgetHostCard
@@ -47,6 +40,11 @@ public partial class WidgetHostCard
         _widget =
             widget;
 
+        var chrome =
+            WidgetHostChromePresentation
+                .FromCollapsed(
+                    widget.Collapsed);
+
         Height =
             widget.ActualHeightDip;
 
@@ -61,24 +59,19 @@ public partial class WidgetHostCard
             + " | v"
             + widget.PackageVersion
             + " | "
-            + (
-                widget.Collapsed
-                    ? "Collapsed"
-                    : "Expanded"
-            );
+            + chrome.StatusLabel;
 
         CollapseButton.Content =
-            widget.Collapsed
-                ? "Expand"
-                : "Collapse";
+            chrome.ToggleActionLabel;
 
         WidgetContentPresenter.Visibility =
-            widget.Collapsed
+            chrome.Collapsed
                 ? Visibility.Collapsed
                 : Visibility.Visible;
 
         WidgetContentPresenter.Content =
             content
+            ?? WidgetContentPresenter.Content
             ?? CreateFallbackContent(
                 widget);
     }
@@ -95,9 +88,7 @@ public partial class WidgetHostCard
         CollapseRequested?.Invoke(
             this,
             new WidgetCollapseRequestedEventArgs(
-                _widget.WidgetId,
-                collapsed:
-                    !_widget.Collapsed));
+                _widget.WidgetId));
     }
 
     private static FrameworkElement CreateFallbackContent(

@@ -130,6 +130,10 @@ public partial class App : Application
                 (_, _) =>
                     ExitApplication();
 
+            _panel.CloseToTrayRequested +=
+                (_, _) =>
+                    HidePanel();
+
             _panel.WidgetManagerRequested +=
                 (_, _) =>
                     ShowWidgetManager();
@@ -641,6 +645,10 @@ public partial class App : Application
                 async (_, _) =>
                     await RefreshWidgetHostAsync();
 
+            _widgetManagerWindow.InstalledWidgetStateChanged +=
+                async (_, _) =>
+                    await SynchronizeWidgetHostStateAsync();
+
             _widgetManagerWindow.Closed +=
                 (_, _) =>
                     _widgetManagerWindow =
@@ -766,6 +774,34 @@ public partial class App : Application
             installedCatalog);
     }
 
+    private async Task SynchronizeWidgetHostStateAsync()
+    {
+        if (_widgetHostCoordinator is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _widgetHostCoordinator
+                .SynchronizeStateAsync(
+                    CancellationToken.None);
+        }
+        catch (Exception exception)
+        {
+            await PublishNotificationAsync(
+                new SystemNotification(
+                    "widget.host.state.synchronize.failed",
+                    "KR Desktop Hub",
+                    $"Widget host state synchronization failed: {exception.Message}",
+                    NotificationPriority.Important,
+                    Array.Empty<NotificationAction>()),
+
+                force:
+                    true);
+        }
+    }
+
     private async Task RefreshWidgetHostAsync()
     {
         if (_widgetHostCoordinator is null)
@@ -889,16 +925,26 @@ public partial class App : Application
 
         if (_panel.IsVisible)
         {
-            _panel.Hide();
-
-            _systemPolicies?.SetPanelVisibility(
-                isVisible:
-                    false);
+            HidePanel();
         }
         else
         {
             ShowPanel();
         }
+    }
+
+    private void HidePanel()
+    {
+        if (_panel is null)
+        {
+            return;
+        }
+
+        _panel.Hide();
+
+        _systemPolicies?.SetPanelVisibility(
+            isVisible:
+                false);
     }
 
     private void ShowPanel()

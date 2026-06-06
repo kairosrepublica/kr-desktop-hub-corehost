@@ -2,6 +2,17 @@
 
 All notable changes to KR Desktop Hub CoreHost will be documented in this file.
 
+## CoreHost state-only Widget-host transition checkpoint
+
+- Removed installed-package filesystem rediscovery from normal Collapse, Expand, enable, disable and order operations.
+- Added a framework-owned Widget-chrome transition seam and sample-card consumption path.
+- Added accepted-catalog state projection so state-only mutations update the in-memory host surface without invoking degraded catalog-snapshot evaluation.
+- Preserved Widget card and visual-surface instances during state-only reconciliation.
+- Centralized title-bar close-to-tray through the CoreHost hide path so system-policy visibility remains synchronized.
+- Unified the persisted popup minimum-width contract at 600 device-independent pixels and the minimum-height contract at 240 device-independent pixels.
+- Added regression coverage for framework chrome, 50 serialized Collapse / Expand transitions, state-only projection and geometry constants.
+- Production business Widgets remain blocked pending the remaining CoreHost stabilization checkpoints and Owner manual acceptance.
+
 The project uses meaningful GitHub checkpoints. Changes should represent coherent engineering units rather than artificial commit volume.
 
 ## [0.2.1-rc1] - 2026-06-05

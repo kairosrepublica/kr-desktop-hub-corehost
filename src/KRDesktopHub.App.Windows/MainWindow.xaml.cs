@@ -1,4 +1,3 @@
-
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,12 +8,26 @@ namespace KRDesktopHub.App.Windows;
 public partial class MainWindow
     : Window
 {
+    private readonly Dictionary<
+        string,
+        WidgetHostCard> _widgetCards =
+            new(
+                StringComparer.OrdinalIgnoreCase);
+
+    private readonly Dictionary<
+        string,
+        FrameworkElement?> _widgetContents =
+            new(
+                StringComparer.OrdinalIgnoreCase);
+
     private bool _allowCloseAndExit;
 
     public bool CloseButtonHidesToTray { get; set; } =
         true;
 
     public event EventHandler? CloseExitRequested;
+
+    public event EventHandler? CloseToTrayRequested;
 
     public event EventHandler? WidgetManagerRequested;
 
@@ -34,6 +47,15 @@ public partial class MainWindow
     }
 
     public void RenderInstalledWidgets(
+        InstalledWidgetCatalogSnapshot snapshot,
+        WindowsInstalledWidgetVisualSurfaceRegistry surfaces)
+    {
+        ReconcileInstalledWidgets(
+            snapshot,
+            surfaces);
+    }
+
+    public void ReconcileInstalledWidgets(
         InstalledWidgetCatalogSnapshot snapshot,
         WindowsInstalledWidgetVisualSurfaceRegistry surfaces)
     {
@@ -58,35 +80,72 @@ public partial class MainWindow
                     StringComparer.OrdinalIgnoreCase)
                 .ToArray();
 
-        var nextCards =
+        var visibleWidgetIds =
             visible
                 .Select(
                     widget =>
-                    {
-                        var card =
-                            new WidgetHostCard();
+                        widget.WidgetId)
+                .ToHashSet(
+                    StringComparer.OrdinalIgnoreCase);
 
-                        card.Bind(
-                            widget,
-                            surfaces.TryCreate(
-                                widget.WidgetId));
+        foreach (var removedWidgetId in
+            _widgetCards
+                .Keys
+                .Where(
+                    widgetId =>
+                        !visibleWidgetIds.Contains(
+                            widgetId))
+                .ToArray())
+        {
+            _widgetCards.Remove(
+                removedWidgetId);
 
-                        card.CollapseRequested +=
-                            (_, request) =>
-                                WidgetCollapseRequested?.Invoke(
-                                    this,
-                                    request);
+            _widgetContents.Remove(
+                removedWidgetId);
+        }
 
-                        return card;
-                    })
-                .ToArray();
+        foreach (var widget in visible)
+        {
+            if (!_widgetCards.TryGetValue(
+                widget.WidgetId,
+                out var card))
+            {
+                card =
+                    new WidgetHostCard();
+
+                card.CollapseRequested +=
+                    (_, request) =>
+                        WidgetCollapseRequested?.Invoke(
+                            this,
+                            request);
+
+                _widgetCards[widget.WidgetId] =
+                    card;
+            }
+
+            if (!_widgetContents.TryGetValue(
+                widget.WidgetId,
+                out var content))
+            {
+                content =
+                    surfaces.TryCreate(
+                        widget.WidgetId);
+
+                _widgetContents[widget.WidgetId] =
+                    content;
+            }
+
+            card.Bind(
+                widget,
+                content);
+        }
 
         WidgetHostSurface.Children.Clear();
 
-        foreach (var card in nextCards)
+        foreach (var widget in visible)
         {
             WidgetHostSurface.Children.Add(
-                card);
+                _widgetCards[widget.WidgetId]);
         }
 
         EmptyWidgetHostState.Visibility =
@@ -179,7 +238,9 @@ public partial class MainWindow
 
             if (CloseButtonHidesToTray)
             {
-                Hide();
+                CloseToTrayRequested?.Invoke(
+                    this,
+                    EventArgs.Empty);
             }
             else
             {

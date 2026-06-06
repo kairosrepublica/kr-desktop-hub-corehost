@@ -90,6 +90,59 @@ try
             "Collapse auto-height validation failed.");
     }
 
+    var expandedChrome =
+        WidgetHostChromePresentation
+            .FromCollapsed(
+                collapsed:
+                    false);
+
+    var collapsedChrome =
+        WidgetHostChromePresentation
+            .FromCollapsed(
+                collapsed:
+                    true);
+
+    if (
+        expandedChrome.StatusLabel != "Expanded"
+        || expandedChrome.ToggleActionLabel != "Collapse"
+        || collapsedChrome.StatusLabel != "Collapsed"
+        || collapsedChrome.ToggleActionLabel != "Expand"
+    )
+    {
+        throw new InvalidOperationException(
+            "Universal Widget-chrome presentation validation failed.");
+    }
+
+    var chromeTransitions =
+        new WidgetHostChromeTransitionController(
+            controller);
+
+    for (var index = 0;
+        index < 50;
+        index++)
+    {
+        _ =
+            await chromeTransitions
+                .ToggleCollapsedAsync(
+                    "kr.trading-clock",
+                    CancellationToken.None);
+    }
+
+    var afterEvenToggleBurst =
+        controller
+            .GetLayout()
+            .Widgets
+            .Single(
+                widget =>
+                    widget.WidgetId
+                    == "kr.trading-clock");
+
+    if (!afterEvenToggleBurst.Collapsed)
+    {
+        throw new InvalidOperationException(
+            "Serialized rapid Collapse / Expand transition validation failed.");
+    }
+
     var expandedViewport =
         WidgetHostViewportHeightPolicy
             .PreserveOwnerSizedViewport(
@@ -169,6 +222,56 @@ try
     {
         throw new InvalidOperationException(
             "Disable auto-height validation failed.");
+    }
+
+    var acceptedSnapshot =
+        new InstalledWidgetCatalogSnapshot(
+            initial
+                .Widgets
+                .Select(
+                    widget =>
+                        new InstalledWidgetCatalogItem(
+                            widget.WidgetId,
+                            widget.DisplayName,
+                            new Version(
+                                0,
+                                1,
+                                0),
+                            Path.Combine(
+                                tempRoot,
+                                widget.WidgetId),
+                            Array.Empty<string>(),
+                            widget.Enabled,
+                            widget.Collapsed,
+                            widget.Order,
+                            widget.PreferredExpandedHeightDip,
+                            widget.MinimumCollapsedHeightDip,
+                            widget.MeasuredDesiredHeightDip,
+                            widget.ActualHeightDip))
+                .ToArray(),
+            Array.Empty<InstalledWidgetCatalogFailure>(),
+            initial);
+
+    var projectedDisabled =
+        InstalledWidgetCatalogProjection
+            .ApplyLayout(
+                acceptedSnapshot,
+                disabled);
+
+    if (
+        projectedDisabled
+            .Widgets
+            .Single(
+                widget =>
+                    widget.WidgetId
+                    == "kr.world-time-space")
+            .Enabled
+        || projectedDisabled.Layout.TotalDesiredHeightDip
+            != 44
+    )
+    {
+        throw new InvalidOperationException(
+            "State-only installed-catalog projection validation failed.");
     }
 
     controller.SetEnabled(

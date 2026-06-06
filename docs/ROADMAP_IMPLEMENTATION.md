@@ -242,3 +242,28 @@ Widget operations never assign outer Width
 Widget operations never assign outer Height
 overflow uses host-level ScrollViewer
 ```
+
+## CoreHost stabilization checkpoint: state-only Widget-host transitions
+
+Implemented:
+
+```text
+Collapse / Expand no longer invoke installed-package discovery
+Enable / Disable no longer invoke installed-package discovery
+Move operations no longer invoke installed-package discovery
+Widget Manager state-only operations use accepted-catalog projection
+sample card consumes framework-owned Widget-chrome seam
+CoreHost preserves card and visual-surface instances during state-only reconciliation
+minimum popup width normalized to 600 DIP
+```
+
+Still blocked before production Widget implementation:
+
+```text
+transactional catalog discovery commit boundary
+active-registration pruning
+capability-approval pruning
+LayoutChanged host subscription
+Windows shell visual stabilization
+Owner manual acceptance
+```

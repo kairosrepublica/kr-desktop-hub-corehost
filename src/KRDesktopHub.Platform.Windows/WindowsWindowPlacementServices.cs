@@ -51,10 +51,10 @@ public sealed record WindowPlacementDefaults(
                 720,
 
             MinimumWidth:
-                360,
+                600,
 
             MinimumHeight:
-                320);
+                240);
 }
 
 public static class CoreHostDataRootResolver

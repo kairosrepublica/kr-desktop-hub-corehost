@@ -1,3 +1,4 @@
+using KRDesktopHub.Contracts;
 using KRDesktopHub.Core;
 
 namespace KRDesktopHub.App.Windows;
@@ -29,6 +30,8 @@ public sealed class InstalledWidgetHostCompositionCoordinator
     private readonly InternalWidgetManagerService _manager;
     private readonly WindowsInstalledWidgetVisualSurfaceRegistry _surfaces;
     private readonly WindowsWidgetFrameworkServices _frameworkServices;
+    private readonly WidgetHostChromeTransitionController _chromeTransitions;
+
     private readonly WidgetHostOperationSerialQueue _hostOperationQueue =
         new();
 
@@ -58,14 +61,19 @@ public sealed class InstalledWidgetHostCompositionCoordinator
             ?? throw new ArgumentNullException(
                 nameof(frameworkServices));
 
+        _chromeTransitions =
+            new WidgetHostChromeTransitionController(
+                _manager
+                    .InstalledCatalog
+                    .LayoutController);
+
         _panel.WidgetCollapseRequested +=
             (_, request) =>
                 _ = ObserveOperationAsync(
                     "Widget-card collapse or expand",
                     cancellationToken =>
-                        SetCollapsedAsync(
+                        ToggleCollapsedAsync(
                             request.WidgetId,
-                            request.Collapsed,
                             cancellationToken));
 
         _panel.WidgetHostRefreshRequested +=
@@ -89,6 +97,24 @@ public sealed class InstalledWidgetHostCompositionCoordinator
                 cancellationToken);
     }
 
+    public Task<InstalledWidgetCatalogSnapshot> SynchronizeStateAsync(
+        CancellationToken cancellationToken)
+    {
+        return _hostOperationQueue
+            .RunAsync(
+                innerCancellationToken =>
+                {
+                    innerCancellationToken
+                        .ThrowIfCancellationRequested();
+
+                    return Task.FromResult(
+                        ApplyStateOnlyLayout(
+                            _manager
+                                .GetInstalledWidgetLayout()));
+                },
+                cancellationToken);
+    }
+
     public Task<InstalledWidgetCatalogSnapshot> SetEnabledAsync(
         string widgetId,
         bool enabled,
@@ -96,18 +122,39 @@ public sealed class InstalledWidgetHostCompositionCoordinator
     {
         return _hostOperationQueue
             .RunAsync(
+                innerCancellationToken =>
+                {
+                    innerCancellationToken
+                        .ThrowIfCancellationRequested();
+
+                    return Task.FromResult(
+                        ApplyStateOnlyLayout(
+                            _manager
+                                .SetInstalledWidgetEnabled(
+                                    widgetId,
+                                    enabled)));
+                },
+                cancellationToken);
+    }
+
+    public Task<InstalledWidgetCatalogSnapshot> ToggleCollapsedAsync(
+        string widgetId,
+        CancellationToken cancellationToken)
+    {
+        return _hostOperationQueue
+            .RunAsync(
                 async innerCancellationToken =>
                 {
-                    _ =
-                        _manager
-                            .SetInstalledWidgetEnabled(
+                    var layout =
+                        await _chromeTransitions
+                            .ToggleCollapsedAsync(
                                 widgetId,
-                                enabled);
+                                innerCancellationToken)
+                            .ConfigureAwait(
+                                true);
 
-                    return await RefreshCoreAsync(
-                            innerCancellationToken)
-                        .ConfigureAwait(
-                            true);
+                    return ApplyStateOnlyLayout(
+                        layout);
                 },
                 cancellationToken);
     }
@@ -121,16 +168,17 @@ public sealed class InstalledWidgetHostCompositionCoordinator
             .RunAsync(
                 async innerCancellationToken =>
                 {
-                    _ =
-                        _manager
-                            .SetInstalledWidgetCollapsed(
+                    var layout =
+                        await _chromeTransitions
+                            .SetCollapsedAsync(
                                 widgetId,
-                                collapsed);
+                                collapsed,
+                                innerCancellationToken)
+                            .ConfigureAwait(
+                                true);
 
-                    return await RefreshCoreAsync(
-                            innerCancellationToken)
-                        .ConfigureAwait(
-                            true);
+                    return ApplyStateOnlyLayout(
+                        layout);
                 },
                 cancellationToken);
     }
@@ -149,14 +197,13 @@ public sealed class InstalledWidgetHostCompositionCoordinator
 
         return _hostOperationQueue
             .RunAsync(
-                async innerCancellationToken =>
+                innerCancellationToken =>
                 {
+                    innerCancellationToken
+                        .ThrowIfCancellationRequested();
+
                     var snapshot =
-                        await _manager
-                            .RefreshInstalledWidgetsAsync(
-                                innerCancellationToken)
-                            .ConfigureAwait(
-                                true);
+                        GetRequiredSnapshot();
 
                     var ordered =
                         snapshot
@@ -187,10 +234,8 @@ public sealed class InstalledWidgetHostCompositionCoordinator
                         || targetIndex < 0
                         || targetIndex >= ordered.Length)
                     {
-                        return await RefreshCoreAsync(
-                                innerCancellationToken)
-                            .ConfigureAwait(
-                                true);
+                        return Task.FromResult(
+                            snapshot);
                     }
 
                     _ =
@@ -199,16 +244,15 @@ public sealed class InstalledWidgetHostCompositionCoordinator
                                 ordered[index].WidgetId,
                                 ordered[targetIndex].Order);
 
-                    _ =
+                    var layout =
                         _manager
                             .SetInstalledWidgetOrder(
                                 ordered[targetIndex].WidgetId,
                                 ordered[index].Order);
 
-                    return await RefreshCoreAsync(
-                            innerCancellationToken)
-                        .ConfigureAwait(
-                            true);
+                    return Task.FromResult(
+                        ApplyStateOnlyLayout(
+                            layout));
                 },
                 cancellationToken);
     }
@@ -245,7 +289,7 @@ public sealed class InstalledWidgetHostCompositionCoordinator
             .SynchronizeApprovedCapabilities(
                 candidate);
 
-        _panel.RenderInstalledWidgets(
+        _panel.ReconcileInstalledWidgets(
             candidate,
             _surfaces);
 
@@ -253,6 +297,32 @@ public sealed class InstalledWidgetHostCompositionCoordinator
             candidate;
 
         return candidate;
+    }
+
+    private InstalledWidgetCatalogSnapshot ApplyStateOnlyLayout(
+        WidgetHostLayoutSnapshot layout)
+    {
+        var snapshot =
+            InstalledWidgetCatalogProjection
+                .ApplyLayout(
+                    GetRequiredSnapshot(),
+                    layout);
+
+        _panel.ReconcileInstalledWidgets(
+            snapshot,
+            _surfaces);
+
+        LastSnapshot =
+            snapshot;
+
+        return snapshot;
+    }
+
+    private InstalledWidgetCatalogSnapshot GetRequiredSnapshot()
+    {
+        return LastSnapshot
+            ?? throw new InvalidOperationException(
+                "Widget-host state cannot be mutated before the initial installed catalog refresh has completed.");
     }
 
     private async Task ObserveOperationAsync(

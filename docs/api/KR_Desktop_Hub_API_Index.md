@@ -94,3 +94,20 @@ See:
 docs/architecture/
 KR_Desktop_Hub_CoreHost_Stabilization_OwnerSizedViewport_And_WidgetRefresh_v1.0.md
 ```
+
+## CoreHost state-only Widget-host transition checkpoint
+
+Architecture note:
+
+```text
+docs/architecture/KR_Desktop_Hub_CoreHost_StateOnly_WidgetHost_Transitions_v1.0.md
+```
+
+Key framework seam:
+
+```text
+WidgetHostChromePresentation
+WidgetHostChromeTransitionController
+InstalledWidgetCatalogProjection
+InstalledWidgetHostCompositionCoordinator.SynchronizeStateAsync
+```

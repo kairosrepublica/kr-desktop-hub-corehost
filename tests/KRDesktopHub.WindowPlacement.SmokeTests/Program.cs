@@ -54,6 +54,16 @@ try
     var defaults =
         WindowPlacementDefaults.Recommended;
 
+    if (
+        defaults.DefaultWidth != 600
+        || defaults.MinimumWidth != 600
+        || defaults.MinimumHeight != 240
+    )
+    {
+        throw new InvalidOperationException(
+            "CoreHost popup geometry contract must remain fixed at 600-DIP minimum width and 240-DIP minimum height.");
+    }
+
     var normalized =
         WindowPlacementPolicy.Normalize(
             new WindowPlacementState(
@@ -113,10 +123,10 @@ try
             "Saved placement could not be loaded.");
 
     if (
-        loaded.Left != 2100
-        || loaded.Top != 100
-        || loaded.Width != 500
-        || loaded.Height != 800
+        loaded.Left != normalized.Left
+        || loaded.Top != normalized.Top
+        || loaded.Width != normalized.Width
+        || loaded.Height != normalized.Height
     )
     {
         throw new InvalidOperationException(

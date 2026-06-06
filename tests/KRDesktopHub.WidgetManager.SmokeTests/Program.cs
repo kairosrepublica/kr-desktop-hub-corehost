@@ -142,6 +142,8 @@ try
                 1,
                 0,
                 0)
+        || installedInboxWidget.ActualHeightDip
+            != 220
     )
     {
         throw new InvalidOperationException(
@@ -187,6 +189,25 @@ try
     {
         throw new InvalidOperationException(
             "Installed Widget collapse validation failed.");
+    }
+
+    var orderedLayout =
+        manager.SetInstalledWidgetOrder(
+            "kr.fixture.manager.inbox",
+            order:
+                90);
+
+    if (orderedLayout
+        .Widgets
+        .Single(
+            widget =>
+                widget.WidgetId
+                == "kr.fixture.manager.inbox")
+        .Order
+        != 90)
+    {
+        throw new InvalidOperationException(
+            "Installed Widget order validation failed.");
     }
 
     var outsideArchive =

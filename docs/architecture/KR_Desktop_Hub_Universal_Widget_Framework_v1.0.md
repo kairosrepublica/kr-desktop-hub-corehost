@@ -117,3 +117,7 @@ KR Trading Clock:
 preferred expanded height 500 DIP
 minimum collapsed height 44 DIP
 ```
+
+## Windows composition layer
+
+Checkpoint 2B wires the generic framework into the Windows shell. Installed Widgets are composed as isolated host cards. CoreHost remains the sole owner of persistent layout state, floating dialogs and notification-area icon application.

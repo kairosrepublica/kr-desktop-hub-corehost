@@ -190,3 +190,7 @@ CoreHost-owned floating-dialog presenter
 tray-icon broker application wiring
 manual desktop acceptance
 ```
+
+## Completed checkpoint — 2B Windows Widget composition
+
+The Windows application now owns a shared installed-Widget manager, persistent layout controller, host composition coordinator, floating-dialog presenter and tray-icon application callback. Generic Widget cards are composed from installed catalog entries. Concrete isolated Widget packages attach visual content through the governed Windows visual-surface registry seam.

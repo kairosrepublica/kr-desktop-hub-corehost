@@ -1,0 +1,66 @@
+
+<Window
+    x:Class="KRDesktopHub.App.Windows.WidgetDialogWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="KR Desktop Hub"
+    Width="420"
+    Height="520"
+    MinWidth="360"
+    MinHeight="320"
+    Background="{StaticResource KrWidgetBackgroundBrush}"
+    WindowStartupLocation="CenterOwner"
+    ResizeMode="CanResizeWithGrip"
+    ShowInTaskbar="False">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            x:Name="DialogTitleTextBlock"
+            FontSize="18"
+            FontWeight="SemiBold"
+            TextWrapping="Wrap" />
+
+        <TextBlock
+            x:Name="DialogMessageTextBlock"
+            Grid.Row="1"
+            Margin="0,8,0,0"
+            Foreground="{StaticResource KrWidgetMutedTextBrush}"
+            TextWrapping="Wrap" />
+
+        <TextBox
+            x:Name="SearchTextBox"
+            Grid.Row="2"
+            Margin="0,14,0,8"
+            Padding="8,5"
+            TextChanged="SearchTextBox_TextChanged" />
+
+        <ListBox
+            x:Name="OptionsListBox"
+            Grid.Row="3"
+            DisplayMemberPath="DisplayText"
+            MouseDoubleClick="OptionsListBox_MouseDoubleClick" />
+
+        <StackPanel
+            Grid.Row="4"
+            Margin="0,14,0,0"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Margin="0,0,8,0"
+                Padding="12,6"
+                Click="CancelButton_Click"
+                Content="Cancel" />
+            <Button
+                Padding="12,6"
+                Click="AcceptButton_Click"
+                Content="Select" />
+        </StackPanel>
+    </Grid>
+</Window>

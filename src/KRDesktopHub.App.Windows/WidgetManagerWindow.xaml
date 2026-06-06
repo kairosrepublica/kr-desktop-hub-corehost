@@ -1,12 +1,13 @@
+
 <Window
     x:Class="KRDesktopHub.App.Windows.WidgetManagerWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="KR Desktop Hub - Widget Manager"
-    Width="760"
-    Height="620"
-    MinWidth="680"
-    MinHeight="540"
+    Title="KR Desktop Hub - Widget Management"
+    Width="820"
+    Height="700"
+    MinWidth="720"
+    MinHeight="580"
     WindowStartupLocation="CenterOwner">
     <Grid
         x:Name="ManagerRoot"
@@ -16,18 +17,17 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
             <TextBlock
                 FontSize="20"
                 FontWeight="SemiBold"
-                Text="Internal Widget Manager" />
+                Text="Widget Management" />
             <TextBlock
                 Margin="0,6,0,0"
                 TextWrapping="Wrap"
-                Text="Owner-approved packages remain inert until you explicitly choose Install. Production packages must use the .krwidget.zip extension." />
+                Text="Installed Widgets remain isolated packages. CoreHost owns enable, disable, collapse, expand, ordering and safe installation." />
         </StackPanel>
 
         <WrapPanel
@@ -36,13 +36,13 @@
             <Button
                 Margin="0,0,8,8"
                 Padding="10,6"
-                Click="RefreshInboxButton_Click"
-                Content="Refresh Inbox" />
+                Click="RefreshInstalledWidgetsButton_Click"
+                Content="Refresh Installed Widgets" />
             <Button
                 Margin="0,0,8,8"
                 Padding="10,6"
-                Click="BrowseArchiveButton_Click"
-                Content="Choose Package File" />
+                Click="RefreshInboxButton_Click"
+                Content="Refresh Inbox" />
             <Button
                 Margin="0,0,8,8"
                 Padding="10,6"
@@ -50,78 +50,149 @@
                 Content="Open Plugins Folder" />
         </WrapPanel>
 
-        <Grid Grid.Row="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <TabControl Grid.Row="2">
+            <TabItem Header="Installed Widgets">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-            <TextBlock
-                Grid.Row="0"
-                FontWeight="SemiBold"
-                Text="Discovered packages in plugins/inbox" />
+                    <TextBlock
+                        FontWeight="SemiBold"
+                        Text="Installed Widget inventory" />
 
-            <ListBox
-                x:Name="InboxListBox"
-                Grid.Row="1"
-                Margin="0,8,0,10"
-                DisplayMemberPath="DisplayText" />
+                    <ListBox
+                        x:Name="InstalledWidgetsListBox"
+                        Grid.Row="1"
+                        Margin="0,8,0,10"
+                        DisplayMemberPath="DisplayText" />
 
-            <Button
-                Grid.Row="2"
-                HorizontalAlignment="Left"
-                Padding="10,6"
-                Click="InstallInboxSelectionButton_Click"
-                Content="Install Selected Inbox Package" />
+                    <WrapPanel Grid.Row="2">
+                        <Button
+                            Margin="0,0,8,8"
+                            Padding="10,6"
+                            Click="EnableInstalledWidgetButton_Click"
+                            Content="Enable" />
+                        <Button
+                            Margin="0,0,8,8"
+                            Padding="10,6"
+                            Click="DisableInstalledWidgetButton_Click"
+                            Content="Disable" />
+                        <Button
+                            Margin="0,0,8,8"
+                            Padding="10,6"
+                            Click="ExpandInstalledWidgetButton_Click"
+                            Content="Expand" />
+                        <Button
+                            Margin="0,0,8,8"
+                            Padding="10,6"
+                            Click="CollapseInstalledWidgetButton_Click"
+                            Content="Collapse" />
+                        <Button
+                            Margin="0,0,8,8"
+                            Padding="10,6"
+                            Click="MoveInstalledWidgetUpButton_Click"
+                            Content="Move Up" />
+                        <Button
+                            Margin="0,0,8,8"
+                            Padding="10,6"
+                            Click="MoveInstalledWidgetDownButton_Click"
+                            Content="Move Down" />
+                    </WrapPanel>
 
-            <StackPanel
-                Grid.Row="3"
-                Margin="0,16,0,0">
-                <TextBlock
-                    FontWeight="SemiBold"
-                    Text="Selected package file" />
-                <TextBox
-                    x:Name="SelectedArchivePathTextBox"
-                    Margin="0,6,0,8"
-                    IsReadOnly="True"
-                    TextWrapping="Wrap" />
-                <Button
-                    HorizontalAlignment="Left"
-                    Padding="10,6"
-                    Click="InstallSelectedArchiveButton_Click"
-                    Content="Install Chosen Package File" />
-            </StackPanel>
-        </Grid>
+                    <TextBlock
+                        x:Name="InstalledWidgetFailuresTextBlock"
+                        Grid.Row="3"
+                        Margin="0,8,0,0"
+                        Foreground="{StaticResource KrWidgetMutedTextBrush}"
+                        TextWrapping="Wrap" />
+                </Grid>
+            </TabItem>
 
-        <Border
-            Grid.Row="3"
-            Margin="0,16,0,0"
-            Padding="10"
-            BorderBrush="Gray"
-            BorderThickness="1">
-            <StackPanel>
-                <TextBlock
-                    FontWeight="SemiBold"
-                    Text="Advanced development-only install" />
-                <CheckBox
-                    x:Name="EnableDevelopmentFolderInstallCheckBox"
-                    Margin="0,8,0,8"
-                    Content="Temporarily enable folder install for this explicit action" />
-                <Button
-                    HorizontalAlignment="Left"
-                    Padding="10,6"
-                    Click="InstallDevelopmentFolderButton_Click"
-                    Content="Choose and Install Development Folder" />
-            </StackPanel>
-        </Border>
+            <TabItem Header="Install Packages">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        FontWeight="SemiBold"
+                        Text="Discovered packages in plugins/inbox" />
+
+                    <ListBox
+                        x:Name="InboxListBox"
+                        Grid.Row="1"
+                        Margin="0,8,0,10"
+                        DisplayMemberPath="DisplayText" />
+
+                    <Button
+                        Grid.Row="2"
+                        HorizontalAlignment="Left"
+                        Padding="10,6"
+                        Click="InstallInboxSelectionButton_Click"
+                        Content="Install Selected Inbox Package" />
+
+                    <StackPanel
+                        Grid.Row="3"
+                        Margin="0,16,0,0">
+                        <TextBlock
+                            FontWeight="SemiBold"
+                            Text="Selected package file" />
+                        <TextBox
+                            x:Name="SelectedArchivePathTextBox"
+                            Margin="0,6,0,8"
+                            IsReadOnly="True"
+                            TextWrapping="Wrap" />
+                        <WrapPanel>
+                            <Button
+                                Margin="0,0,8,0"
+                                Padding="10,6"
+                                Click="BrowseArchiveButton_Click"
+                                Content="Choose Package File" />
+                            <Button
+                                Padding="10,6"
+                                Click="InstallSelectedArchiveButton_Click"
+                                Content="Install Chosen Package File" />
+                        </WrapPanel>
+                    </StackPanel>
+
+                    <Border
+                        Grid.Row="4"
+                        Margin="0,16,0,0"
+                        Padding="10"
+                        BorderBrush="Gray"
+                        BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock
+                                FontWeight="SemiBold"
+                                Text="Advanced development-only install" />
+                            <CheckBox
+                                x:Name="EnableDevelopmentFolderInstallCheckBox"
+                                Margin="0,8,0,8"
+                                Content="Temporarily enable folder install for this explicit action" />
+                            <Button
+                                HorizontalAlignment="Left"
+                                Padding="10,6"
+                                Click="InstallDevelopmentFolderButton_Click"
+                                Content="Choose and Install Development Folder" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
 
         <TextBlock
             x:Name="StatusTextBlock"
-            Grid.Row="4"
+            Grid.Row="3"
             Margin="0,16,0,0"
             TextWrapping="Wrap"
-            Text="Ready. Refresh the inbox or choose a .krwidget.zip file." />
+            Text="Ready. Refresh installed Widgets or choose a package action." />
     </Grid>
 </Window>

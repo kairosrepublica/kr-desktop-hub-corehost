@@ -39,6 +39,10 @@ public partial class App : Application
     private JsonCoreHostSettingsStore? _settingsStore;
     private JsonHotkeyRegistrationRuntimeStateStore? _hotkeyRuntimeStateStore;
     private CoreHostSettings _settings = CoreHostSettingsCatalog.Recommended;
+    private InternalWidgetManagerService? _widgetManager;
+    private InstalledWidgetHostCompositionCoordinator? _widgetHostCoordinator;
+    private WindowsInstalledWidgetVisualSurfaceRegistry? _widgetVisualSurfaces;
+    private WindowsWidgetFrameworkServices? _widgetFrameworkServices;
 
     protected override async void OnStartup(
         StartupEventArgs e)
@@ -147,6 +151,11 @@ public partial class App : Application
                         WindowsTrayVisualStateCatalog.Default),
 
                 CancellationToken.None);
+
+            InitializeWidgetFramework(
+                dataRoot);
+
+            await RefreshWidgetHostAsync();
 
             _notifications =
                 new WindowsTrayBalloonNotificationService(
@@ -604,7 +613,8 @@ public partial class App : Application
 
     private void ShowWidgetManager()
     {
-        if (_panel is null)
+        if (_panel is null
+            || _widgetManager is null)
         {
             return;
         }
@@ -613,17 +623,23 @@ public partial class App : Application
         {
             _widgetManagerWindow =
                 new WidgetManagerWindow(
-                    CreateWidgetManager(
-                        allowDevelopmentFolderInstall:
-                            false),
+                    _widgetManager,
 
                     () =>
                         CreateWidgetManager(
                             allowDevelopmentFolderInstall:
-                                true));
+                                true,
+
+                            installedCatalog:
+                                _widgetManager
+                                    .InstalledCatalog));
 
             _widgetManagerWindow.Owner =
                 _panel;
+
+            _widgetManagerWindow.InstalledWidgetsChanged +=
+                async (_, _) =>
+                    await RefreshWidgetHostAsync();
 
             _widgetManagerWindow.Closed +=
                 (_, _) =>
@@ -635,14 +651,67 @@ public partial class App : Application
         _widgetManagerWindow.Activate();
     }
 
-    private static InternalWidgetManagerService CreateWidgetManager(
-        bool allowDevelopmentFolderInstall)
+    private void InitializeWidgetFramework(
+        string dataRoot)
     {
+        if (_panel is null
+            || _tray is null)
+        {
+            throw new InvalidOperationException(
+                "Panel and tray must exist before Widget framework initialization.");
+        }
+
+        var layoutController =
+            new WidgetHostLayoutController(
+                new JsonWidgetHostStateStore(
+                    Path.Combine(
+                        dataRoot,
+                        "state",
+                        "widget-host-state.json")));
+
+        _widgetManager =
+            CreateWidgetManager(
+                allowDevelopmentFolderInstall:
+                    false,
+
+                installedCatalog:
+                    null,
+
+                layoutController:
+                    layoutController);
+
+        _widgetVisualSurfaces =
+            new WindowsInstalledWidgetVisualSurfaceRegistry();
+
+        _widgetFrameworkServices =
+            new WindowsWidgetFrameworkServices(
+                _panel,
+                _tray,
+                layoutController);
+
+        _widgetHostCoordinator =
+            new InstalledWidgetHostCompositionCoordinator(
+                _panel,
+                _widgetManager,
+                _widgetVisualSurfaces,
+                _widgetFrameworkServices);
+    }
+
+    private static InternalWidgetManagerService CreateWidgetManager(
+        bool allowDevelopmentFolderInstall,
+        InstalledWidgetCatalogService? installedCatalog =
+            null,
+        WidgetHostLayoutController? layoutController =
+            null)
+    {
+        var dataRoot =
+            CoreHostDataRootResolver
+                .ResolveDefaultDataRoot();
+
         var options =
             WidgetPackageInstallerOptions
                 .CreateRecommended(
-                    CoreHostDataRootResolver
-                        .ResolveDefaultDataRoot(),
+                    dataRoot,
 
                     new Version(
                         0,
@@ -662,9 +731,52 @@ public partial class App : Application
                 };
         }
 
-        return new InternalWidgetManagerService(
+        var installer =
             new InternalWidgetPackageInstaller(
-                options));
+                options);
+
+        installedCatalog ??=
+            new InstalledWidgetCatalogService(
+                installer.InstalledDirectory,
+                layoutController
+                ?? new WidgetHostLayoutController(
+                    new JsonWidgetHostStateStore(
+                        Path.Combine(
+                            dataRoot,
+                            "state",
+                            "widget-host-state.json"))));
+
+        return new InternalWidgetManagerService(
+            installer,
+            installedCatalog);
+    }
+
+    private async Task RefreshWidgetHostAsync()
+    {
+        if (_widgetHostCoordinator is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _widgetHostCoordinator
+                .RefreshAsync(
+                    CancellationToken.None);
+        }
+        catch (Exception exception)
+        {
+            await PublishNotificationAsync(
+                new SystemNotification(
+                    "widget.host.refresh.failed",
+                    "KR Desktop Hub",
+                    $"Widget host refresh failed: {exception.Message}",
+                    NotificationPriority.Important,
+                    Array.Empty<NotificationAction>()),
+
+                force:
+                    true);
+        }
     }
 
     private void OpenSettingsFolder()

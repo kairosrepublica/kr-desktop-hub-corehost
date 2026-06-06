@@ -124,3 +124,13 @@ production WidgetHostSurface composition
 CoreHost-owned floating-dialog presenter
 tray-icon broker application wiring
 ```
+
+## Completed — Checkpoint 2B Windows Widget composition
+
+- Widget Management installed inventory UI
+- enable, disable, expand, collapse and ordering controls
+- production generic WidgetHostSurface composition
+- 600-DIP adaptive popup refresh
+- CoreHost-owned floating-dialog presenter
+- CoreHost-owned tray-icon broker application wiring
+- non-breaking integrated Widget context seam

@@ -100,3 +100,13 @@ public interface IWidgetTrayIconBroker
 
     WidgetTrayIconSelection GetCurrent();
 }
+
+public interface IWidgetHostIntegrationContext
+    : IWidgetContext
+{
+    IWidgetHostLayoutClient HostLayout { get; }
+
+    IWidgetDialogBroker Dialogs { get; }
+
+    IWidgetTrayIconBroker TrayIcons { get; }
+}

@@ -535,6 +535,74 @@ public sealed class WidgetHostLayoutController
     }
 }
 
+
+
+public sealed class IntegratedWidgetContext
+    : IWidgetHostIntegrationContext
+{
+    private readonly IWidgetContext _inner;
+
+    public IntegratedWidgetContext(
+        IWidgetContext inner,
+        IWidgetHostLayoutClient hostLayout,
+        IWidgetDialogBroker dialogs,
+        IWidgetTrayIconBroker trayIcons)
+    {
+        _inner =
+            inner
+            ?? throw new ArgumentNullException(
+                nameof(inner));
+
+        HostLayout =
+            hostLayout
+            ?? throw new ArgumentNullException(
+                nameof(hostLayout));
+
+        Dialogs =
+            dialogs
+            ?? throw new ArgumentNullException(
+                nameof(dialogs));
+
+        TrayIcons =
+            trayIcons
+            ?? throw new ArgumentNullException(
+                nameof(trayIcons));
+    }
+
+    public IWidgetLogger Logger =>
+        _inner.Logger;
+
+    public IWidgetScheduler Scheduler =>
+        _inner.Scheduler;
+
+    public IWidgetStateStore StateStore =>
+        _inner.StateStore;
+
+    public IWidgetSettingsStore SettingsStore =>
+        _inner.SettingsStore;
+
+    public IEventBus EventBus =>
+        _inner.EventBus;
+
+    public ICommandRegistry Commands =>
+        _inner.Commands;
+
+    public IClock Clock =>
+        _inner.Clock;
+
+    public ILocalizationService Localization =>
+        _inner.Localization;
+
+    public IWidgetNotificationClient Notifications =>
+        _inner.Notifications;
+
+    public IWidgetHostLayoutClient HostLayout { get; }
+
+    public IWidgetDialogBroker Dialogs { get; }
+
+    public IWidgetTrayIconBroker TrayIcons { get; }
+}
+
 public sealed class GovernedWidgetHostLayoutClient
     : IWidgetHostLayoutClient
 {

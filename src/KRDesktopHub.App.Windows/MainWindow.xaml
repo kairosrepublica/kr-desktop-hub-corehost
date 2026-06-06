@@ -10,12 +10,47 @@
     MinHeight="240"
     Background="{StaticResource KrWidgetBackgroundBrush}"
     WindowStartupLocation="CenterScreen">
-    <ScrollViewer
-        x:Name="WidgetHostScrollViewer"
-        HorizontalScrollBarVisibility="Disabled"
-        VerticalScrollBarVisibility="Disabled">
-        <StackPanel
-            x:Name="WidgetHostSurface"
-            Margin="8" />
-    </ScrollViewer>
+    <Grid>
+        <ScrollViewer
+            x:Name="WidgetHostScrollViewer"
+            HorizontalScrollBarVisibility="Disabled"
+            VerticalScrollBarVisibility="Disabled">
+            <StackPanel
+                x:Name="WidgetHostSurface"
+                Margin="8" />
+        </ScrollViewer>
+
+        <Border
+            x:Name="EmptyWidgetHostState"
+            Margin="12"
+            Padding="18"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            BorderBrush="{StaticResource KrWidgetBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{StaticResource KrWidgetCornerRadius}">
+            <StackPanel>
+                <TextBlock
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Text="No enabled Widgets" />
+                <TextBlock
+                    Margin="0,6,0,12"
+                    Foreground="{StaticResource KrWidgetMutedTextBrush}"
+                    TextWrapping="Wrap"
+                    Text="Install a Widget package, or reopen a disabled Widget from Widget Management." />
+                <WrapPanel>
+                    <Button
+                        Margin="0,0,8,0"
+                        Padding="10,6"
+                        Click="OpenWidgetManagerButton_Click"
+                        Content="Open Widget Management" />
+                    <Button
+                        Padding="10,6"
+                        Click="RefreshWidgetHostButton_Click"
+                        Content="Refresh" />
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
 </Window>

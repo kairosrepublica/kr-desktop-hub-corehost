@@ -68,6 +68,9 @@ public sealed class InternalWidgetManagerService
     public string InstalledDirectory =>
         _installer.InstalledDirectory;
 
+    public InstalledWidgetCatalogService InstalledCatalog =>
+        _installedCatalog;
+
     public Task<InstalledWidgetCatalogSnapshot> RefreshInstalledWidgetsAsync(
         CancellationToken cancellationToken)
     {

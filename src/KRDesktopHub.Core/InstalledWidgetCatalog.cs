@@ -18,7 +18,9 @@ public sealed record InstalledWidgetCatalogItem(
     bool Collapsed,
     int Order,
     double PreferredExpandedHeightDip,
-    double MinimumCollapsedHeightDip)
+    double MinimumCollapsedHeightDip,
+    double MeasuredDesiredHeightDip,
+    double ActualHeightDip)
 {
     public string DisplayText =>
         $"{DisplayName} | {WidgetId} | v{PackageVersion} | "
@@ -303,7 +305,9 @@ public sealed class InstalledWidgetCatalogService
                         surface.Collapsed,
                         surface.Order,
                         surface.PreferredExpandedHeightDip,
-                        surface.MinimumCollapsedHeightDip));
+                        surface.MinimumCollapsedHeightDip,
+                        surface.MeasuredDesiredHeightDip,
+                        surface.ActualHeightDip));
             }
             catch (Exception exception)
             {

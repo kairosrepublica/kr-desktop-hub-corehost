@@ -100,3 +100,11 @@ The project uses meaningful GitHub checkpoints. Changes should represent coheren
 Added the first local portable release-candidate workflow for Windows 11 x64.
 
 The workflow builds, runs all smoke tests, publishes a self-contained application, assembles a portable ZIP, validates clean extraction, runs the extracted self-test, starts the hidden tray host and records a Proof-of-Concept resource baseline.
+
+## Unreleased — CoreHost Checkpoint 2B
+
+- Added Widget Management installed-inventory UI with enable, disable, expand, collapse and ordering controls.
+- Added shared persistent Windows Widget-host composition at the 600-DIP popup baseline.
+- Added CoreHost-owned floating-dialog presenter.
+- Wired governed Widget tray-icon selections into the Windows tray service.
+- Added a non-breaking integrated Widget-context extension seam for future isolated Widget packages.

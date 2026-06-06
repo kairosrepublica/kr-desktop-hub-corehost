@@ -57,3 +57,7 @@ No direct Widget ownership of NotifyIcon.
 No direct Widget ownership of floating dialog windows.
 No inter-Widget imports.
 ```
+
+## Windows composition wiring
+
+Checkpoint 2B adds the optional `IWidgetHostIntegrationContext` seam and the Windows composition layer. CoreHost owns the surface frames, floating-dialog presenter and tray-icon application callback.

@@ -215,3 +215,30 @@ regression tests
 manual acceptance replay
 default-state closure validation before runtime overlay
 ```
+
+
+## CoreHost stabilization follow-up — snapped shell and refresh integrity
+
+Scope:
+
+```text
+preserve user- or Windows-expanded popup height during collapse
+avoid assigning outer Height when collapse requires no growth
+use ActualHeight as observed snapped geometry
+serialize Widget-host mutations
+serialize installed-catalog refreshes
+reject degraded refreshes that remove previously visible Widgets
+transactional Widget-card render replacement
+Owner manual acceptance replay
+```
+
+## CoreHost stabilization — owner-sized viewport
+
+```text
+MainWindow MinWidth = 600 DIP
+Owner may widen popup
+Owner may adjust height
+Widget operations never assign outer Width
+Widget operations never assign outer Height
+overflow uses host-level ScrollViewer
+```

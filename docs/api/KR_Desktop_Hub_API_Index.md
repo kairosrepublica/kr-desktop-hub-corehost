@@ -78,3 +78,19 @@ KR_Desktop_Hub_Widget_Package_Manifest_Schema_v1.2.json
 ```text
 ../architecture/KR_Desktop_Hub_CoreHost_Stabilization_Settings_And_Collapse_v1.0.md
 ```
+
+
+## CoreHost snapped-shell and Widget-refresh stabilization
+
+```text
+../architecture/KR_Desktop_Hub_CoreHost_Stabilization_WindowSnap_And_WidgetRefresh_v1.0.md
+```
+
+## Owner-sized popup viewport policy
+
+See:
+
+```text
+docs/architecture/
+KR_Desktop_Hub_CoreHost_Stabilization_OwnerSizedViewport_And_WidgetRefresh_v1.0.md
+```

@@ -50,6 +50,11 @@ The project uses meaningful GitHub checkpoints. Changes should represent coheren
 
 ### Fixed
 
+- Preserved user- or Windows-expanded outer popup height when collapsing a Widget near a screen edge; the automatic work-area cap now constrains growth only and never shrinks an already-expanded shell.
+- Serialized installed-catalog refreshes and host mutations to prevent overlapping collapse, expand and refresh operations from rendering stale transient states.
+- Retained the last known-good Widget panel when a degraded catalog refresh would temporarily remove a previously visible Widget.
+- Built Widget cards transactionally before replacing the visible host surface.
+
 - Hardened Windows smoke-test teardown after unloading collectible Widget assembly contexts: isolate temporary loaded assemblies, run bounded cleanup retries and emit success only after teardown passes.
 - Corrected installed review-shell iframe paths for KR World Time-Space and KR Trading Clock.
 - Added installed-topology path-resolution validation before opening the review shell.
@@ -121,3 +126,11 @@ The workflow builds, runs all smoke tests, publishes a self-contained applicatio
 - Added Settings Center validation for partial quiet-hours pairs and enabled-but-blank quiet-hours state.
 - Added default-state closure coverage: the recommended quiet-hours default is now a valid 23:00–08:00 pair before any runtime overlay is applied.
 - Added Widget-host viewport regression coverage for collapse isolation and host-level overflow fallback.
+
+## CoreHost stabilization — Owner-sized popup viewport
+
+- Locked the CoreHost normal-popup minimum width at 600 DIP.
+- Removed Widget-driven outer width resets: Owner-expanded widths remain intact.
+- Removed Widget-driven outer height changes: Expand and Collapse now affect Widget cards only.
+- Routed vertical overflow through the CoreHost ScrollViewer instead of resizing the popup.
+- Preserved the alpha5 serialized catalog refresh, last-known-good snapshot retention and transactional panel replacement protections.

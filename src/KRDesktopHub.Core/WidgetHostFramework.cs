@@ -22,14 +22,14 @@ public static class WidgetHostFrameworkDefaults
 
 public sealed record WidgetHostViewportHeightDecision(
     double HostHeightDip,
-    bool HostLevelScrollingRequired);
+    bool HostLevelScrollingRequired,
+    bool HostHeightAssignmentRequired);
 
 public static class WidgetHostViewportHeightPolicy
 {
-    public static WidgetHostViewportHeightDecision PreserveOrGrow(
+    public static WidgetHostViewportHeightDecision PreserveOwnerSizedViewport(
         double currentHostHeightDip,
-        double desiredContentHeightDip,
-        double maximumWorkAreaHeightDip)
+        double desiredContentHeightDip)
     {
         if (
             !double.IsFinite(
@@ -41,16 +41,6 @@ public static class WidgetHostViewportHeightPolicy
                 nameof(desiredContentHeightDip));
         }
 
-        if (
-            !double.IsFinite(
-                maximumWorkAreaHeightDip)
-            || maximumWorkAreaHeightDip <= 0
-        )
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(maximumWorkAreaHeightDip));
-        }
-
         var current =
             double.IsFinite(
                 currentHostHeightDip)
@@ -59,26 +49,49 @@ public static class WidgetHostViewportHeightPolicy
                 : WidgetHostFrameworkDefaults
                     .DefaultPopupHeightDip;
 
-        var boundedCurrent =
-            Math.Min(
-                current,
-                maximumWorkAreaHeightDip);
-
-        var boundedDesired =
-            Math.Min(
-                desiredContentHeightDip,
-                maximumWorkAreaHeightDip);
-
-        var nextHeight =
-            Math.Max(
-                boundedCurrent,
-                boundedDesired);
-
         return new WidgetHostViewportHeightDecision(
-            nextHeight,
+            current,
             HostLevelScrollingRequired:
                 desiredContentHeightDip
-                > nextHeight);
+                > current,
+            HostHeightAssignmentRequired:
+                false);
+    }
+}
+
+public sealed class WidgetHostOperationSerialQueue
+{
+    private readonly SemaphoreSlim _gate =
+        new(
+            initialCount:
+                1,
+            maxCount:
+                1);
+
+    public async Task<T> RunAsync<T>(
+        Func<CancellationToken, Task<T>> operation,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(
+            operation);
+
+        await _gate
+            .WaitAsync(
+                cancellationToken)
+            .ConfigureAwait(
+                false);
+
+        try
+        {
+            return await operation(
+                    cancellationToken)
+                .ConfigureAwait(
+                    false);
+        }
+        finally
+        {
+            _gate.Release();
+        }
     }
 }
 

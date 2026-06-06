@@ -6,7 +6,7 @@
     Title="KR Desktop Hub"
     Width="600"
     Height="720"
-    MinWidth="360"
+    MinWidth="600"
     MinHeight="240"
     Background="{StaticResource KrWidgetBackgroundBrush}"
     WindowStartupLocation="CenterScreen">

@@ -1,7 +1,27 @@
-
 using KRDesktopHub.Core;
 
 namespace KRDesktopHub.App.Windows;
+
+public sealed class WidgetHostOperationFailedEventArgs
+    : EventArgs
+{
+    public WidgetHostOperationFailedEventArgs(
+        string operation,
+        Exception exception)
+    {
+        Operation =
+            operation;
+
+        Exception =
+            exception
+            ?? throw new ArgumentNullException(
+                nameof(exception));
+    }
+
+    public string Operation { get; }
+
+    public Exception Exception { get; }
+}
 
 public sealed class InstalledWidgetHostCompositionCoordinator
 {
@@ -9,6 +29,8 @@ public sealed class InstalledWidgetHostCompositionCoordinator
     private readonly InternalWidgetManagerService _manager;
     private readonly WindowsInstalledWidgetVisualSurfaceRegistry _surfaces;
     private readonly WindowsWidgetFrameworkServices _frameworkServices;
+    private readonly WidgetHostOperationSerialQueue _hostOperationQueue =
+        new();
 
     public InstalledWidgetHostCompositionCoordinator(
         MainWindow panel,
@@ -37,73 +59,83 @@ public sealed class InstalledWidgetHostCompositionCoordinator
                 nameof(frameworkServices));
 
         _panel.WidgetCollapseRequested +=
-            async (_, request) =>
-                await SetCollapsedAsync(
-                    request.WidgetId,
-                    request.Collapsed,
-                    CancellationToken.None);
+            (_, request) =>
+                _ = ObserveOperationAsync(
+                    "Widget-card collapse or expand",
+                    cancellationToken =>
+                        SetCollapsedAsync(
+                            request.WidgetId,
+                            request.Collapsed,
+                            cancellationToken));
 
         _panel.WidgetHostRefreshRequested +=
-            async (_, _) =>
-                await RefreshAsync(
-                    CancellationToken.None);
+            (_, _) =>
+                _ = ObserveOperationAsync(
+                    "Widget-host refresh",
+                    RefreshAsync);
     }
+
+    public event EventHandler<
+        WidgetHostOperationFailedEventArgs>? OperationFailed;
 
     public InstalledWidgetCatalogSnapshot? LastSnapshot { get; private set; }
 
-    public async Task<InstalledWidgetCatalogSnapshot> RefreshAsync(
+    public Task<InstalledWidgetCatalogSnapshot> RefreshAsync(
         CancellationToken cancellationToken)
     {
-        var snapshot =
-            await _manager
-                .RefreshInstalledWidgetsAsync(
-                    cancellationToken);
-
-        _frameworkServices
-            .SynchronizeApprovedCapabilities(
-                snapshot);
-
-        LastSnapshot =
-            snapshot;
-
-        _panel.RenderInstalledWidgets(
-            snapshot,
-            _surfaces);
-
-        return snapshot;
+        return _hostOperationQueue
+            .RunAsync(
+                RefreshCoreAsync,
+                cancellationToken);
     }
 
-    public async Task<InstalledWidgetCatalogSnapshot> SetEnabledAsync(
+    public Task<InstalledWidgetCatalogSnapshot> SetEnabledAsync(
         string widgetId,
         bool enabled,
         CancellationToken cancellationToken)
     {
-        _ =
-            _manager
-                .SetInstalledWidgetEnabled(
-                    widgetId,
-                    enabled);
+        return _hostOperationQueue
+            .RunAsync(
+                async innerCancellationToken =>
+                {
+                    _ =
+                        _manager
+                            .SetInstalledWidgetEnabled(
+                                widgetId,
+                                enabled);
 
-        return await RefreshAsync(
-            cancellationToken);
+                    return await RefreshCoreAsync(
+                            innerCancellationToken)
+                        .ConfigureAwait(
+                            true);
+                },
+                cancellationToken);
     }
 
-    public async Task<InstalledWidgetCatalogSnapshot> SetCollapsedAsync(
+    public Task<InstalledWidgetCatalogSnapshot> SetCollapsedAsync(
         string widgetId,
         bool collapsed,
         CancellationToken cancellationToken)
     {
-        _ =
-            _manager
-                .SetInstalledWidgetCollapsed(
-                    widgetId,
-                    collapsed);
+        return _hostOperationQueue
+            .RunAsync(
+                async innerCancellationToken =>
+                {
+                    _ =
+                        _manager
+                            .SetInstalledWidgetCollapsed(
+                                widgetId,
+                                collapsed);
 
-        return await RefreshAsync(
-            cancellationToken);
+                    return await RefreshCoreAsync(
+                            innerCancellationToken)
+                        .ConfigureAwait(
+                            true);
+                },
+                cancellationToken);
     }
 
-    public async Task<InstalledWidgetCatalogSnapshot> MoveAsync(
+    public Task<InstalledWidgetCatalogSnapshot> MoveAsync(
         string widgetId,
         int direction,
         CancellationToken cancellationToken)
@@ -115,56 +147,133 @@ public sealed class InstalledWidgetHostCompositionCoordinator
                 nameof(direction));
         }
 
-        var snapshot =
+        return _hostOperationQueue
+            .RunAsync(
+                async innerCancellationToken =>
+                {
+                    var snapshot =
+                        await _manager
+                            .RefreshInstalledWidgetsAsync(
+                                innerCancellationToken)
+                            .ConfigureAwait(
+                                true);
+
+                    var ordered =
+                        snapshot
+                            .Widgets
+                            .OrderBy(
+                                widget =>
+                                    widget.Order)
+                            .ThenBy(
+                                widget =>
+                                    widget.WidgetId,
+                                StringComparer.OrdinalIgnoreCase)
+                            .ToArray();
+
+                    var index =
+                        Array.FindIndex(
+                            ordered,
+                            widget =>
+                                string.Equals(
+                                    widget.WidgetId,
+                                    widgetId,
+                                    StringComparison.OrdinalIgnoreCase));
+
+                    var targetIndex =
+                        index
+                        + direction;
+
+                    if (index < 0
+                        || targetIndex < 0
+                        || targetIndex >= ordered.Length)
+                    {
+                        return await RefreshCoreAsync(
+                                innerCancellationToken)
+                            .ConfigureAwait(
+                                true);
+                    }
+
+                    _ =
+                        _manager
+                            .SetInstalledWidgetOrder(
+                                ordered[index].WidgetId,
+                                ordered[targetIndex].Order);
+
+                    _ =
+                        _manager
+                            .SetInstalledWidgetOrder(
+                                ordered[targetIndex].WidgetId,
+                                ordered[index].Order);
+
+                    return await RefreshCoreAsync(
+                            innerCancellationToken)
+                        .ConfigureAwait(
+                            true);
+                },
+                cancellationToken);
+    }
+
+    private async Task<InstalledWidgetCatalogSnapshot> RefreshCoreAsync(
+        CancellationToken cancellationToken)
+    {
+        var candidate =
             await _manager
                 .RefreshInstalledWidgetsAsync(
-                    cancellationToken);
+                    cancellationToken)
+                .ConfigureAwait(
+                    true);
 
-        var ordered =
-            snapshot
-                .Widgets
-                .OrderBy(
-                    widget =>
-                        widget.Order)
-                .ThenBy(
-                    widget =>
-                        widget.WidgetId,
-                    StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-        var index =
-            Array.FindIndex(
-                ordered,
-                widget =>
-                    string.Equals(
-                        widget.WidgetId,
-                        widgetId,
-                        StringComparison.OrdinalIgnoreCase));
-
-        var targetIndex =
-            index
-            + direction;
-
-        if (index < 0
-            || targetIndex < 0
-            || targetIndex >= ordered.Length)
+        if (!WidgetHostCatalogRefreshAcceptancePolicy
+            .ShouldApply(
+                LastSnapshot,
+                candidate))
         {
-            return snapshot;
+            throw new InvalidOperationException(
+                "Widget-host refresh rejected a degraded installed catalog snapshot so the last known-good panel remains visible. Discovery failures: "
+                + string.Join(
+                    " | ",
+                    candidate
+                        .Failures
+                        .Select(
+                            failure =>
+                                failure.InstalledPath
+                                + ": "
+                                + failure.Error)));
         }
 
-        _ =
-            _manager
-                .SetInstalledWidgetOrder(
-                    ordered[index].WidgetId,
-                    ordered[targetIndex].Order);
+        _frameworkServices
+            .SynchronizeApprovedCapabilities(
+                candidate);
 
-        _ =
-            _manager
-                .SetInstalledWidgetOrder(
-                    ordered[targetIndex].WidgetId,
-                    ordered[index].Order);
+        _panel.RenderInstalledWidgets(
+            candidate,
+            _surfaces);
 
-        return await RefreshAsync(
-            cancellationToken);
+        LastSnapshot =
+            candidate;
+
+        return candidate;
+    }
+
+    private async Task ObserveOperationAsync(
+        string operation,
+        Func<CancellationToken, Task<InstalledWidgetCatalogSnapshot>> action)
+    {
+        try
+        {
+            _ =
+                await action(
+                        CancellationToken.None)
+                    .ConfigureAwait(
+                        true);
+        }
+        catch (Exception exception)
+        {
+            OperationFailed?.Invoke(
+                this,
+                new WidgetHostOperationFailedEventArgs(
+                    operation,
+                    exception));
+        }
     }
 }

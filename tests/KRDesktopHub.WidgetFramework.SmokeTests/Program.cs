@@ -92,54 +92,71 @@ try
 
     var expandedViewport =
         WidgetHostViewportHeightPolicy
-            .PreserveOrGrow(
+            .PreserveOwnerSizedViewport(
                 currentHostHeightDip:
                     720,
                 desiredContentHeightDip:
-                    initial.TotalDesiredHeightDip,
-                maximumWorkAreaHeightDip:
-                    900);
+                    initial.TotalDesiredHeightDip);
 
     var collapsedViewport =
         WidgetHostViewportHeightPolicy
-            .PreserveOrGrow(
+            .PreserveOwnerSizedViewport(
                 currentHostHeightDip:
                     expandedViewport.HostHeightDip,
                 desiredContentHeightDip:
-                    collapsed.TotalDesiredHeightDip,
-                maximumWorkAreaHeightDip:
-                    900);
+                    collapsed.TotalDesiredHeightDip);
 
     if (
         expandedViewport.HostHeightDip
-            != 728
+            != 720
+        || !expandedViewport.HostLevelScrollingRequired
+        || expandedViewport.HostHeightAssignmentRequired
         || collapsedViewport.HostHeightDip
-            != 728
+            != 720
         || collapsedViewport.HostLevelScrollingRequired
+        || collapsedViewport.HostHeightAssignmentRequired
     )
     {
         throw new InvalidOperationException(
-            "Widget collapse unexpectedly resized the outer CoreHost viewport.");
+            "Widget expand or collapse unexpectedly changed the Owner-sized outer CoreHost viewport.");
     }
 
     var overflowViewport =
         WidgetHostViewportHeightPolicy
-            .PreserveOrGrow(
+            .PreserveOwnerSizedViewport(
                 currentHostHeightDip:
                     collapsedViewport.HostHeightDip,
                 desiredContentHeightDip:
-                    1200,
-                maximumWorkAreaHeightDip:
-                    800);
+                    1200);
 
     if (
         overflowViewport.HostHeightDip
-            != 800
+            != 720
         || !overflowViewport.HostLevelScrollingRequired
+        || overflowViewport.HostHeightAssignmentRequired
     )
     {
         throw new InvalidOperationException(
-            "Widget host overflow fallback validation failed.");
+            "Widget host overflow unexpectedly resized the Owner-sized outer viewport instead of enabling scrolling.");
+    }
+
+    var verticallySnappedViewport =
+        WidgetHostViewportHeightPolicy
+            .PreserveOwnerSizedViewport(
+                currentHostHeightDip:
+                    1080,
+                desiredContentHeightDip:
+                    collapsed.TotalDesiredHeightDip);
+
+    if (
+        verticallySnappedViewport.HostHeightDip
+            != 1080
+        || verticallySnappedViewport.HostLevelScrollingRequired
+        || verticallySnappedViewport.HostHeightAssignmentRequired
+    )
+    {
+        throw new InvalidOperationException(
+            "Vertically snapped outer CoreHost viewport was unexpectedly released after Widget collapse.");
     }
 
     var disabled =
@@ -206,6 +223,163 @@ try
     {
         throw new InvalidOperationException(
             "Collapsed-state persistence validation failed.");
+    }
+
+    var operationQueue =
+        new WidgetHostOperationSerialQueue();
+
+    var observedQueueOrder =
+        new List<string>();
+
+    var releaseFirstOperation =
+        new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+
+    var firstOperationStarted =
+        new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+
+    var firstQueuedOperation =
+        operationQueue.RunAsync(
+            async cancellationToken =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                observedQueueOrder.Add(
+                    "first-start");
+                firstOperationStarted.SetResult();
+                await releaseFirstOperation.Task;
+                observedQueueOrder.Add(
+                    "first-end");
+                return 1;
+            },
+            CancellationToken.None);
+
+    await firstOperationStarted.Task;
+
+    var secondQueuedOperation =
+        operationQueue.RunAsync(
+            cancellationToken =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                observedQueueOrder.Add(
+                    "second");
+                return Task.FromResult(
+                    2);
+            },
+            CancellationToken.None);
+
+    await Task.Delay(
+        20);
+
+    if (observedQueueOrder.Contains(
+        "second"))
+    {
+        throw new InvalidOperationException(
+            "Widget-host serial operation queue allowed an overlapping mutation.");
+    }
+
+    releaseFirstOperation.SetResult();
+
+    await Task.WhenAll(
+        firstQueuedOperation,
+        secondQueuedOperation);
+
+    if (!observedQueueOrder.SequenceEqual(
+        new[]
+        {
+            "first-start",
+            "first-end",
+            "second"
+        }))
+    {
+        throw new InvalidOperationException(
+            "Widget-host serial operation queue ordering validation failed.");
+    }
+
+    var acceptedCatalogWidget =
+        new InstalledWidgetCatalogItem(
+            "kr.fixture.catalog",
+            "KR Fixture Catalog",
+            new Version(
+                1,
+                0,
+                0),
+            tempRoot,
+            Array.Empty<string>(),
+            Enabled:
+                true,
+            Collapsed:
+                false,
+            Order:
+                10,
+            PreferredExpandedHeightDip:
+                220,
+            MinimumCollapsedHeightDip:
+                44,
+            MeasuredDesiredHeightDip:
+                220,
+            ActualHeightDip:
+                220);
+
+    var emptyLayout =
+        new WidgetHostLayoutSnapshot(
+            600,
+            0,
+            0,
+            false,
+            Array.Empty<WidgetHostSurfaceSnapshot>());
+
+    var lastAcceptedCatalog =
+        new InstalledWidgetCatalogSnapshot(
+            new[]
+            {
+                acceptedCatalogWidget
+            },
+            Array.Empty<InstalledWidgetCatalogFailure>(),
+            emptyLayout);
+
+    var degradedCatalog =
+        new InstalledWidgetCatalogSnapshot(
+            Array.Empty<InstalledWidgetCatalogItem>(),
+            new[]
+            {
+                new InstalledWidgetCatalogFailure(
+                    tempRoot,
+                    "Fixture transient catalog read failure.")
+            },
+            emptyLayout);
+
+    if (WidgetHostCatalogRefreshAcceptancePolicy
+        .ShouldApply(
+            lastAcceptedCatalog,
+            degradedCatalog))
+    {
+        throw new InvalidOperationException(
+            "Transient degraded catalog snapshot unexpectedly replaced the last known-good Widget host.");
+    }
+
+    var explicitlyDisabledCatalog =
+        new InstalledWidgetCatalogSnapshot(
+            new[]
+            {
+                acceptedCatalogWidget with
+                {
+                    Enabled =
+                        false,
+                    ActualHeightDip =
+                        0
+                }
+            },
+            Array.Empty<InstalledWidgetCatalogFailure>(),
+            emptyLayout);
+
+    if (!WidgetHostCatalogRefreshAcceptancePolicy
+        .ShouldApply(
+            lastAcceptedCatalog,
+            explicitlyDisabledCatalog))
+    {
+        throw new InvalidOperationException(
+            "Explicit Widget disable snapshot was incorrectly rejected.");
     }
 
     var widgetId =

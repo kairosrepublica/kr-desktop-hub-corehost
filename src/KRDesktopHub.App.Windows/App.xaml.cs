@@ -695,6 +695,21 @@ public partial class App : Application
                 _widgetManager,
                 _widgetVisualSurfaces,
                 _widgetFrameworkServices);
+
+        _widgetHostCoordinator.OperationFailed +=
+            async (_, failure) =>
+                await PublishNotificationAsync(
+                    new SystemNotification(
+                        "widget.host.operation.failed",
+                        "KR Desktop Hub",
+                        failure.Operation
+                        + " failed: "
+                        + failure.Exception.Message,
+                        NotificationPriority.Important,
+                        Array.Empty<NotificationAction>()),
+
+                    force:
+                        true);
     }
 
     private static InternalWidgetManagerService CreateWidgetManager(

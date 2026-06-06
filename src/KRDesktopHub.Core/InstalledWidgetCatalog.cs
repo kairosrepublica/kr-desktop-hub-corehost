@@ -38,6 +38,44 @@ public sealed record InstalledWidgetCatalogSnapshot(
     IReadOnlyList<InstalledWidgetCatalogFailure> Failures,
     WidgetHostLayoutSnapshot Layout);
 
+public static class WidgetHostCatalogRefreshAcceptancePolicy
+{
+    public static bool ShouldApply(
+        InstalledWidgetCatalogSnapshot? lastAccepted,
+        InstalledWidgetCatalogSnapshot candidate)
+    {
+        ArgumentNullException.ThrowIfNull(
+            candidate);
+
+        if (
+            lastAccepted is null
+            || candidate.Failures.Count == 0
+        )
+        {
+            return true;
+        }
+
+        var candidateIds =
+            candidate
+                .Widgets
+                .Select(
+                    widget =>
+                        widget.WidgetId)
+                .ToHashSet(
+                    StringComparer.OrdinalIgnoreCase);
+
+        return !lastAccepted
+            .Widgets
+            .Where(
+                widget =>
+                    widget.Enabled)
+            .Any(
+                widget =>
+                    !candidateIds.Contains(
+                        widget.WidgetId));
+    }
+}
+
 public sealed class InstalledWidgetManifestAdapter
 {
     private static readonly JsonSerializerOptions RuntimeJsonOptions =
@@ -185,6 +223,9 @@ public sealed class InstalledWidgetCatalogService
     private readonly InstalledWidgetManifestAdapter _manifestAdapter;
     private readonly WidgetHostLayoutController _layoutController;
 
+    private readonly WidgetHostOperationSerialQueue _refreshQueue =
+        new();
+
     public InstalledWidgetCatalogService(
         string installedDirectory,
         WidgetHostLayoutController layoutController,
@@ -213,7 +254,16 @@ public sealed class InstalledWidgetCatalogService
     public WidgetHostLayoutController LayoutController =>
         _layoutController;
 
-    public async Task<InstalledWidgetCatalogSnapshot> RefreshAsync(
+    public Task<InstalledWidgetCatalogSnapshot> RefreshAsync(
+        CancellationToken cancellationToken)
+    {
+        return _refreshQueue
+            .RunAsync(
+                RefreshCoreAsync,
+                cancellationToken);
+    }
+
+    private async Task<InstalledWidgetCatalogSnapshot> RefreshCoreAsync(
         CancellationToken cancellationToken)
     {
         Directory.CreateDirectory(

@@ -237,3 +237,40 @@ The stabilization checkpoint separates editor intent from runtime fallback value
 The Settings Center recommended quiet-hours state is internally valid before the runtime bridge runs: `Enabled = true`, `Start = 23:00`, `End = 08:00`. Clearing both fields remains an explicit disable action.
 
 The outer popup now preserves or grows its height. It does not automatically shrink because an individual Widget was collapsed.
+
+
+## CoreHost stabilization gate — window snap and Widget refresh integrity
+
+Additional Owner acceptance testing exposed two deeper host-boundary failures:
+
+```text
+vertically snapped outer popup height was reduced when a Widget collapsed
+an overlapping or degraded installed-catalog refresh could temporarily replace the visible panel with the empty state
+```
+
+The follow-up stabilization checkpoint preserves user- or Windows-expanded outer geometry unless automatic growth is required, serializes host mutations and catalog refreshes, rejects degraded catalog snapshots that would remove a previously visible Widget, and builds Widget cards transactionally before replacing the visible panel.
+
+## Owner-sized CoreHost popup viewport
+
+The CoreHost popup is an Owner-controlled viewport.
+
+```text
+default width:
+600 DIP
+
+minimum width:
+600 DIP
+
+allowed:
+Owner may widen the popup
+Owner may adjust popup height
+
+forbidden:
+Widget Expand may not change outer width or height
+Widget Collapse may not change outer width or height
+Widget refresh may not reset an Owner-adjusted width or height
+
+overflow:
+use the CoreHost ScrollViewer
+do not auto-resize the outer popup
+```

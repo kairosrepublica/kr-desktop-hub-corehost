@@ -43,8 +43,6 @@ public partial class MainWindow
         ArgumentNullException.ThrowIfNull(
             surfaces);
 
-        WidgetHostSurface.Children.Clear();
-
         var visible =
             snapshot
                 .Widgets
@@ -60,22 +58,33 @@ public partial class MainWindow
                     StringComparer.OrdinalIgnoreCase)
                 .ToArray();
 
-        foreach (var widget in visible)
+        var nextCards =
+            visible
+                .Select(
+                    widget =>
+                    {
+                        var card =
+                            new WidgetHostCard();
+
+                        card.Bind(
+                            widget,
+                            surfaces.TryCreate(
+                                widget.WidgetId));
+
+                        card.CollapseRequested +=
+                            (_, request) =>
+                                WidgetCollapseRequested?.Invoke(
+                                    this,
+                                    request);
+
+                        return card;
+                    })
+                .ToArray();
+
+        WidgetHostSurface.Children.Clear();
+
+        foreach (var card in nextCards)
         {
-            var card =
-                new WidgetHostCard();
-
-            card.Bind(
-                widget,
-                surfaces.TryCreate(
-                    widget.WidgetId));
-
-            card.CollapseRequested +=
-                (_, request) =>
-                    WidgetCollapseRequested?.Invoke(
-                        this,
-                        request);
-
             WidgetHostSurface.Children.Add(
                 card);
         }
@@ -92,16 +101,11 @@ public partial class MainWindow
                     + 16;
 
         ApplyWidgetHostDesiredHeight(
-            desiredHeight,
-            Math.Max(
-                240,
-                SystemParameters.WorkArea.Height
-                    * 0.92));
+            desiredHeight);
     }
 
     public void ApplyWidgetHostDesiredHeight(
-        double desiredHeightDip,
-        double maximumWorkAreaHeightDip)
+        double desiredHeightDip)
     {
         if (
             !double.IsFinite(
@@ -113,28 +117,18 @@ public partial class MainWindow
                 nameof(desiredHeightDip));
         }
 
-        if (
-            !double.IsFinite(
-                maximumWorkAreaHeightDip)
-            || maximumWorkAreaHeightDip <= 0
-        )
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(maximumWorkAreaHeightDip));
-        }
+        var observedHostHeightDip =
+            double.IsFinite(
+                ActualHeight)
+            && ActualHeight > 0
+                ? ActualHeight
+                : Height;
 
         var viewport =
             WidgetHostViewportHeightPolicy
-                .PreserveOrGrow(
-                    Height,
-                    desiredHeightDip,
-                    maximumWorkAreaHeightDip);
-
-        Width =
-            DefaultPopupWidthDip;
-
-        Height =
-            viewport.HostHeightDip;
+                .PreserveOwnerSizedViewport(
+                    observedHostHeightDip,
+                    desiredHeightDip);
 
         WidgetHostScrollViewer.VerticalScrollBarVisibility =
             viewport.HostLevelScrollingRequired

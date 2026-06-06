@@ -149,3 +149,35 @@ Widget-card collapse incorrectly shrank the outer CoreHost popup
 The stabilization checkpoint fixes both behaviors and adds regression coverage before Widget 01 begins.
 
 The repair also closes a default-state contradiction: the Settings Center quiet-hours default now uses a valid 23:00–08:00 pair before runtime overlay.
+
+
+## CoreHost stabilization follow-up — snapped geometry and refresh integrity
+
+Status: required Owner-acceptance repair before production Widget 01.
+
+```text
+preserve vertically snapped outer popup geometry during Widget collapse
+apply work-area cap only to automatic growth
+serialize host mutations
+serialize installed-catalog refreshes
+retain last known-good panel during degraded catalog reads
+replace visible Widget cards transactionally
+```
+
+## CoreHost stabilization gate — Owner-sized viewport
+
+Before Widget 01 begins, the CoreHost shell must treat popup geometry as Owner-controlled state.
+
+```text
+minimum width:
+600 DIP
+
+expand / collapse:
+child Widget only
+
+overflow:
+host-level scrolling
+
+outer shell:
+no Widget-driven width or height mutation
+```

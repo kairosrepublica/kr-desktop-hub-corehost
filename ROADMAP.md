@@ -31,21 +31,21 @@ Completed CoreHost capabilities include:
 
 The popup panel is intentionally blank and reserved for production Widgets.
 
-## Phase 1 ├óΓé¼ΓÇ¥ Production Widget foundation
+## Phase 1 Γö£├│╬ô├⌐┬╝╬ô├ç┬Ñ Production Widget foundation
 
-### Step 1 ├óΓé¼ΓÇ¥ HTML/CSS interaction prototype gate
+### Step 1 Γö£├│╬ô├⌐┬╝╬ô├ç┬Ñ HTML/CSS interaction prototype gate
 
 Status: in progress.
 
 Prepare and approve an interactive browser prototype before writing Windows Widget production code.
 
-### Step 2 ├óΓé¼ΓÇ¥ KR World Time-Space Widget
+### Step 2 Γö£├│╬ô├⌐┬╝╬ô├ç┬Ñ KR World Time-Space Widget
 
 Status: planned.
 
 Build a synchronized multi-city time-comparison Widget with date, local time, time-zone and holiday context.
 
-### Step 3 ├óΓé¼ΓÇ¥ KR Trading Clock Widget
+### Step 3 Γö£├│╬ô├⌐┬╝╬ô├ç┬Ñ KR Trading Clock Widget
 
 Status: planned.
 
@@ -96,4 +96,31 @@ Production sequence after framework validation:
 ```text
 KR World Time-Space
 KR Trading Clock
+```
+
+
+## CoreHost Widget Management production wiring
+
+Status: backend activation boundary implemented; Windows UI wiring remains next.
+
+Completed backend checkpoint:
+
+```text
+installed Widget catalog
+snake_case package manifest to camelCase runtime manifest adapter
+installed-folder discovery
+host-state registration
+backend enable and disable
+backend collapse and expand
+backend ordering
+runtime-loader support for installed package manifests
+```
+
+Next CoreHost checkpoint:
+
+```text
+Widget Management installed inventory UI
+production WidgetHostSurface composition
+CoreHost-owned floating-dialog presenter
+tray-icon broker application wiring
 ```

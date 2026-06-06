@@ -1,8 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using KRDesktopHub.Contracts;
 
 namespace KRDesktopHub.Core;
@@ -281,15 +279,8 @@ public sealed record WidgetDiscoveryResult(
 
 public sealed class WidgetPluginLoader
 {
-    private static readonly JsonSerializerOptions JsonOptions =
-        new()
-        {
-            PropertyNameCaseInsensitive = true,
-            Converters =
-            {
-                new JsonStringEnumConverter()
-            }
-        };
+    private readonly InstalledWidgetManifestAdapter _manifestAdapter =
+        new();
 
     private readonly Version _hostVersion;
     private readonly Version _contractsVersion;
@@ -326,17 +317,11 @@ public sealed class WidgetPluginLoader
                 manifestPath);
         }
 
-        await using var stream =
-            File.OpenRead(
-                manifestPath);
-
         var manifest =
-            await JsonSerializer.DeserializeAsync<WidgetManifest>(
-                stream,
-                JsonOptions,
-                cancellationToken)
-            ?? throw new InvalidOperationException(
-                "Widget manifest could not be parsed.");
+            await _manifestAdapter
+                .ReadRuntimeManifestAsync(
+                    pluginDirectory,
+                    cancellationToken);
 
         WidgetManifestValidator.Validate(
             manifest,

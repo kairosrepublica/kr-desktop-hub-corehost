@@ -26,6 +26,11 @@ The project uses meaningful GitHub checkpoints. Changes should represent coheren
 
 ### Added
 
+- Installed Widget catalog backend with top-level installed-folder discovery.
+- Package-to-runtime manifest adapter for schema-1 `.krwidget.zip` manifests.
+- Widget Manager backend controls for installed inventory, enable, disable, collapse, expand and ordering.
+- Runtime-loader support for both legacy camelCase development manifests and installed snake_case package manifests.
+- Smoke-test coverage for installed inventory controls and installed-package runtime adaptation.
 - Universal CoreHost Widget-framework foundation.
 - `600 DIP` default popup-width baseline.
 - Adaptive Widget layout controller with measured expanded height, collapsed height, disabled state and host-level overflow fallback.
@@ -45,6 +50,7 @@ The project uses meaningful GitHub checkpoints. Changes should represent coheren
 
 ### Fixed
 
+- Hardened Windows smoke-test teardown after unloading collectible Widget assembly contexts: isolate temporary loaded assemblies, run bounded cleanup retries and emit success only after teardown passes.
 - Corrected installed review-shell iframe paths for KR World Time-Space and KR Trading Clock.
 - Added installed-topology path-resolution validation before opening the review shell.
 

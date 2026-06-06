@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KR Desktop Hub internal Widget package manifest v1.2 activation backend",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_schema_version",
+    "widget_id",
+    "package_version",
+    "minimum_host_version",
+    "entry_assembly",
+    "entry_type",
+    "capabilities"
+  ],
+  "properties": {
+    "manifest_schema_version": {
+      "const": 1
+    },
+    "widget_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "package_version": {
+      "type": "string"
+    },
+    "required_contracts_version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "minimum_host_version": {
+      "type": "string"
+    },
+    "entry_assembly": {
+      "type": "string",
+      "pattern": "\\.dll$"
+    },
+    "entry_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "activation_mode": {
+      "type": "string",
+      "enum": [
+        "AlwaysOn",
+        "OnDemand",
+        "ScheduledWindow",
+        "PeriodicRun",
+        "EventTriggered",
+        "ManualOnly"
+      ],
+      "default": "OnDemand"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "default_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "default_collapsed": {
+      "type": "boolean",
+      "default": false
+    },
+    "preferred_expanded_height_dip": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 220
+    },
+    "minimum_collapsed_height_dip": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 44
+    },
+    "settings_schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "state_schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    }
+  }
+}

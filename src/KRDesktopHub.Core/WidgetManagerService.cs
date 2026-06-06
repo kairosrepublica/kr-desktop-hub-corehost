@@ -1,3 +1,5 @@
+using KRDesktopHub.Contracts;
+
 namespace KRDesktopHub.Core;
 
 public sealed record WidgetInboxArchiveInfo(
@@ -13,15 +15,24 @@ public sealed record WidgetInboxArchiveInfo(
 public sealed class InternalWidgetManagerService
 {
     private readonly InternalWidgetPackageInstaller _installer;
+    private readonly InstalledWidgetCatalogService _installedCatalog;
 
     public InternalWidgetManagerService(
-        InternalWidgetPackageInstaller installer)
+        InternalWidgetPackageInstaller installer,
+        InstalledWidgetCatalogService? installedCatalog =
+            null)
     {
         ArgumentNullException.ThrowIfNull(
             installer);
 
         _installer =
             installer;
+
+        _installedCatalog =
+            installedCatalog
+            ?? new InstalledWidgetCatalogService(
+                installer.InstalledDirectory,
+                new WidgetHostLayoutController());
     }
 
     public string PluginsDirectory =>
@@ -52,6 +63,53 @@ public sealed class InternalWidgetManagerService
                             info.LastWriteTimeUtc);
                 })
             .ToArray();
+    }
+
+    public string InstalledDirectory =>
+        _installer.InstalledDirectory;
+
+    public Task<InstalledWidgetCatalogSnapshot> RefreshInstalledWidgetsAsync(
+        CancellationToken cancellationToken)
+    {
+        return _installedCatalog
+            .RefreshAsync(
+                cancellationToken);
+    }
+
+    public WidgetHostLayoutSnapshot SetInstalledWidgetEnabled(
+        string widgetId,
+        bool enabled)
+    {
+        return _installedCatalog
+            .SetEnabled(
+                widgetId,
+                enabled);
+    }
+
+    public WidgetHostLayoutSnapshot SetInstalledWidgetCollapsed(
+        string widgetId,
+        bool collapsed)
+    {
+        return _installedCatalog
+            .SetCollapsed(
+                widgetId,
+                collapsed);
+    }
+
+    public WidgetHostLayoutSnapshot SetInstalledWidgetOrder(
+        string widgetId,
+        int order)
+    {
+        return _installedCatalog
+            .SetOrder(
+                widgetId,
+                order);
+    }
+
+    public WidgetHostLayoutSnapshot GetInstalledWidgetLayout()
+    {
+        return _installedCatalog
+            .GetLayout();
     }
 
     public Task<WidgetPackageInstallResult> InstallSelectedArchiveAsync(

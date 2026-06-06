@@ -122,6 +122,73 @@ try
             "Explicit package installation unexpectedly ran an embedded script.");
     }
 
+    var installedInventory =
+        await manager.RefreshInstalledWidgetsAsync(
+            CancellationToken.None);
+
+    var installedInboxWidget =
+        installedInventory
+            .Widgets
+            .Single(
+                widget =>
+                    widget.WidgetId
+                    == "kr.fixture.manager.inbox");
+
+    if (
+        !installedInboxWidget.Enabled
+        || installedInboxWidget.Collapsed
+        || installedInboxWidget.PackageVersion
+            != new Version(
+                1,
+                0,
+                0)
+    )
+    {
+        throw new InvalidOperationException(
+            "Installed Widget inventory validation failed.");
+    }
+
+    var disabledLayout =
+        manager.SetInstalledWidgetEnabled(
+            "kr.fixture.manager.inbox",
+            enabled:
+                false);
+
+    if (disabledLayout
+        .Widgets
+        .Single(
+            widget =>
+                widget.WidgetId
+                == "kr.fixture.manager.inbox")
+        .Enabled)
+    {
+        throw new InvalidOperationException(
+            "Installed Widget disable validation failed.");
+    }
+
+    manager.SetInstalledWidgetEnabled(
+        "kr.fixture.manager.inbox",
+        enabled:
+            true);
+
+    var collapsedLayout =
+        manager.SetInstalledWidgetCollapsed(
+            "kr.fixture.manager.inbox",
+            collapsed:
+                true);
+
+    if (!collapsedLayout
+        .Widgets
+        .Single(
+            widget =>
+                widget.WidgetId
+                == "kr.fixture.manager.inbox")
+        .Collapsed)
+    {
+        throw new InvalidOperationException(
+            "Installed Widget collapse validation failed.");
+    }
+
     var outsideArchive =
         Path.Combine(
             sourceRoot,

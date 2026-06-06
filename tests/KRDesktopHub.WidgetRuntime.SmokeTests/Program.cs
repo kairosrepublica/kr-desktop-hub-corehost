@@ -1,3 +1,4 @@
+using System.Text.Json;
 using KRDesktopHub.Contracts;
 using KRDesktopHub.Core;
 
@@ -73,6 +74,78 @@ try
         await loader.LoadAsync(
             fixtureDirectory,
             CancellationToken.None);
+
+    var installedFixtureDirectory =
+        Path.Combine(
+            temporaryRoot,
+            "plugins",
+            "installed",
+            "kr.fixture.basic.package");
+
+    var installedFixtureLibrary =
+        Path.Combine(
+            installedFixtureDirectory,
+            "lib");
+
+    Directory.CreateDirectory(
+        installedFixtureLibrary);
+
+    File.Copy(
+        Path.Combine(
+            fixtureDirectory,
+            "bin",
+            "Release",
+            "net10.0",
+            "KRDesktopHub.Fixture.Basic.dll"),
+        Path.Combine(
+            installedFixtureLibrary,
+            "KRDesktopHub.Fixture.Basic.dll"));
+
+    await File.WriteAllTextAsync(
+        Path.Combine(
+            installedFixtureDirectory,
+            "manifest.json"),
+        JsonSerializer.Serialize(
+            new WidgetPackageManifest
+            {
+                ManifestSchemaVersion =
+                    1,
+
+                WidgetId =
+                    "kr.fixture.basic",
+
+                DisplayName =
+                    "Basic Fixture Widget",
+
+                PackageVersion =
+                    "0.1.0",
+
+                RequiredContractsVersion =
+                    "1.0.0",
+
+                MinimumHostVersion =
+                    "0.1.0",
+
+                EntryAssembly =
+                    "lib/KRDesktopHub.Fixture.Basic.dll",
+
+                EntryType =
+                    "KRDesktopHub.Fixture.Basic.BasicFixtureWidget",
+
+                ActivationMode =
+                    WidgetActivationMode.OnDemand,
+
+                Capabilities =
+                    new[]
+                    {
+                        "lifecycle",
+                        "state_store"
+                    }
+            }));
+
+    await ValidateInstalledPackageManifestAdaptationAsync(
+        loader,
+        installedFixtureDirectory);
 
     await using var controller =
         new WidgetRuntimeController(
@@ -215,17 +288,85 @@ try
             "Widget retry validation failed.");
     }
 
-    Console.WriteLine(
-        "Batch 4 Widget Runtime smoke test passed.");
 }
 finally
 {
-    if (Directory.Exists(
-        temporaryRoot))
+    await DeleteTemporaryDirectoryWithAssemblyUnloadRetryAsync(
+        temporaryRoot);
+}
+
+Console.WriteLine(
+    "Batch 4 Widget Runtime smoke test passed.");
+
+static async Task ValidateInstalledPackageManifestAdaptationAsync(
+    WidgetPluginLoader loader,
+    string installedFixtureDirectory)
+{
+    using var installedLoaded =
+        await loader.LoadAsync(
+            installedFixtureDirectory,
+            CancellationToken.None);
+
+    if (
+        installedLoaded.Manifest.WidgetId
+            != "kr.fixture.basic"
+        || installedLoaded.Manifest.DisplayName
+            != "Basic Fixture Widget"
+        || installedLoaded.Manifest.EntryAssembly
+            != "lib/KRDesktopHub.Fixture.Basic.dll"
+        || installedLoaded.Manifest.ActivationMode
+            != WidgetActivationMode.OnDemand
+    )
     {
-        Directory.Delete(
-            temporaryRoot,
-            recursive: true);
+        throw new InvalidOperationException(
+            "Installed package-to-runtime manifest adaptation validation failed.");
+    }
+}
+
+static async Task DeleteTemporaryDirectoryWithAssemblyUnloadRetryAsync(
+    string temporaryRoot)
+{
+    const int maximumAttempts =
+        8;
+
+    for (var attempt = 1;
+        attempt <= maximumAttempts;
+        attempt++)
+    {
+        if (!Directory.Exists(
+            temporaryRoot))
+        {
+            return;
+        }
+
+        try
+        {
+            Directory.Delete(
+                temporaryRoot,
+                recursive: true);
+
+            return;
+        }
+        catch (Exception exception)
+            when (
+                exception is UnauthorizedAccessException
+                || exception is IOException)
+        {
+            if (attempt == maximumAttempts)
+            {
+                throw new InvalidOperationException(
+                    "Widget Runtime smoke-test temporary cleanup exhausted retry budget.",
+                    exception);
+            }
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            await Task.Delay(
+                TimeSpan.FromMilliseconds(
+                    125 * attempt));
+        }
     }
 }
 

@@ -63,3 +63,11 @@ KR_Desktop_Hub_System_Policy_And_Notification_Governance_API_Batch8B2A.md
 KR_Desktop_Hub_Universal_Widget_Framework_API_v1.0.md
 KR_Desktop_Hub_Widget_Package_Manifest_Schema_v1.1.json
 ```
+
+
+## Installed Widget activation backend
+
+```text
+KR_Desktop_Hub_Installed_Widget_Catalog_API_v1.0.md
+KR_Desktop_Hub_Widget_Package_Manifest_Schema_v1.2.json
+```

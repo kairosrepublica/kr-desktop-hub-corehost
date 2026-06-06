@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using KRDesktopHub.Contracts;
 
 namespace KRDesktopHub.Core;
 
@@ -62,9 +63,19 @@ public sealed class WidgetPackageManifest
         string.Empty;
 
     [JsonPropertyName(
+        "display_name")]
+    public string DisplayName { get; set; } =
+        string.Empty;
+
+    [JsonPropertyName(
         "package_version")]
     public string PackageVersion { get; set; } =
         string.Empty;
+
+    [JsonPropertyName(
+        "required_contracts_version")]
+    public string RequiredContractsVersion { get; set; } =
+        "1.0.0";
 
     [JsonPropertyName(
         "minimum_host_version")]
@@ -80,6 +91,11 @@ public sealed class WidgetPackageManifest
         "entry_type")]
     public string EntryType { get; set; } =
         string.Empty;
+
+    [JsonPropertyName(
+        "activation_mode")]
+    public WidgetActivationMode ActivationMode { get; set; } =
+        WidgetActivationMode.OnDemand;
 
     [JsonPropertyName(
         "capabilities")]
@@ -189,7 +205,12 @@ public sealed class InternalWidgetPackageInstaller
             ReadCommentHandling =
                 JsonCommentHandling.Disallow,
             AllowTrailingCommas =
-                false
+                false,
+
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            }
         };
 
     public InternalWidgetPackageInstaller(
@@ -586,6 +607,12 @@ public sealed class InternalWidgetPackageInstaller
                 manifest.MinimumHostVersion,
                 WidgetPackageValidationCode.InvalidMinimumHostVersion,
                 "Minimum host version is invalid.");
+
+        _ =
+            ParseVersion(
+                manifest.RequiredContractsVersion,
+                WidgetPackageValidationCode.InvalidManifest,
+                "Required Contracts version is invalid.");
 
         if (
             _options.HostVersion

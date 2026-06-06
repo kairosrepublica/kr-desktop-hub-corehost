@@ -7,9 +7,10 @@ Portable-first and extensible desktop CoreHost for Windows 11 Widgets.
 ```text
 Project stage: CoreHost v0.2.1-rc1 frozen baseline
 Runnable application: implemented and locally validated
-CoreHost panel: universal adaptive WidgetHostSurface foundation in progress
-Production Widgets: begin only after universal CoreHost Widget framework validation
-Canonical public checkpoint before this documentation sync: dabca8f
+CoreHost panel: universal adaptive WidgetHostSurface foundation implemented
+Installed Widget catalog: package-to-runtime manifest adapter implemented
+Production Widgets: begin after Widget Management UI composition and activation wiring
+Canonical public checkpoint before this engineering step: 529d342
 ```
 
 The CoreHost foundation is complete enough to begin production Widget development. Future user-facing functions remain independent Widgets rather than embedded CoreHost business logic.
@@ -189,3 +190,31 @@ approved declarative tray visual states
 ```
 
 Widgets remain isolated packages. They may consume the versioned CoreHost framework but must not import one another's code, styles, settings or mutable runtime state.
+
+
+## Installed Widget activation boundary
+
+The CoreHost now maintains one explicit translation boundary between:
+
+```text
+installed .krwidget.zip package manifest
+snake_case package fields
+```
+
+and:
+
+```text
+runtime Widget manifest
+camelCase runtime fields
+```
+
+The installed-Widget catalog reads top-level installed package folders, maps schema-1 package metadata into runtime metadata, registers adaptive host-state defaults and exposes backend enable, disable, collapse, expand and ordering controls.
+
+The next CoreHost checkpoint wires this backend into:
+
+```text
+Widget Management inventory UI
+production WidgetHostSurface composition
+CoreHost-owned floating-dialog presenter
+Windows tray-icon broker application
+```

@@ -18,7 +18,7 @@ The CoreHost architecture is frozen unless production Widget development exposes
 
 ## Phase 1 Widget sequence
 
-### Checkpoint 1 ├â┬ó├óΓÇÜ┬¼├óΓé¼┬¥ Public CoreHost narrative synchronization
+### Checkpoint 1 Γö£├óΓö¼├│Γö£├│╬ô├ç├£Γö¼┬╝Γö£├│╬ô├⌐┬╝Γö¼┬Ñ Public CoreHost narrative synchronization
 
 Scope:
 
@@ -28,7 +28,7 @@ Scope:
 - add public development-record policy;
 - tag the frozen public baseline.
 
-### Checkpoint 2 ├â┬ó├óΓÇÜ┬¼├óΓé¼┬¥ Phase 1 HTML/CSS interaction prototype
+### Checkpoint 2 Γö£├óΓö¼├│Γö£├│╬ô├ç├£Γö¼┬╝Γö£├│╬ô├⌐┬╝Γö¼┬Ñ Phase 1 HTML/CSS interaction prototype
 
 Scope:
 
@@ -37,7 +37,7 @@ Scope:
 - Owner review;
 - interaction-specification freeze.
 
-### Checkpoint 3 ├â┬ó├óΓÇÜ┬¼├óΓé¼┬¥ KR World Time-Space specification
+### Checkpoint 3 Γö£├óΓö¼├│Γö£├│╬ô├ç├£Γö¼┬╝Γö£├│╬ô├⌐┬╝Γö¼┬Ñ KR World Time-Space specification
 
 Scope:
 
@@ -46,7 +46,7 @@ Scope:
 - freeze user-facing layout;
 - define tests.
 
-### Checkpoint 4 ├â┬ó├óΓÇÜ┬¼├óΓé¼┬¥ KR World Time-Space implementation
+### Checkpoint 4 Γö£├óΓö¼├│Γö£├│╬ô├ç├£Γö¼┬╝Γö£├│╬ô├⌐┬╝Γö¼┬Ñ KR World Time-Space implementation
 
 Scope:
 
@@ -56,7 +56,7 @@ Scope:
 - run regression tests;
 - complete manual acceptance.
 
-### Checkpoint 5 ├â┬ó├óΓÇÜ┬¼├óΓé¼┬¥ KR Trading Clock specification
+### Checkpoint 5 Γö£├óΓö¼├│Γö£├│╬ô├ç├£Γö¼┬╝Γö£├│╬ô├⌐┬╝Γö¼┬Ñ KR Trading Clock specification
 
 Scope:
 
@@ -65,7 +65,7 @@ Scope:
 - freeze annual market-calendar boundary;
 - define tests.
 
-### Checkpoint 6 ├â┬ó├óΓÇÜ┬¼├óΓé¼┬¥ KR Trading Clock implementation
+### Checkpoint 6 Γö£├óΓö¼├│Γö£├│╬ô├ç├£Γö¼┬╝Γö£├│╬ô├⌐┬╝Γö¼┬Ñ KR Trading Clock implementation
 
 Scope:
 
@@ -75,7 +75,7 @@ Scope:
 - run regression tests;
 - complete manual acceptance.
 
-### Checkpoint 7 ├â┬ó├óΓÇÜ┬¼├óΓé¼┬¥ Phase 1 release
+### Checkpoint 7 Γö£├óΓö¼├│Γö£├│╬ô├ç├£Γö¼┬╝Γö£├│╬ô├⌐┬╝Γö¼┬Ñ Phase 1 release
 
 Scope:
 
@@ -147,3 +147,46 @@ framework smoke tests
 ```
 
 This layer is infrastructure only. It does not merge KR World Time-Space and KR Trading Clock.
+
+
+## CoreHost Checkpoint 2A — installed Widget activation backend
+
+Status:
+
+```text
+implemented in this checkpoint
+```
+
+Scope:
+
+```text
+installed Widget catalog
+schema-1 package-to-runtime manifest adapter
+installed-folder discovery
+adaptive host-state registration
+backend enable and disable
+backend collapse and expand
+backend order updates
+runtime-loader support for installed package manifests
+regression tests
+```
+
+This checkpoint deliberately does not render business Widgets. It freezes the lower-level activation boundary first.
+
+## CoreHost Checkpoint 2B — Windows composition wiring
+
+Status:
+
+```text
+next
+```
+
+Scope:
+
+```text
+Widget Management installed inventory UI
+production WidgetHostSurface composition
+CoreHost-owned floating-dialog presenter
+tray-icon broker application wiring
+manual desktop acceptance
+```

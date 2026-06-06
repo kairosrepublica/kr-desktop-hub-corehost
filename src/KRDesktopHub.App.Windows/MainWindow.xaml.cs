@@ -123,16 +123,21 @@ public partial class MainWindow
                 nameof(maximumWorkAreaHeightDip));
         }
 
+        var viewport =
+            WidgetHostViewportHeightPolicy
+                .PreserveOrGrow(
+                    Height,
+                    desiredHeightDip,
+                    maximumWorkAreaHeightDip);
+
         Width =
             DefaultPopupWidthDip;
 
         Height =
-            Math.Min(
-                desiredHeightDip,
-                maximumWorkAreaHeightDip);
+            viewport.HostHeightDip;
 
         WidgetHostScrollViewer.VerticalScrollBarVisibility =
-            desiredHeightDip > maximumWorkAreaHeightDip
+            viewport.HostLevelScrollingRequired
                 ? ScrollBarVisibility.Auto
                 : ScrollBarVisibility.Disabled;
     }

@@ -52,6 +52,9 @@ public sealed class SettingsCenterRuntimeBridge
         ArgumentNullException.ThrowIfNull(
             document);
 
+        NormalizeQuietHoursEditorState(
+            document.Settings);
+
         _settingsCenterStore.Save(
             document);
 
@@ -87,6 +90,9 @@ public sealed class SettingsCenterRuntimeBridge
 
                 MergeDuplicateNotifications =
                     document.Settings.NotificationDuplicateMerging,
+
+                QuietHoursEnabled =
+                    document.Settings.QuietHoursEnabled,
 
                 QuietHoursStartLocal =
                     NormalizeOptionalTime(
@@ -168,11 +174,18 @@ public sealed class SettingsCenterRuntimeBridge
         target.NotificationDuplicateMerging =
             runtime.MergeDuplicateNotifications;
 
+        target.QuietHoursEnabled =
+            runtime.QuietHoursEnabled;
+
         target.QuietHoursStart =
-            runtime.QuietHoursStartLocal;
+            runtime.QuietHoursEnabled
+                ? runtime.QuietHoursStartLocal
+                : "";
 
         target.QuietHoursEnd =
-            runtime.QuietHoursEndLocal;
+            runtime.QuietHoursEnabled
+                ? runtime.QuietHoursEndLocal
+                : "";
 
         target.ReduceRefreshFrequencyOnBattery =
             runtime.BatteryAwareRefreshThrottling;
@@ -196,6 +209,28 @@ public sealed class SettingsCenterRuntimeBridge
             runtime.WidgetTaskTimeoutSeconds;
     }
 
+    private static void NormalizeQuietHoursEditorState(
+        CoreHostSettingsCenterState settings)
+    {
+        ArgumentNullException.ThrowIfNull(
+            settings);
+
+        var startBlank =
+            string.IsNullOrWhiteSpace(
+                settings.QuietHoursStart);
+
+        var endBlank =
+            string.IsNullOrWhiteSpace(
+                settings.QuietHoursEnd);
+
+        if (startBlank
+            && endBlank)
+        {
+            settings.QuietHoursEnabled =
+                false;
+        }
+    }
+
     private static string NormalizeOptionalTime(
         string value,
         string fallback)
@@ -203,6 +238,6 @@ public sealed class SettingsCenterRuntimeBridge
         return string.IsNullOrWhiteSpace(
             value)
                 ? fallback
-                : value;
+                : value.Trim();
     }
 }

@@ -222,3 +222,18 @@ Windows tray-icon broker application
 ## CoreHost Checkpoint 2B — Windows Widget composition
 
 CoreHost now wires installed Widget inventory into the Windows panel and Widget Management window. Disabled Widgets can be reopened from Widget Management. Expanded and collapsed states persist through the shared host-state store. The Windows panel composes generic isolated Widget cards at the 600-DIP baseline and exposes a registry seam for package-specific visual surfaces. CoreHost also owns the floating-dialog presenter and applies governed tray-icon selections through the Windows tray service.
+
+## CoreHost stabilization gate
+
+Owner manual acceptance exposed two CoreHost defects before production Widget development:
+
+```text
+clearing both quiet-hours fields repopulated the prior values
+collapsing a Widget card resized the outer popup window
+```
+
+The stabilization checkpoint separates editor intent from runtime fallback values and separates internal Widget-card height changes from the outer popup viewport policy.
+
+The Settings Center recommended quiet-hours state is internally valid before the runtime bridge runs: `Enabled = true`, `Start = 23:00`, `End = 08:00`. Clearing both fields remains an explicit disable action.
+
+The outer popup now preserves or grows its height. It does not automatically shrink because an individual Widget was collapsed.

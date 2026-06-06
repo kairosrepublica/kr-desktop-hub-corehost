@@ -72,3 +72,9 @@ KR_Desktop_Hub_Installed_Widget_Catalog_API_v1.0.md
 KR_Desktop_Hub_Widget_Package_Manifest_Schema_v1.2.json
 ```
 - [Checkpoint 2B Windows Widget Composition API](KR_Desktop_Hub_Checkpoint2B_Windows_Widget_Composition_API_v1.0.md)
+
+## CoreHost stabilization
+
+```text
+../architecture/KR_Desktop_Hub_CoreHost_Stabilization_Settings_And_Collapse_v1.0.md
+```

@@ -10,11 +10,76 @@ public static class WidgetHostFrameworkDefaults
     public const double DefaultPopupWidthDip =
         600;
 
+    public const double DefaultPopupHeightDip =
+        720;
+
     public const double DefaultCollapsedHeightDip =
         44;
 
     public const double DefaultWidgetGapDip =
         8;
+}
+
+public sealed record WidgetHostViewportHeightDecision(
+    double HostHeightDip,
+    bool HostLevelScrollingRequired);
+
+public static class WidgetHostViewportHeightPolicy
+{
+    public static WidgetHostViewportHeightDecision PreserveOrGrow(
+        double currentHostHeightDip,
+        double desiredContentHeightDip,
+        double maximumWorkAreaHeightDip)
+    {
+        if (
+            !double.IsFinite(
+                desiredContentHeightDip)
+            || desiredContentHeightDip <= 0
+        )
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(desiredContentHeightDip));
+        }
+
+        if (
+            !double.IsFinite(
+                maximumWorkAreaHeightDip)
+            || maximumWorkAreaHeightDip <= 0
+        )
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(maximumWorkAreaHeightDip));
+        }
+
+        var current =
+            double.IsFinite(
+                currentHostHeightDip)
+            && currentHostHeightDip > 0
+                ? currentHostHeightDip
+                : WidgetHostFrameworkDefaults
+                    .DefaultPopupHeightDip;
+
+        var boundedCurrent =
+            Math.Min(
+                current,
+                maximumWorkAreaHeightDip);
+
+        var boundedDesired =
+            Math.Min(
+                desiredContentHeightDip,
+                maximumWorkAreaHeightDip);
+
+        var nextHeight =
+            Math.Max(
+                boundedCurrent,
+                boundedDesired);
+
+        return new WidgetHostViewportHeightDecision(
+            nextHeight,
+            HostLevelScrollingRequired:
+                desiredContentHeightDip
+                > nextHeight);
+    }
 }
 
 public sealed record WidgetHostPersistentItem(

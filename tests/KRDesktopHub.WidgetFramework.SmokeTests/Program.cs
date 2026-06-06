@@ -90,6 +90,58 @@ try
             "Collapse auto-height validation failed.");
     }
 
+    var expandedViewport =
+        WidgetHostViewportHeightPolicy
+            .PreserveOrGrow(
+                currentHostHeightDip:
+                    720,
+                desiredContentHeightDip:
+                    initial.TotalDesiredHeightDip,
+                maximumWorkAreaHeightDip:
+                    900);
+
+    var collapsedViewport =
+        WidgetHostViewportHeightPolicy
+            .PreserveOrGrow(
+                currentHostHeightDip:
+                    expandedViewport.HostHeightDip,
+                desiredContentHeightDip:
+                    collapsed.TotalDesiredHeightDip,
+                maximumWorkAreaHeightDip:
+                    900);
+
+    if (
+        expandedViewport.HostHeightDip
+            != 728
+        || collapsedViewport.HostHeightDip
+            != 728
+        || collapsedViewport.HostLevelScrollingRequired
+    )
+    {
+        throw new InvalidOperationException(
+            "Widget collapse unexpectedly resized the outer CoreHost viewport.");
+    }
+
+    var overflowViewport =
+        WidgetHostViewportHeightPolicy
+            .PreserveOrGrow(
+                currentHostHeightDip:
+                    collapsedViewport.HostHeightDip,
+                desiredContentHeightDip:
+                    1200,
+                maximumWorkAreaHeightDip:
+                    800);
+
+    if (
+        overflowViewport.HostHeightDip
+            != 800
+        || !overflowViewport.HostLevelScrollingRequired
+    )
+    {
+        throw new InvalidOperationException(
+            "Widget host overflow fallback validation failed.");
+    }
+
     var disabled =
         controller.SetEnabled(
             "kr.world-time-space",

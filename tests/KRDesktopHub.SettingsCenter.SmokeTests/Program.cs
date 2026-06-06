@@ -44,6 +44,18 @@ try
     }
 
     if (
+        !created.Settings.QuietHoursEnabled
+        || created.Settings.QuietHoursStart
+            != "23:00"
+        || created.Settings.QuietHoursEnd
+            != "08:00"
+    )
+    {
+        throw new InvalidOperationException(
+            "Settings Center quiet-hours recommended-default closure validation failed.");
+    }
+
+    if (
         CoreHostSettingsCenterCatalog
             .All
             .Count
@@ -108,6 +120,9 @@ try
         17;
 
     created.Settings.PanelAlwaysOnTop =
+        true;
+
+    created.Settings.QuietHoursEnabled =
         true;
 
     created.Settings.QuietHoursStart =
@@ -179,6 +194,37 @@ try
                 reloaded);
         },
         "Quiet-hours time-format validation failed.");
+
+    reloaded.Settings.QuietHoursStart =
+        "22:00";
+
+    ExpectValidationFailure(
+        () =>
+        {
+            reloaded.Settings.QuietHoursEnd =
+                "";
+
+            service.Save(
+                reloaded);
+        },
+        "Partial quiet-hours pair validation failed.");
+
+    reloaded.Settings.QuietHoursStart =
+        "";
+
+    reloaded.Settings.QuietHoursEnd =
+        "";
+
+    ExpectValidationFailure(
+        () =>
+        {
+            reloaded.Settings.QuietHoursEnabled =
+                true;
+
+            service.Save(
+                reloaded);
+        },
+        "Enabled-but-blank quiet-hours validation failed.");
 
     Console.WriteLine(
         "Batch 8D2 Settings Center smoke test passed.");

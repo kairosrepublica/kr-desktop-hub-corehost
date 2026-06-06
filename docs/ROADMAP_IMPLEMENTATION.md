@@ -194,3 +194,24 @@ manual desktop acceptance
 ## Completed checkpoint — 2B Windows Widget composition
 
 The Windows application now owns a shared installed-Widget manager, persistent layout controller, host composition coordinator, floating-dialog presenter and tray-icon application callback. Generic Widget cards are composed from installed catalog entries. Concrete isolated Widget packages attach visual content through the governed Windows visual-surface registry seam.
+
+## CoreHost stabilization checkpoint after 2B manual acceptance
+
+Status:
+
+```text
+blocking repair before KR World Time-Space production work
+```
+
+Scope:
+
+```text
+persist intentional quiet-hours clearing
+expose quiet-hours enabled state in Settings Center
+reject partial quiet-hours pairs
+separate Widget-card collapse from outer-popup viewport shrink
+preserve-or-grow outer viewport policy
+regression tests
+manual acceptance replay
+default-state closure validation before runtime overlay
+```

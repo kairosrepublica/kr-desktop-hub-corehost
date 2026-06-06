@@ -134,3 +134,18 @@ tray-icon broker application wiring
 - CoreHost-owned floating-dialog presenter
 - CoreHost-owned tray-icon broker application wiring
 - non-breaking integrated Widget context seam
+
+## CoreHost stabilization before production Widgets
+
+Status: required before KR World Time-Space production implementation.
+
+Owner manual acceptance exposed two blocking defects:
+
+```text
+quiet-hours clear intent was not persistent
+Widget-card collapse incorrectly shrank the outer CoreHost popup
+```
+
+The stabilization checkpoint fixes both behaviors and adds regression coverage before Widget 01 begins.
+
+The repair also closes a default-state contradiction: the Settings Center quiet-hours default now uses a valid 23:00–08:00 pair before runtime overlay.

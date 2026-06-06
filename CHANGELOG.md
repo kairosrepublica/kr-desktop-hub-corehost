@@ -108,3 +108,16 @@ The workflow builds, runs all smoke tests, publishes a self-contained applicatio
 - Added CoreHost-owned floating-dialog presenter.
 - Wired governed Widget tray-icon selections into the Windows tray service.
 - Added a non-breaking integrated Widget-context extension seam for future isolated Widget packages.
+## Unreleased — CoreHost stabilization after Owner manual acceptance
+
+### Fixed
+
+- Quiet-hours settings can now be cleared intentionally: clearing both fields disables quiet hours and remains blank after save, reload and reopening Settings Center.
+- Widget-card collapse now reduces only the Widget card and internal desired layout height; the outer CoreHost popup uses a preserve-or-grow viewport policy and no longer shrinks merely because one Widget was collapsed.
+
+### Validation
+
+- Added runtime-bridge regression coverage for quiet-hours clear, reload and explicit re-enable.
+- Added Settings Center validation for partial quiet-hours pairs and enabled-but-blank quiet-hours state.
+- Added default-state closure coverage: the recommended quiet-hours default is now a valid 23:00–08:00 pair before any runtime overlay is applied.
+- Added Widget-host viewport regression coverage for collapse isolation and host-level overflow fallback.

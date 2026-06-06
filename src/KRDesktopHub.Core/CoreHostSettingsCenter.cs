@@ -51,8 +51,9 @@ public sealed class CoreHostSettingsCenterState
     public string NotificationPriorityDefault { get; set; } = "normal";
     public int NotificationRateLimitPerMinute { get; set; } = 6;
     public bool NotificationDuplicateMerging { get; set; } = true;
-    public string QuietHoursStart { get; set; } = "";
-    public string QuietHoursEnd { get; set; } = "";
+    public bool QuietHoursEnabled { get; set; } = true;
+    public string QuietHoursStart { get; set; } = "23:00";
+    public string QuietHoursEnd { get; set; } = "08:00";
 
     public bool PauseVisualRefreshWhenPanelHidden { get; set; } = true;
     public bool PauseInactiveWidgetNetworkRequests { get; set; } = true;
@@ -134,8 +135,9 @@ public static class CoreHostSettingsCenterCatalog
             Describe("notifications", "NotificationPriorityDefault", "Default notification priority", "Default priority class for governed notifications.", "normal", "Normal priority avoids alert fatigue.", CoreHostSettingsApplyMode.Immediate),
             Describe("notifications", "NotificationRateLimitPerMinute", "Notification rate limit per minute", "Limit notification bursts.", "6", "A modest cap prevents runaway Widget noise.", CoreHostSettingsApplyMode.Immediate),
             Describe("notifications", "NotificationDuplicateMerging", "Merge duplicate notifications", "Merge repeated equivalent notifications.", "true", "Deduplication reduces noise.", CoreHostSettingsApplyMode.Immediate),
-            Describe("notifications", "QuietHoursStart", "Quiet-hours start", "Optional local time in HH:mm format.", "", "Leave blank unless quiet hours are required.", CoreHostSettingsApplyMode.Immediate),
-            Describe("notifications", "QuietHoursEnd", "Quiet-hours end", "Optional local time in HH:mm format.", "", "Leave blank unless quiet hours are required.", CoreHostSettingsApplyMode.Immediate),
+            Describe("notifications", "QuietHoursEnabled", "Quiet hours enabled", "Suppress ordinary notifications during the configured local-time window.", "true", "Disable this or clear both time fields when quiet hours are not required.", CoreHostSettingsApplyMode.Immediate),
+            Describe("notifications", "QuietHoursStart", "Quiet-hours start", "Optional local time in HH:mm format. Clear both quiet-hours fields to disable quiet hours.", "23:00", "The recommended overnight start keeps the default state internally valid; clear both fields to disable quiet hours.", CoreHostSettingsApplyMode.Immediate),
+            Describe("notifications", "QuietHoursEnd", "Quiet-hours end", "Optional local time in HH:mm format. Clear both quiet-hours fields to disable quiet hours.", "08:00", "The recommended overnight end keeps the default state internally valid; clear both fields to disable quiet hours.", CoreHostSettingsApplyMode.Immediate),
 
             Describe("runtime-resources", "PauseVisualRefreshWhenPanelHidden", "Pause visual refresh while hidden", "Stop unnecessary visual refresh work when the panel is hidden.", "true", "Hidden visual work wastes resources.", CoreHostSettingsApplyMode.Immediate),
             Describe("runtime-resources", "PauseInactiveWidgetNetworkRequests", "Pause inactive Widget network requests", "Prevent low-value polling by inactive Widgets.", "true", "Inactive Widgets should not waste network or battery resources.", CoreHostSettingsApplyMode.ReservedForFutureBinding),
@@ -418,6 +420,10 @@ public sealed class CoreHostSettingsCenterService
                 settings.QuietHoursEnd),
             settings.QuietHoursEnd);
 
+        ValidateQuietHoursPair(
+            errors,
+            settings);
+
         ValidateHotkeyCollisions(
             errors,
             settings);
@@ -469,6 +475,36 @@ public sealed class CoreHostSettingsCenterService
         {
             errors.Add(
                 $"{key} must be blank or use HH:mm.");
+        }
+    }
+
+    private static void ValidateQuietHoursPair(
+        ICollection<string> errors,
+        CoreHostSettingsCenterState settings)
+    {
+        var startBlank =
+            string.IsNullOrWhiteSpace(
+                settings.QuietHoursStart);
+
+        var endBlank =
+            string.IsNullOrWhiteSpace(
+                settings.QuietHoursEnd);
+
+        if (startBlank
+            != endBlank)
+        {
+            errors.Add(
+                "QuietHoursStart and QuietHoursEnd must both be blank or both use HH:mm.");
+        }
+
+        if (
+            settings.QuietHoursEnabled
+            && startBlank
+            && endBlank
+        )
+        {
+            errors.Add(
+                "Quiet hours cannot remain enabled when both quiet-hours fields are blank.");
         }
     }
 

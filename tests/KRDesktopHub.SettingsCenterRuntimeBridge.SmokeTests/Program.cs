@@ -79,6 +79,60 @@ try
             "Active runtime settings-to-UI bridge validation failed.");
     }
 
+    var quietHoursDocument =
+        bridge.LoadOrCreate();
+
+    quietHoursDocument.Settings.QuietHoursStart =
+        "";
+
+    quietHoursDocument.Settings.QuietHoursEnd =
+        "";
+
+    bridge.Save(
+        quietHoursDocument);
+
+    var quietHoursRuntime =
+        runtimeStore.Reload();
+
+    var quietHoursReloadedDocument =
+        bridge.LoadOrCreate();
+
+    if (
+        quietHoursRuntime.QuietHoursEnabled
+        || quietHoursReloadedDocument.Settings.QuietHoursEnabled
+        || quietHoursReloadedDocument.Settings.QuietHoursStart != ""
+        || quietHoursReloadedDocument.Settings.QuietHoursEnd != ""
+    )
+    {
+        throw new InvalidOperationException(
+            "Cleared quiet-hours values reappeared after save and reload.");
+    }
+
+    quietHoursReloadedDocument.Settings.QuietHoursEnabled =
+        true;
+
+    quietHoursReloadedDocument.Settings.QuietHoursStart =
+        "21:30";
+
+    quietHoursReloadedDocument.Settings.QuietHoursEnd =
+        "06:45";
+
+    bridge.Save(
+        quietHoursReloadedDocument);
+
+    var restoredQuietHours =
+        bridge.LoadOrCreate();
+
+    if (
+        !restoredQuietHours.Settings.QuietHoursEnabled
+        || restoredQuietHours.Settings.QuietHoursStart != "21:30"
+        || restoredQuietHours.Settings.QuietHoursEnd != "06:45"
+    )
+    {
+        throw new InvalidOperationException(
+            "Explicit quiet-hours re-enable validation failed.");
+    }
+
     var centerPath =
         Path.Combine(
             tempRoot,

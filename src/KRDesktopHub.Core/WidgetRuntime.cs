@@ -27,6 +27,23 @@ public sealed class WidgetManifest
 
     public IReadOnlyList<string> Capabilities { get; init; } =
         Array.Empty<string>();
+
+    public bool DefaultEnabled { get; init; } =
+        true;
+
+    public bool DefaultCollapsed { get; init; }
+
+    public double PreferredExpandedHeightDip { get; init; } =
+        220;
+
+    public double MinimumCollapsedHeightDip { get; init; } =
+        WidgetHostFrameworkDefaults.DefaultCollapsedHeightDip;
+
+    public int SettingsSchemaVersion { get; init; } =
+        1;
+
+    public int StateSchemaVersion { get; init; } =
+        1;
 }
 
 public static class WidgetManifestValidator
@@ -101,6 +118,23 @@ public static class WidgetManifestValidator
         {
             throw new InvalidOperationException(
                 "Widget entry type is required.");
+        }
+
+        if (
+            !double.IsFinite(
+                manifest.PreferredExpandedHeightDip)
+            || manifest.PreferredExpandedHeightDip <= 0
+            || !double.IsFinite(
+                manifest.MinimumCollapsedHeightDip)
+            || manifest.MinimumCollapsedHeightDip <= 0
+            || manifest.MinimumCollapsedHeightDip
+                > manifest.PreferredExpandedHeightDip
+            || manifest.SettingsSchemaVersion < 1
+            || manifest.StateSchemaVersion < 1
+        )
+        {
+            throw new InvalidOperationException(
+                "Widget presentation metadata is invalid.");
         }
 
         var root =

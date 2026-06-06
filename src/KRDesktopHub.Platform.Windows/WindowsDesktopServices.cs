@@ -13,6 +13,46 @@ using Forms = System.Windows.Forms;
 
 namespace KRDesktopHub.Platform.Windows;
 
+public static class WindowsTrayVisualStateCatalog
+{
+    public const string Default =
+        "corehost.default";
+
+    public const string Information =
+        "corehost.information";
+
+    public const string Warning =
+        "corehost.warning";
+
+    public const string Error =
+        "corehost.error";
+
+    public const string Shield =
+        "corehost.shield";
+
+    public static Icon ResolveIcon(
+        string? visualState)
+    {
+        return visualState switch
+        {
+            Information =>
+                SystemIcons.Information,
+
+            Warning =>
+                SystemIcons.Warning,
+
+            Error =>
+                SystemIcons.Error,
+
+            Shield =>
+                SystemIcons.Shield,
+
+            _ =>
+                SystemIcons.Application
+        };
+    }
+}
+
 public sealed class WindowsTrayService : ITrayService
 {
     private readonly Forms.NotifyIcon _notifyIcon = new();
@@ -87,7 +127,9 @@ public sealed class WindowsTrayService : ITrayService
             image: null,
             (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty));
 
-        _notifyIcon.Icon = SystemIcons.Application;
+        _notifyIcon.Icon =
+            WindowsTrayVisualStateCatalog.ResolveIcon(
+                WindowsTrayVisualStateCatalog.Default);
         _notifyIcon.Text = "KR Desktop Hub";
         _notifyIcon.ContextMenuStrip = menu;
         _notifyIcon.Visible = true;
@@ -107,6 +149,9 @@ public sealed class WindowsTrayService : ITrayService
         ArgumentNullException.ThrowIfNull(status);
 
         _notifyIcon.Text = LimitTooltip(status.Tooltip);
+        _notifyIcon.Icon =
+            WindowsTrayVisualStateCatalog.ResolveIcon(
+                status.VisualState);
 
         return Task.CompletedTask;
     }

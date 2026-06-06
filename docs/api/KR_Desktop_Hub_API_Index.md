@@ -55,3 +55,11 @@ KR_Desktop_Hub_System_Policy_And_Notification_Governance_API_Batch8B2A.md
 - [Widget Capability Governance API - Batch 8D1](KR_Desktop_Hub_Widget_Capability_Governance_API_Batch8D1.md)
 - [Widget Broker Contracts API - Batch 8D1](KR_Desktop_Hub_Widget_Broker_Contracts_API_Batch8D1.md)
 - [Settings Center API - Batch 8D2](KR_Desktop_Hub_Settings_Center_API_Batch8D2.md)
+
+
+## Universal Widget framework foundation
+
+```text
+KR_Desktop_Hub_Universal_Widget_Framework_API_v1.0.md
+KR_Desktop_Hub_Widget_Package_Manifest_Schema_v1.1.json
+```

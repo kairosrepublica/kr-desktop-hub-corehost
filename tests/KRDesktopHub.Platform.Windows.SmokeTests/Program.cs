@@ -49,6 +49,19 @@ if (CoreHostTrayStatusText.Ready != "KR Desktop Hub - Ready")
         "Tray tooltip exact-text regression validation failed.");
 }
 
+if (
+    WindowsTrayVisualStateCatalog.ResolveIcon(
+        WindowsTrayVisualStateCatalog.Warning)
+    != System.Drawing.SystemIcons.Warning
+    || WindowsTrayVisualStateCatalog.ResolveIcon(
+        "unknown.visual-state")
+        != System.Drawing.SystemIcons.Application
+)
+{
+    throw new InvalidOperationException(
+        "Approved tray visual-state registry validation failed.");
+}
+
 foreach (var character in CoreHostTrayStatusText.Ready)
 {
     if (character > 127)

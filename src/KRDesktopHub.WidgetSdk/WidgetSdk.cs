@@ -151,7 +151,25 @@ public sealed record WidgetManifestDocument(
     WidgetActivationMode ActivationMode,
 
     [property: JsonPropertyName("capabilities")]
-    IReadOnlyList<string> Capabilities);
+    IReadOnlyList<string> Capabilities,
+
+    [property: JsonPropertyName("defaultEnabled")]
+    bool DefaultEnabled,
+
+    [property: JsonPropertyName("defaultCollapsed")]
+    bool DefaultCollapsed,
+
+    [property: JsonPropertyName("preferredExpandedHeightDip")]
+    double PreferredExpandedHeightDip,
+
+    [property: JsonPropertyName("minimumCollapsedHeightDip")]
+    double MinimumCollapsedHeightDip,
+
+    [property: JsonPropertyName("settingsSchemaVersion")]
+    int SettingsSchemaVersion,
+
+    [property: JsonPropertyName("stateSchemaVersion")]
+    int StateSchemaVersion);
 
 public static class WidgetManifestFile
 {
@@ -169,7 +187,8 @@ public static class WidgetManifestFile
         IKrWidget widget,
         string entryAssembly,
         string entryType,
-        WidgetActivationMode activationMode)
+        WidgetActivationMode activationMode,
+        WidgetPresentationMetadata? presentation = null)
     {
         ArgumentNullException.ThrowIfNull(
             widget);
@@ -183,6 +202,21 @@ public static class WidgetManifestFile
         var descriptor =
             widget.Descriptor;
 
+        presentation ??=
+            new WidgetPresentationMetadata(
+                DefaultEnabled:
+                    true,
+                DefaultCollapsed:
+                    false,
+                PreferredExpandedHeightDip:
+                    220,
+                MinimumCollapsedHeightDip:
+                    44,
+                SettingsSchemaVersion:
+                    1,
+                StateSchemaVersion:
+                    1);
+
         return new WidgetManifestDocument(
             descriptor.WidgetId,
             descriptor.DisplayName,
@@ -192,7 +226,13 @@ public static class WidgetManifestFile
             entryAssembly,
             entryType,
             activationMode,
-            descriptor.Capabilities);
+            descriptor.Capabilities,
+            presentation.DefaultEnabled,
+            presentation.DefaultCollapsed,
+            presentation.PreferredExpandedHeightDip,
+            presentation.MinimumCollapsedHeightDip,
+            presentation.SettingsSchemaVersion,
+            presentation.StateSchemaVersion);
     }
 
     public static async Task WriteAsync(

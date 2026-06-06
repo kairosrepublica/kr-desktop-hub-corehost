@@ -7,8 +7,8 @@ Portable-first and extensible desktop CoreHost for Windows 11 Widgets.
 ```text
 Project stage: CoreHost v0.2.1-rc1 frozen baseline
 Runnable application: implemented and locally validated
-CoreHost panel: intentionally blank WidgetHostSurface reserved for production Widgets
-Production Widgets: Phase 1 HTML/CSS interaction prototype gate in progress
+CoreHost panel: universal adaptive WidgetHostSurface foundation in progress
+Production Widgets: begin only after universal CoreHost Widget framework validation
 Canonical public checkpoint before this documentation sync: dabca8f
 ```
 
@@ -170,3 +170,22 @@ GitHub downloadable Widget releases use an outer AES-256 encrypted .7z archive.
 To request free authorization and the extraction password,
 email kr@kairosrepublica.com.
 ```
+
+
+## Universal Widget framework foundation
+
+The first CoreHost framework extension establishes:
+
+```text
+600 DIP default popup width
+Widget width inherited from CoreHost
+measured adaptive height
+collapsed, expanded and disabled host states
+host-level overflow scrolling only when required
+CoreHost-owned UI design tokens
+CoreHost-owned floating-dialog broker
+CoreHost-owned tray-icon request broker
+approved declarative tray visual states
+```
+
+Widgets remain isolated packages. They may consume the versioned CoreHost framework but must not import one another's code, styles, settings or mutable runtime state.

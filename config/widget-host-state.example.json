@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "widgets": [
+    {
+      "widget_id": "kr.world-time-space",
+      "enabled": true,
+      "collapsed": false,
+      "order": 10
+    },
+    {
+      "widget_id": "kr.trading-clock",
+      "enabled": true,
+      "collapsed": false,
+      "order": 20
+    }
+  ]
+}

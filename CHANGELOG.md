@@ -24,6 +24,25 @@ The project uses meaningful GitHub checkpoints. Changes should represent coheren
 - Empty commits and artificial commit volume remain prohibited.
 ## [Unreleased]
 
+### Added
+
+- Universal CoreHost Widget-framework foundation.
+- `600 DIP` default popup-width baseline.
+- Adaptive Widget layout controller with measured expanded height, collapsed height, disabled state and host-level overflow fallback.
+- CoreHost-owned Widget UI token resource dictionary.
+- Governed floating-dialog broker contract.
+- Governed tray-icon request broker with approved-state registry, priority, expiry and fallback handling.
+- Regression coverage for invalid Widget presentation metadata, unknown tray-icon states, expired tray-icon requests, missing tray-icon capability, priority arbitration and fallback restoration.
+- Solution-completeness gate for every discovered smoke-test project: solution registration, in-section Release build mapping and individual pre-run build verification.
+- Additional deny-by-default brokered capabilities for UI surfaces, height reporting, state, settings, context menus, dialogs, tray icons and diagnostics.
+- Widget-framework smoke tests.
+
+### Changed
+
+- Widget package manifest foundation now accepts optional presentation and state-schema metadata while preserving schema-1 compatibility.
+- Windows tray adapter now maps declarative CoreHost visual states to approved built-in icons.
+
+
 ### Fixed
 
 - Corrected installed review-shell iframe paths for KR World Time-Space and KR Trading Clock.

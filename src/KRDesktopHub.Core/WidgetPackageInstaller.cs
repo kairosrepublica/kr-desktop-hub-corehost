@@ -29,6 +29,7 @@ public enum WidgetPackageValidationCode
     MissingEntryAssembly,
     MissingEntryType,
     UnsupportedCapability,
+    InvalidPresentationMetadata,
     DevelopmentFolderInstallDisabled,
     UnsafeDevelopmentFolderEntry
 }
@@ -84,6 +85,35 @@ public sealed class WidgetPackageManifest
         "capabilities")]
     public string[] Capabilities { get; set; } =
         Array.Empty<string>();
+
+    [JsonPropertyName(
+        "default_enabled")]
+    public bool DefaultEnabled { get; set; } =
+        true;
+
+    [JsonPropertyName(
+        "default_collapsed")]
+    public bool DefaultCollapsed { get; set; }
+
+    [JsonPropertyName(
+        "preferred_expanded_height_dip")]
+    public double PreferredExpandedHeightDip { get; set; } =
+        220;
+
+    [JsonPropertyName(
+        "minimum_collapsed_height_dip")]
+    public double MinimumCollapsedHeightDip { get; set; } =
+        WidgetHostFrameworkDefaults.DefaultCollapsedHeightDip;
+
+    [JsonPropertyName(
+        "settings_schema_version")]
+    public int SettingsSchemaVersion { get; set; } =
+        1;
+
+    [JsonPropertyName(
+        "state_schema_version")]
+    public int StateSchemaVersion { get; set; } =
+        1;
 }
 
 public sealed record WidgetPackageInstallerOptions(
@@ -602,6 +632,24 @@ public sealed class InternalWidgetPackageInstaller
             throw new WidgetPackageValidationException(
                 WidgetPackageValidationCode.MissingEntryType,
                 "Entry type is required.");
+        }
+
+        if (
+            !double.IsFinite(
+                manifest.PreferredExpandedHeightDip)
+            || manifest.PreferredExpandedHeightDip <= 0
+            || !double.IsFinite(
+                manifest.MinimumCollapsedHeightDip)
+            || manifest.MinimumCollapsedHeightDip <= 0
+            || manifest.MinimumCollapsedHeightDip
+                > manifest.PreferredExpandedHeightDip
+            || manifest.SettingsSchemaVersion < 1
+            || manifest.StateSchemaVersion < 1
+        )
+        {
+            throw new WidgetPackageValidationException(
+                WidgetPackageValidationCode.InvalidPresentationMetadata,
+                "Widget presentation metadata is invalid.");
         }
 
         foreach (var capability in

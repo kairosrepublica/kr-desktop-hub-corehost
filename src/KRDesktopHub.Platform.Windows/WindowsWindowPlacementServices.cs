@@ -45,13 +45,13 @@ public sealed record WindowPlacementDefaults(
     public static WindowPlacementDefaults Recommended =>
         new(
             DefaultWidth:
-                360,
+                600,
 
             DefaultHeight:
                 720,
 
             MinimumWidth:
-                260,
+                360,
 
             MinimumHeight:
                 320);

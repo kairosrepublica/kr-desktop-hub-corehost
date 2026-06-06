@@ -64,7 +64,55 @@ public static class WidgetCapabilityCatalog
                     new WidgetCapabilityDefinition(
                         WidgetCapabilityIds.ScriptExecute,
                         WidgetCapabilityDisposition.Prohibited,
-                        "Arbitrary external-script execution is prohibited.")
+                        "Arbitrary external-script execution is prohibited."),
+
+                [WidgetCapabilityIds.UiSurface] =
+                    new WidgetCapabilityDefinition(
+                        WidgetCapabilityIds.UiSurface,
+                        WidgetCapabilityDisposition.Brokered,
+                        "Render a governed Widget surface inside the CoreHost panel."),
+
+                [WidgetCapabilityIds.HeightReport] =
+                    new WidgetCapabilityDefinition(
+                        WidgetCapabilityIds.HeightReport,
+                        WidgetCapabilityDisposition.Brokered,
+                        "Report measured desired height to the adaptive CoreHost layout controller."),
+
+                [WidgetCapabilityIds.SettingsPersist] =
+                    new WidgetCapabilityDefinition(
+                        WidgetCapabilityIds.SettingsPersist,
+                        WidgetCapabilityDisposition.Brokered,
+                        "Persist Widget-owned settings through the governed CoreHost boundary."),
+
+                [WidgetCapabilityIds.StatePersist] =
+                    new WidgetCapabilityDefinition(
+                        WidgetCapabilityIds.StatePersist,
+                        WidgetCapabilityDisposition.Brokered,
+                        "Persist Widget-owned state through the governed CoreHost boundary."),
+
+                [WidgetCapabilityIds.ContextMenuRegister] =
+                    new WidgetCapabilityDefinition(
+                        WidgetCapabilityIds.ContextMenuRegister,
+                        WidgetCapabilityDisposition.Brokered,
+                        "Register governed Widget context-menu actions."),
+
+                [WidgetCapabilityIds.DialogRequest] =
+                    new WidgetCapabilityDefinition(
+                        WidgetCapabilityIds.DialogRequest,
+                        WidgetCapabilityDisposition.Brokered,
+                        "Request a CoreHost-owned floating dialog that is not clipped by Widget bounds."),
+
+                [WidgetCapabilityIds.TrayIconRequest] =
+                    new WidgetCapabilityDefinition(
+                        WidgetCapabilityIds.TrayIconRequest,
+                        WidgetCapabilityDisposition.Brokered,
+                        "Request an approved declarative tray-icon state through CoreHost arbitration."),
+
+                [WidgetCapabilityIds.DiagnosticsWrite] =
+                    new WidgetCapabilityDefinition(
+                        WidgetCapabilityIds.DiagnosticsWrite,
+                        WidgetCapabilityDisposition.Brokered,
+                        "Write sanitized Widget diagnostics through the CoreHost boundary.")
             };
 
     public static IReadOnlyCollection<
@@ -72,6 +120,19 @@ public static class WidgetCapabilityCatalog
             Definitions
                 .Values
                 .ToArray();
+
+    public static IReadOnlySet<string> PackageApprovableIds =>
+        new HashSet<string>(
+            Definitions
+                .Values
+                .Where(
+                    definition =>
+                        definition.Disposition
+                        == WidgetCapabilityDisposition.Brokered)
+                .Select(
+                    definition =>
+                        definition.Id),
+            StringComparer.OrdinalIgnoreCase);
 
     public static bool TryGet(
         string capabilityId,

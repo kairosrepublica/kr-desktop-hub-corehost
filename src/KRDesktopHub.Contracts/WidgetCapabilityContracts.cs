@@ -30,6 +30,30 @@ public static class WidgetCapabilityIds
 
     public const string ScriptExecute =
         "script.execute";
+
+    public const string UiSurface =
+        "ui.surface";
+
+    public const string HeightReport =
+        "height.report";
+
+    public const string SettingsPersist =
+        "settings.persist";
+
+    public const string StatePersist =
+        "state.persist";
+
+    public const string ContextMenuRegister =
+        "context-menu.register";
+
+    public const string DialogRequest =
+        "dialog.request";
+
+    public const string TrayIconRequest =
+        "tray-icon.request";
+
+    public const string DiagnosticsWrite =
+        "diagnostics.write";
 }
 
 public enum WidgetCapabilityDisposition

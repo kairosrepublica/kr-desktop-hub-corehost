@@ -31,21 +31,21 @@ Completed CoreHost capabilities include:
 
 The popup panel is intentionally blank and reserved for production Widgets.
 
-## Phase 1 â€” Production Widget foundation
+## Phase 1 ├óΓé¼ΓÇ¥ Production Widget foundation
 
-### Step 1 â€” HTML/CSS interaction prototype gate
+### Step 1 ├óΓé¼ΓÇ¥ HTML/CSS interaction prototype gate
 
 Status: in progress.
 
 Prepare and approve an interactive browser prototype before writing Windows Widget production code.
 
-### Step 2 â€” KR World Time-Space Widget
+### Step 2 ├óΓé¼ΓÇ¥ KR World Time-Space Widget
 
 Status: planned.
 
 Build a synchronized multi-city time-comparison Widget with date, local time, time-zone and holiday context.
 
-### Step 3 â€” KR Trading Clock Widget
+### Step 3 ├óΓé¼ΓÇ¥ KR Trading Clock Widget
 
 Status: planned.
 
@@ -73,3 +73,27 @@ v0.7
 ```
 
 After Owner approval, production engineering begins with KR World Time-Space as a standalone Widget.
+
+
+## Universal Widget framework foundation
+
+Status: implementation checkpoint prepared.
+
+Before production Widgets, CoreHost gains one reusable framework:
+
+```text
+600 DIP default popup width
+adaptive Widget height negotiation
+collapsed, expanded and disabled host states
+shared CoreHost UI token layer
+floating-dialog request broker
+tray-icon request broker
+approved visual-state registry
+```
+
+Production sequence after framework validation:
+
+```text
+KR World Time-Space
+KR Trading Clock
+```

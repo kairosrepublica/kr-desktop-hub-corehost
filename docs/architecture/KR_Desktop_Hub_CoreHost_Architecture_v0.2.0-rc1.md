@@ -107,3 +107,20 @@ clean ZIP extraction
 extracted EXE self-test
 SHA-256 sidecar generation
 ```
+
+
+## Universal Widget framework extension
+
+The next CoreHost foundation adds:
+
+```text
+600 DIP default popup width
+adaptive Widget height controller
+collapsed, expanded and disabled host state
+CoreHost-owned UI design tokens
+floating-dialog request broker
+tray-icon request broker
+approved Windows tray visual-state mapping
+```
+
+The extension remains generic. Business logic stays inside isolated Widget packages.

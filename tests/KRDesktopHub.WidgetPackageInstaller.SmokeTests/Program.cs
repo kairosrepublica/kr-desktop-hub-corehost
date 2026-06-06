@@ -252,6 +252,40 @@ try
             "Rejected-package quarantine validation failed.");
     }
 
+    var invalidPresentationArchive =
+        Path.Combine(
+            sourceRoot,
+            "kr.fixture.invalid-presentation.krwidget.zip");
+
+    var invalidPresentationManifest =
+        CreateManifest(
+            widgetId:
+                "kr.fixture.invalid-presentation",
+            packageVersion:
+                "1.0.0",
+            capabilities:
+                new[]
+                {
+                    "clock.read"
+                });
+
+    invalidPresentationManifest.PreferredExpandedHeightDip =
+        0;
+
+    CreateWidgetArchive(
+        invalidPresentationArchive,
+        invalidPresentationManifest,
+        extraEntries:
+            null);
+
+    await ExpectValidationFailureAsync(
+        () =>
+            installer.InstallArchiveAsync(
+                invalidPresentationArchive,
+                CancellationToken.None),
+        WidgetPackageValidationCode.InvalidPresentationMetadata,
+        "Invalid Widget presentation-metadata validation failed.");
+
     var traversalArchive =
         Path.Combine(
             sourceRoot,

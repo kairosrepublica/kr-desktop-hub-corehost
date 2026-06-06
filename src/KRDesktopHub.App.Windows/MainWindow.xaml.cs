@@ -15,9 +15,50 @@ public partial class MainWindow : Window
 
     public event EventHandler? SettingsCenterRequested;
 
+    public const double DefaultPopupWidthDip =
+        600;
+
     public MainWindow()
     {
         InitializeComponent();
+    }
+
+    public void ApplyWidgetHostDesiredHeight(
+        double desiredHeightDip,
+        double maximumWorkAreaHeightDip)
+    {
+        if (
+            !double.IsFinite(
+                desiredHeightDip)
+            || desiredHeightDip <= 0
+        )
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(desiredHeightDip));
+        }
+
+        if (
+            !double.IsFinite(
+                maximumWorkAreaHeightDip)
+            || maximumWorkAreaHeightDip <= 0
+        )
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(maximumWorkAreaHeightDip));
+        }
+
+        Width =
+            DefaultPopupWidthDip;
+
+        Height =
+            Math.Min(
+                desiredHeightDip,
+                maximumWorkAreaHeightDip);
+
+        WidgetHostScrollViewer.VerticalScrollBarVisibility =
+            desiredHeightDip > maximumWorkAreaHeightDip
+                ? System.Windows.Controls.ScrollBarVisibility.Auto
+                : System.Windows.Controls.ScrollBarVisibility.Disabled;
     }
 
     public void AllowCloseAndExit()

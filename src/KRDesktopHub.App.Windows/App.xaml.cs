@@ -141,7 +141,10 @@ public partial class App : Application
                 CancellationToken.None);
 
             await _tray.SetStatusAsync(
-                new TrayStatus( CoreHostTrayStatusText.Ready),
+                new TrayStatus(
+                    CoreHostTrayStatusText.Ready,
+                    VisualState:
+                        WindowsTrayVisualStateCatalog.Default),
 
                 CancellationToken.None);
 
@@ -647,7 +650,7 @@ public partial class App : Application
                         0),
 
                     allowedCapabilities:
-                        Array.Empty<string>());
+                        WidgetCapabilityCatalog.PackageApprovableIds);
 
         if (allowDevelopmentFolderInstall)
         {

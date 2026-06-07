@@ -166,14 +166,36 @@ function Stop-ValidationProcess {
     }
 }
 
-Set-Location $RepoRoot
+Set-Location -LiteralPath $RepoRoot
+
+[System.IO.Directory]::SetCurrentDirectory(
+    $RepoRoot)
+
+$Solutions =
+    @(
+        Get-ChildItem `
+            -LiteralPath $RepoRoot `
+            -File `
+            -Filter "*.sln"
+    )
+
+if ($Solutions.Count -ne 1) {
+    throw "Expected exactly one root solution file, found $($Solutions.Count)."
+}
+
+$SolutionPath =
+    $Solutions[0].FullName
+
+Write-Host "Solution:"
+Write-Host $SolutionPath
+
 foreach ($RelativeArtifactPath in $ExpectedIgnoredRelativePaths) {
     git check-ignore -q --no-index -- $RelativeArtifactPath
 
     Assert-LastExitCode "Local release artifact path is not ignored: $RelativeArtifactPath"
 }
 $StatusBefore = @(
-    git status --porcelain
+    git status --porcelain --untracked-files=all
 )
 
 Assert-LastExitCode "Unable to read Git status."
@@ -231,7 +253,7 @@ try {
     Write-Host "`n=== Release validation 1. Build solution ===" -ForegroundColor Cyan
 
     & $DotNetExe build `
-        ".\KR_Desktop_Hub.sln" `
+        $SolutionPath `
         --configuration Release
 
     Assert-LastExitCode "Release-candidate solution build failed."
@@ -252,11 +274,11 @@ try {
                 Sort-Object FullName |
                 ForEach-Object {
                     $RelativePath =
-                        $_.FullName
-                            .Substring(
+                        (
+                            $_.FullName.Substring(
                                 $RepoRoot.Length)
-                            .TrimStart(
-                                '\')
+                        ).TrimStart(
+                            '\')
 
                     ".\" + $RelativePath
                 }
@@ -853,7 +875,7 @@ try {
 
     $StatusAfter =
         @(
-            git status --porcelain
+            git status --porcelain --untracked-files=all
         )
 
     Assert-LastExitCode "Unable to read Git status after release generation."

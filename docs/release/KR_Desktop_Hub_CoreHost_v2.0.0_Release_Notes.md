@@ -100,3 +100,15 @@ KR_Desktop_Hub_CoreHost_v2.0.0_Manual_Acceptance_Checklist.md
 ```
 
 Do not publish the final GitHub `v2.0.0` release until shell visual replay passes.
+
+## Portable release tooling guard
+
+The release helper:
+
+```text
+discovers exactly one root solution
+anchors the process working directory
+discovers every smoke-test project dynamically
+uses parser-safe relative-path conversion
+expands untracked paths during clean-repository checks
+```

@@ -14,6 +14,7 @@ All notable changes to KR Desktop Hub CoreHost will be documented in this file.
 - Added Widget developer API v2.0.0 and CoreHost API surface map.
 - Added explicit CoreHost and production-Widgets repository separation architecture note.
 - Upgraded portable release tooling to discover and run every smoke-test project dynamically.
+- Hardened portable release tooling with parser-safe relative-path discovery, dynamic root-solution discovery, process working-directory anchoring and expanded Git-status inspection.
 
 ### Changed
 

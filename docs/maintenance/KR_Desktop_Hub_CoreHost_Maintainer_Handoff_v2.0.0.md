@@ -93,3 +93,19 @@ tray default visual state
 ```
 
 Widgets must not submit arbitrary icon-file paths or directly own the tray icon.
+
+## Portable-release helper invariant
+
+```text
+tools/BUILD_VERIFY_PORTABLE_RELEASE.ps1
+```
+
+must:
+
+```text
+discover exactly one root solution
+anchor both PowerShell and process working directories
+discover every smoke-test project dynamically
+convert absolute project paths with parser-safe method invocation
+expand untracked paths during repository-clean checks
+```

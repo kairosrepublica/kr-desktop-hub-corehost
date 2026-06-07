@@ -109,3 +109,20 @@ discover every smoke-test project dynamically
 convert absolute project paths with parser-safe method invocation
 expand untracked paths during repository-clean checks
 ```
+
+## Final tray-popup shell invariant
+
+```text
+MainWindow tray popup:
+ShowActivated = false
+ShowInTaskbar = false
+WS_EX_NOACTIVATE = enabled
+ordinary Show does not call Activate()
+title-bar minimize is intercepted and converted to HidePanel
+title-bar close hides to tray by default
+standard Collapse / Expand control is non-focusable
+```
+
+Do not apply `WS_EX_NOACTIVATE` to Settings Center, Widget Management or governed dialogs.
+
+Widgets requiring text entry or input-method-editor composition must use governed dialogs.

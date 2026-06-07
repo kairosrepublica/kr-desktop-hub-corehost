@@ -15,6 +15,9 @@ All notable changes to KR Desktop Hub CoreHost will be documented in this file.
 - Added explicit CoreHost and production-Widgets repository separation architecture note.
 - Upgraded portable release tooling to discover and run every smoke-test project dynamically.
 - Hardened portable release tooling with parser-safe relative-path discovery, dynamic root-solution discovery, process working-directory anchoring and expanded Git-status inspection.
+- Added tray-popup native `WS_EX_NOACTIVATE` policy after Owner replay proved that WPF `ShowActivated = false` alone did not eliminate Microsoft Pinyin focus disturbances.
+- Added minimize-to-tray interception so the title-bar minimize command hides the popup and leaves only the tray icon.
+- Made the standard Collapse / Expand control non-focusable to avoid unnecessary keyboard-focus transitions inside the tray popup.
 
 ### Changed
 

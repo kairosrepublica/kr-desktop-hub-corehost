@@ -18,6 +18,9 @@ if (
     CoreHostPanelShellPolicy.ShowActivated
     || CoreHostPanelShellPolicy.ShowInTaskbar
     || CoreHostPanelShellPolicy.ForceActivateAfterOrdinaryShow
+    || !CoreHostPanelShellPolicy.UseNoActivateExtendedStyle
+    || !CoreHostPanelShellPolicy.HideOnMinimize
+    || CoreHostPanelShellPolicy.CollapseToggleReceivesKeyboardFocus
 )
 {
     throw new InvalidOperationException(
@@ -77,7 +80,10 @@ var shellDiagnostic =
                     false,
 
                 ShowInTaskbar:
-                    false));
+                    false,
+
+                NoActivateExtendedStyle:
+                    true));
 
 if (
     !shellDiagnostic.Contains(
@@ -88,6 +94,9 @@ if (
         StringComparison.Ordinal)
     || !shellDiagnostic.Contains(
         "showInTaskbar=False",
+        StringComparison.Ordinal)
+    || !shellDiagnostic.Contains(
+        "noActivateExtendedStyle=True",
         StringComparison.Ordinal)
 )
 {

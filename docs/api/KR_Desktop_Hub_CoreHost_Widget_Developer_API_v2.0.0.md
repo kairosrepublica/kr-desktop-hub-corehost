@@ -329,3 +329,28 @@ KR_Desktop_Hub_Widget_Capability_Governance_API_Batch8D1.md
 KR_Desktop_Hub_Widget_Package_Installer_API_Batch8C1.md
 KR_Desktop_Hub_Widget_Package_Manifest_Schema_v1.2.json
 ```
+
+## 11. Non-activating tray-popup interaction rule
+
+The main CoreHost popup is a non-activating tray surface.
+
+```text
+ShowActivated = false
+ShowInTaskbar = false
+WS_EX_NOACTIVATE = enabled on MainWindow only
+```
+
+A production Widget may use mouse interaction inside the popup.
+
+A production Widget that requires:
+
+```text
+text entry
+keyboard-intensive editing
+input-method-editor composition
+accessibility focus workflow
+```
+
+must request a governed host-owned dialog rather than embedding the editable workflow directly inside the non-activating tray popup.
+
+The standard Collapse / Expand control is CoreHost-owned and intentionally non-focusable.

@@ -102,3 +102,13 @@ CoreHostDefaultIconCatalog.Resolve()
 ```
 
 Production Widgets must not replace the CoreHost default icon directly. A Widget may request only approved declarative tray-icon states through the constrained CoreHost-owned broker.
+
+## Tray-popup native shell boundary
+
+| Surface | CoreHost type | Widget access |
+|---|---|---|
+| Main popup no-activate native adapter | `CoreHostPanelNativeShellAdapter` | Forbidden |
+| Minimize-to-tray interception | `MainWindow`, `App.HidePanel` | Forbidden |
+| Standard Collapse / Expand focus policy | `WidgetHostCard` | CoreHost-owned chrome only |
+
+Production Widgets that require editable keyboard focus must use a governed dialog request.

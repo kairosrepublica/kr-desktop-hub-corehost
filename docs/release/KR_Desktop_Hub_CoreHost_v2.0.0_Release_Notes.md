@@ -59,9 +59,12 @@ sanitized shell lifecycle diagnostics
 ShowActivated = false
 ShowInTaskbar = false
 ordinary Show does not force Activate()
+WS_EX_NOACTIVATE is applied to the main tray popup only
+title-bar minimize hides to tray
+standard Collapse / Expand control does not receive keyboard focus
 ```
 
-The popup remains manually interactive when selected by the Owner.
+The popup remains mouse-interactive. Editable keyboard workflows must use governed dialogs.
 
 ## CoreHost and Widget separation
 

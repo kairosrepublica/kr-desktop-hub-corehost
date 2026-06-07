@@ -22,6 +22,8 @@ public partial class MainWindow
                 StringComparer.OrdinalIgnoreCase);
 
     private bool _allowCloseAndExit;
+    private bool _minimizeToTrayRequestPending;
+    private CoreHostPanelNativeShellAdapter? _nativeShellAdapter;
 
     public bool CloseButtonHidesToTray { get; set; } =
         true;
@@ -29,6 +31,8 @@ public partial class MainWindow
     public event EventHandler? CloseExitRequested;
 
     public event EventHandler? CloseToTrayRequested;
+
+    public event EventHandler? MinimizeToTrayRequested;
 
     public event EventHandler? WidgetManagerRequested;
 
@@ -54,6 +58,11 @@ public partial class MainWindow
             CoreHostPanelShellPolicy
                 .ShowInTaskbar;
     }
+
+    public bool NoActivateExtendedStyleApplied =>
+        _nativeShellAdapter?
+            .NoActivateExtendedStyleApplied
+        ?? false;
 
     public void RenderInstalledWidgets(
         InstalledWidgetCatalogSnapshot snapshot,
@@ -249,6 +258,76 @@ public partial class MainWindow
         WidgetHostRefreshRequested?.Invoke(
             this,
             EventArgs.Empty);
+    }
+
+    protected override void OnSourceInitialized(
+        EventArgs e)
+    {
+        base.OnSourceInitialized(
+            e);
+
+        _nativeShellAdapter ??=
+            new CoreHostPanelNativeShellAdapter(
+                this,
+                RequestMinimizeToTray);
+
+        _nativeShellAdapter.AttachIfReady();
+    }
+
+    protected override void OnStateChanged(
+        EventArgs e)
+    {
+        base.OnStateChanged(
+            e);
+
+        if (
+            CoreHostPanelShellPolicy.HideOnMinimize
+            && WindowState == WindowState.Minimized
+        )
+        {
+            RequestMinimizeToTray();
+        }
+    }
+
+    protected override void OnClosed(
+        EventArgs e)
+    {
+        _nativeShellAdapter?.Dispose();
+
+        _nativeShellAdapter =
+            null;
+
+        base.OnClosed(
+            e);
+    }
+
+    private void RequestMinimizeToTray()
+    {
+        if (_minimizeToTrayRequestPending)
+        {
+            return;
+        }
+
+        _minimizeToTrayRequestPending =
+            true;
+
+        _ =
+            Dispatcher.BeginInvoke(
+                new Action(
+                    () =>
+                    {
+                        try
+                        {
+                            MinimizeToTrayRequested?.Invoke(
+                                this,
+                                EventArgs.Empty);
+                        }
+                        finally
+                        {
+                            _minimizeToTrayRequestPending =
+                                false;
+                        }
+                    }));
     }
 
     protected override void OnClosing(

@@ -23,8 +23,12 @@ Complete this checklist after the shell release-candidate checkpoint and portabl
 [ ] Confirm popup Show and Hide remain stable.
 [ ] Press the configured global hotkey repeatedly.
 [ ] Confirm popup Show and Hide remain stable.
+[ ] Click the title-bar minimize button.
+[ ] Confirm the popup disappears completely and only the tray icon remains.
+[ ] Confirm the popup does not collapse toward the lower-left screen edge.
 [ ] Click the title-bar close button.
-[ ] Confirm the process remains alive in the tray.
+[ ] Confirm the popup disappears and the process remains alive in the tray.
+[ ] Open Settings Center and confirm the close-button policy can still be changed from hide-to-tray to exit.
 [ ] Use tray Exit.
 [ ] Confirm the process terminates.
 ```
@@ -46,6 +50,12 @@ Complete this checklist after the shell release-candidate checkpoint and portabl
 [ ] Open and close the popup from the tray at least 20 times.
 [ ] Open and close the popup from the global hotkey at least 20 times.
 [ ] Confirm the Chinese / English indicator does not jump or flash.
+[ ] Click Collapse once.
+[ ] Confirm the first Collapse click does not disturb the indicator.
+[ ] Click Expand once.
+[ ] Confirm the first Expand click does not disturb the indicator.
+[ ] Click elsewhere on the desktop after Collapse / Expand.
+[ ] Confirm leaving the popup does not disturb the indicator.
 [ ] Confirm the actual language mode does not change.
 ```
 
@@ -84,6 +94,7 @@ Complete this checklist after the shell release-candidate checkpoint and portabl
 [ ] Confirm records with category shell.panel.lifecycle exist.
 [ ] Confirm records contain ShowActivated=False.
 [ ] Confirm records contain ShowInTaskbar=False.
+[ ] Confirm records contain noActivateExtendedStyle=True after the popup handle initializes.
 [ ] Confirm no credentials or secrets appear.
 ```
 

@@ -165,6 +165,11 @@ public partial class App : Application
                     HidePanel(
                         "title-bar-close-to-tray");
 
+            _panel.MinimizeToTrayRequested +=
+                (_, _) =>
+                    HidePanel(
+                        "title-bar-minimize-to-tray");
+
             _panel.WidgetManagerRequested +=
                 (_, _) =>
                     ShowWidgetManager();
@@ -986,6 +991,12 @@ public partial class App : Application
         var wasVisible =
             _panel.IsVisible;
 
+        if (_panel.WindowState == WindowState.Minimized)
+        {
+            _panel.WindowState =
+                WindowState.Normal;
+        }
+
         _panel.Hide();
 
         _systemPolicies?.SetPanelVisibility(
@@ -1102,7 +1113,10 @@ public partial class App : Application
                         _panel.ShowActivated,
 
                     ShowInTaskbar:
-                        _panel.ShowInTaskbar);
+                        _panel.ShowInTaskbar,
+
+                    NoActivateExtendedStyle:
+                        _panel.NoActivateExtendedStyleApplied);
 
             await _shellDiagnostics.WriteAsync(
                 "INFO",

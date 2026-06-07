@@ -2,7 +2,7 @@
 
 All notable changes to KR Desktop Hub CoreHost will be documented in this file.
 
-## Unreleased — CoreHost v2.0.0 Windows shell release candidate
+## [2.0.0] - 2026-06-07 — Delivered CoreHost platform
 
 ### Added
 
@@ -25,7 +25,7 @@ All notable changes to KR Desktop Hub CoreHost will be documented in this file.
 - Removed production Widget prototypes, production Widget requirements and the production Widget placeholder from the CoreHost repository. They move to the separate `kairosrepublica/kr-desktop-hub-widgets` repository.
 - Updated public README, Product Scope, Architecture, Roadmap and API index for the v2.0.0 platform boundary.
 
-### Manual acceptance required
+### Manual acceptance completed
 
 - Verify no Microsoft Pinyin Chinese / English indicator jump.
 - Verify no taskbar notification-area darkening.
@@ -185,3 +185,14 @@ The workflow builds, runs all smoke tests, publishes a self-contained applicatio
 - Added exact capability approval reconciliation and host-owned revocation of stale tray-icon requests.
 - Routed Widget Manager explicit refreshes through one accepted-catalog coordinator pipeline.
 - Subscribed the Windows host to framework `LayoutChanged` so desired-height reports refresh host-level scrolling without package discovery or outer-popup resize.
+
+
+## Public GitHub Release-governance correction — 2026-06-07
+
+### Fixed
+
+- Backfilled GitHub Releases for meaningful historical CoreHost milestones that were previously represented by commits or tags without corresponding GitHub Release pages.
+- Published `v2.0.0` as the stable portable CoreHost delivery.
+- Added a public release-history summary and sanitized debugging-history summary to `README.md`.
+- Added a complete sanitized public development and debug-history document.
+- Strengthened public governance so externally meaningful checkpoints must publish Git tags and GitHub Releases promptly rather than stopping at commits.

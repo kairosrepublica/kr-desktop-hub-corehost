@@ -303,6 +303,88 @@ public sealed class WidgetHostLayoutController
         return snapshot;
     }
 
+    public WidgetHostLayoutSnapshot ReconcileActiveRegistrations(
+        IEnumerable<WidgetHostRegistration> registrations,
+        double maximumViewportHeightDip =
+            double.PositiveInfinity)
+    {
+        ArgumentNullException.ThrowIfNull(
+            registrations);
+
+        var next =
+            registrations
+                .ToArray();
+
+        foreach (var registration in
+            next)
+        {
+            ValidateRegistration(
+                registration);
+        }
+
+        var nextByWidgetId =
+            next
+                .ToDictionary(
+                    registration =>
+                        registration.WidgetId,
+                    StringComparer.OrdinalIgnoreCase);
+
+        WidgetHostLayoutSnapshot snapshot;
+
+        lock (_gate)
+        {
+            _registrations.Clear();
+
+            foreach (var registration in
+                nextByWidgetId.Values)
+            {
+                _registrations[registration.WidgetId] =
+                    registration;
+
+                if (!_persistent.ContainsKey(
+                    registration.WidgetId))
+                {
+                    _persistent[registration.WidgetId] =
+                        new WidgetHostPersistentItem(
+                            registration.WidgetId,
+                            registration.Presentation.DefaultEnabled,
+                            registration.Presentation.DefaultCollapsed,
+                            registration.Order);
+                }
+
+                if (!_measuredHeights.ContainsKey(
+                    registration.WidgetId))
+                {
+                    _measuredHeights[registration.WidgetId] =
+                        registration.Presentation.PreferredExpandedHeightDip;
+                }
+            }
+
+            foreach (var widgetId in
+                _measuredHeights
+                    .Keys
+                    .Where(
+                        widgetId =>
+                            !nextByWidgetId.ContainsKey(
+                                widgetId))
+                    .ToArray())
+            {
+                _measuredHeights.Remove(
+                    widgetId);
+            }
+
+            SaveLocked();
+            snapshot =
+                BuildSnapshotLocked(
+                    maximumViewportHeightDip);
+        }
+
+        LayoutChanged?.Invoke(
+            snapshot);
+
+        return snapshot;
+    }
+
     public WidgetHostLayoutSnapshot SetEnabled(
         string widgetId,
         bool enabled,
@@ -960,6 +1042,48 @@ public sealed class GovernedWidgetTrayIconBroker
                 CreateActiveKey(
                     widgetId,
                     requestId));
+
+            selected =
+                SelectLocked(
+                    _utcNow());
+
+            _current =
+                selected;
+        }
+
+        await _applySelection(
+            selected,
+            cancellationToken);
+
+        return selected;
+    }
+
+    public async Task<WidgetTrayIconSelection> RevokeRequestsExceptAsync(
+        IReadOnlySet<string> approvedWidgetIds,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(
+            approvedWidgetIds);
+
+        WidgetTrayIconSelection selected;
+
+        lock (_gate)
+        {
+            foreach (var key in
+                _active
+                    .Where(
+                        pair =>
+                            !approvedWidgetIds.Contains(
+                                pair.Value.WidgetId))
+                    .Select(
+                        pair =>
+                            pair.Key)
+                    .ToArray())
+            {
+                _active.Remove(
+                    key);
+            }
 
             selected =
                 SelectLocked(

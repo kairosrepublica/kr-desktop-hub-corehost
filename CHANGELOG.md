@@ -145,3 +145,12 @@ The workflow builds, runs all smoke tests, publishes a self-contained applicatio
 - Removed Widget-driven outer height changes: Expand and Collapse now affect Widget cards only.
 - Routed vertical overflow through the CoreHost ScrollViewer instead of resizing the popup.
 - Preserved the alpha5 serialized catalog refresh, last-known-good snapshot retention and transactional panel replacement protections.
+
+## Unreleased — CoreHost stabilization: transactional installed-catalog refresh
+
+- Added pure staged installed-Widget discovery: manifest scans no longer mutate active host registrations before candidate acceptance.
+- Added exact accepted-catalog reconciliation with active-registration and measured-height pruning while preserving dormant Owner host-state preferences for later reinstall.
+- Strengthened degraded-candidate protection so discovery failures cannot silently remove previously accepted disabled Widgets.
+- Added exact capability approval reconciliation and host-owned revocation of stale tray-icon requests.
+- Routed Widget Manager explicit refreshes through one accepted-catalog coordinator pipeline.
+- Subscribed the Windows host to framework `LayoutChanged` so desired-height reports refresh host-level scrolling without package discovery or outer-popup resize.

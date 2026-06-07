@@ -111,3 +111,23 @@ WidgetHostChromeTransitionController
 InstalledWidgetCatalogProjection
 InstalledWidgetHostCompositionCoordinator.SynchronizeStateAsync
 ```
+
+## CoreHost transactional installed-catalog refresh checkpoint
+
+Architecture note:
+
+```text
+docs/architecture/KR_Desktop_Hub_CoreHost_Transactional_Installed_Catalog_Refresh_v1.0.md
+```
+
+Key seams:
+
+```text
+InstalledWidgetCatalogCandidate
+InstalledWidgetCatalogService.DiscoverAsync
+InstalledWidgetCatalogService.CommitAcceptedCandidate
+WidgetHostLayoutController.ReconcileActiveRegistrations
+InMemoryWidgetCapabilityApprovalStore.ReconcileApprovedCapabilities
+GovernedWidgetTrayIconBroker.RevokeRequestsExceptAsync
+WindowsWidgetFrameworkServices.SynchronizeApprovedCapabilitiesAsync
+```

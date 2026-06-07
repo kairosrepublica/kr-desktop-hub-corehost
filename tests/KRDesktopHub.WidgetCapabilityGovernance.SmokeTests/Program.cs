@@ -203,6 +203,140 @@ try
             "Capability audit-record validation failed.");
     }
 
+    var reconciliationApprovals =
+        new InMemoryWidgetCapabilityApprovalStore();
+
+    reconciliationApprovals.SetApprovedCapabilities(
+        "kr.fixture.approval.removed",
+        new[]
+        {
+            WidgetCapabilityIds.ClockRead
+        });
+
+    reconciliationApprovals.SetApprovedCapabilities(
+        "kr.fixture.approval.reduced",
+        new[]
+        {
+            WidgetCapabilityIds.ClockRead,
+            WidgetCapabilityIds.NotificationSend
+        });
+
+    reconciliationApprovals.ReconcileApprovedCapabilities(
+        new Dictionary<string, IReadOnlyList<string>>(
+            StringComparer.OrdinalIgnoreCase)
+        {
+            ["kr.fixture.approval.reduced"] =
+                new[]
+                {
+                    WidgetCapabilityIds.ClockRead
+                }
+        });
+
+    if (
+        reconciliationApprovals
+            .GetApprovedCapabilities(
+                "kr.fixture.approval.removed")
+            .Count
+            != 0
+        || reconciliationApprovals
+            .GetApprovedCapabilities(
+                "kr.fixture.approval.reduced")
+            .SetEquals(
+                new[]
+                {
+                    WidgetCapabilityIds.ClockRead
+                })
+            == false
+    )
+    {
+        throw new InvalidOperationException(
+            "Exact Widget-capability approval reconciliation validation failed.");
+    }
+
+    var revocationApprovals =
+        new InMemoryWidgetCapabilityApprovalStore();
+
+    revocationApprovals.SetApprovedCapabilities(
+        "kr.fixture.tray.revoke",
+        new[]
+        {
+            WidgetCapabilityIds.TrayIconRequest
+        });
+
+    var revocationAuthorizer =
+        new DefaultWidgetCapabilityAuthorizer(
+            revocationApprovals,
+            new InMemoryWidgetCapabilityAuditSink());
+
+    var revocationApplied =
+        new List<WidgetTrayIconSelection>();
+
+    var revocationTray =
+        new GovernedWidgetTrayIconBroker(
+            revocationAuthorizer,
+            new[]
+            {
+                new WidgetTrayIconStateDefinition(
+                    "corehost.default",
+                    0,
+                    "Default CoreHost tray state."),
+
+                new WidgetTrayIconStateDefinition(
+                    "fixture.green",
+                    1000,
+                    "Fixture green tray state.")
+            },
+            "corehost.default",
+            (selection, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                revocationApplied.Add(
+                    selection);
+                return Task.CompletedTask;
+            });
+
+    _ =
+        await revocationTray
+            .SubmitAsync(
+                "kr.fixture.tray.revoke",
+                new HashSet<string>(
+                    new[]
+                    {
+                        WidgetCapabilityIds.TrayIconRequest
+                    },
+                    StringComparer.OrdinalIgnoreCase),
+                new WidgetTrayIconRequest(
+                    "fixture.revoke",
+                    "fixture.green",
+                    500,
+                    DateTimeOffset.UtcNow,
+                    DateTimeOffset.UtcNow.AddMinutes(
+                        5),
+                    "Fixture revoke validation."),
+                CancellationToken.None);
+
+    var revokedSelection =
+        await revocationTray
+            .RevokeRequestsExceptAsync(
+                new HashSet<string>(
+                    StringComparer.OrdinalIgnoreCase),
+                CancellationToken.None);
+
+    if (
+        revokedSelection.IconStateKey
+            != "corehost.default"
+        || revocationTray
+            .GetCurrent()
+            .IconStateKey
+            != "corehost.default"
+        || revocationApplied.Count
+            != 2
+    )
+    {
+        throw new InvalidOperationException(
+            "Host-owned tray-icon request revocation validation failed.");
+    }
+
     var installerDataRoot =
         Path.Combine(
             tempRoot,

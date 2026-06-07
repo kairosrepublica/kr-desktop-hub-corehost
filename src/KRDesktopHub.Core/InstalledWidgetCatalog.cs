@@ -38,6 +38,18 @@ public sealed record InstalledWidgetCatalogSnapshot(
     IReadOnlyList<InstalledWidgetCatalogFailure> Failures,
     WidgetHostLayoutSnapshot Layout);
 
+public sealed record InstalledWidgetCatalogCandidateItem(
+    string WidgetId,
+    string DisplayName,
+    Version PackageVersion,
+    string InstalledPath,
+    IReadOnlyList<string> Capabilities,
+    WidgetHostRegistration Registration);
+
+public sealed record InstalledWidgetCatalogCandidate(
+    IReadOnlyList<InstalledWidgetCatalogCandidateItem> Widgets,
+    IReadOnlyList<InstalledWidgetCatalogFailure> Failures);
+
 public static class WidgetHostCatalogRefreshAcceptancePolicy
 {
     public static bool ShouldApply(
@@ -47,28 +59,56 @@ public static class WidgetHostCatalogRefreshAcceptancePolicy
         ArgumentNullException.ThrowIfNull(
             candidate);
 
+        return ShouldApplyCore(
+            lastAccepted,
+            candidate
+                .Widgets
+                .Select(
+                    widget =>
+                        widget.WidgetId),
+            candidate.Failures.Count);
+    }
+
+    public static bool ShouldApply(
+        InstalledWidgetCatalogSnapshot? lastAccepted,
+        InstalledWidgetCatalogCandidate candidate)
+    {
+        ArgumentNullException.ThrowIfNull(
+            candidate);
+
+        return ShouldApplyCore(
+            lastAccepted,
+            candidate
+                .Widgets
+                .Select(
+                    widget =>
+                        widget.WidgetId),
+            candidate.Failures.Count);
+    }
+
+    private static bool ShouldApplyCore(
+        InstalledWidgetCatalogSnapshot? lastAccepted,
+        IEnumerable<string> candidateWidgetIds,
+        int failureCount)
+    {
+        ArgumentNullException.ThrowIfNull(
+            candidateWidgetIds);
+
         if (
             lastAccepted is null
-            || candidate.Failures.Count == 0
+            || failureCount == 0
         )
         {
             return true;
         }
 
         var candidateIds =
-            candidate
-                .Widgets
-                .Select(
-                    widget =>
-                        widget.WidgetId)
+            candidateWidgetIds
                 .ToHashSet(
                     StringComparer.OrdinalIgnoreCase);
 
         return !lastAccepted
             .Widgets
-            .Where(
-                widget =>
-                    widget.Enabled)
             .Any(
                 widget =>
                     !candidateIds.Contains(
@@ -259,18 +299,57 @@ public sealed class InstalledWidgetCatalogService
     {
         return _refreshQueue
             .RunAsync(
-                RefreshCoreAsync,
+                async innerCancellationToken =>
+                {
+                    var candidate =
+                        await DiscoverCoreAsync(
+                                innerCancellationToken)
+                            .ConfigureAwait(
+                                false);
+
+                    return CommitAcceptedCandidate(
+                        candidate);
+                },
                 cancellationToken);
     }
 
-    private async Task<InstalledWidgetCatalogSnapshot> RefreshCoreAsync(
+    public Task<InstalledWidgetCatalogCandidate> DiscoverAsync(
+        CancellationToken cancellationToken)
+    {
+        return _refreshQueue
+            .RunAsync(
+                DiscoverCoreAsync,
+                cancellationToken);
+    }
+
+    public InstalledWidgetCatalogSnapshot CommitAcceptedCandidate(
+        InstalledWidgetCatalogCandidate candidate)
+    {
+        ArgumentNullException.ThrowIfNull(
+            candidate);
+
+        var layout =
+            _layoutController
+                .ReconcileActiveRegistrations(
+                    candidate
+                        .Widgets
+                        .Select(
+                            widget =>
+                                widget.Registration));
+
+        return MaterializeSnapshot(
+            candidate,
+            layout);
+    }
+
+    private async Task<InstalledWidgetCatalogCandidate> DiscoverCoreAsync(
         CancellationToken cancellationToken)
     {
         Directory.CreateDirectory(
             _installedDirectory);
 
         var items =
-            new List<InstalledWidgetCatalogItem>();
+            new List<InstalledWidgetCatalogCandidateItem>();
 
         var failures =
             new List<InstalledWidgetCatalogFailure>();
@@ -302,7 +381,9 @@ public sealed class InstalledWidgetCatalogService
                     await _manifestAdapter
                         .ReadRuntimeManifestAsync(
                             directory,
-                            cancellationToken);
+                            cancellationToken)
+                        .ConfigureAwait(
+                            false);
 
                 if (!string.Equals(
                     Path.GetFileName(
@@ -319,45 +400,24 @@ public sealed class InstalledWidgetCatalogService
                         manifest.WidgetVersion,
                         manifest.WidgetId);
 
-                var layout =
-                    _layoutController
-                        .RegisterOrUpdate(
-                            new WidgetHostRegistration(
-                                manifest.WidgetId,
-                                manifest.DisplayName,
-                                new WidgetPresentationMetadata(
-                                    manifest.DefaultEnabled,
-                                    manifest.DefaultCollapsed,
-                                    manifest.PreferredExpandedHeightDip,
-                                    manifest.MinimumCollapsedHeightDip,
-                                    manifest.SettingsSchemaVersion,
-                                    manifest.StateSchemaVersion),
-                                index * 10));
-
-                var surface =
-                    layout
-                        .Widgets
-                        .Single(
-                            widget =>
-                                string.Equals(
-                                    widget.WidgetId,
-                                    manifest.WidgetId,
-                                    StringComparison.OrdinalIgnoreCase));
-
                 items.Add(
-                    new InstalledWidgetCatalogItem(
+                    new InstalledWidgetCatalogCandidateItem(
                         manifest.WidgetId,
                         manifest.DisplayName,
                         packageVersion,
                         directory,
                         manifest.Capabilities,
-                        surface.Enabled,
-                        surface.Collapsed,
-                        surface.Order,
-                        surface.PreferredExpandedHeightDip,
-                        surface.MinimumCollapsedHeightDip,
-                        surface.MeasuredDesiredHeightDip,
-                        surface.ActualHeightDip));
+                        new WidgetHostRegistration(
+                            manifest.WidgetId,
+                            manifest.DisplayName,
+                            new WidgetPresentationMetadata(
+                                manifest.DefaultEnabled,
+                                manifest.DefaultCollapsed,
+                                manifest.PreferredExpandedHeightDip,
+                                manifest.MinimumCollapsedHeightDip,
+                                manifest.SettingsSchemaVersion,
+                                manifest.StateSchemaVersion),
+                            index * 10)));
             }
             catch (Exception exception)
             {
@@ -368,11 +428,57 @@ public sealed class InstalledWidgetCatalogService
             }
         }
 
-        var snapshot =
-            _layoutController.GetLayout();
+        return new InstalledWidgetCatalogCandidate(
+            items,
+            failures);
+    }
 
-        return new InstalledWidgetCatalogSnapshot(
-            items
+    private static InstalledWidgetCatalogSnapshot MaterializeSnapshot(
+        InstalledWidgetCatalogCandidate candidate,
+        WidgetHostLayoutSnapshot layout)
+    {
+        ArgumentNullException.ThrowIfNull(
+            candidate);
+
+        ArgumentNullException.ThrowIfNull(
+            layout);
+
+        var layoutByWidgetId =
+            layout
+                .Widgets
+                .ToDictionary(
+                    widget =>
+                        widget.WidgetId,
+                    StringComparer.OrdinalIgnoreCase);
+
+        var items =
+            candidate
+                .Widgets
+                .Select(
+                    widget =>
+                    {
+                        if (!layoutByWidgetId.TryGetValue(
+                            widget.WidgetId,
+                            out var surface))
+                        {
+                            throw new InvalidOperationException(
+                                $"Accepted Widget is missing from the committed framework layout: {widget.WidgetId}");
+                        }
+
+                        return new InstalledWidgetCatalogItem(
+                            widget.WidgetId,
+                            widget.DisplayName,
+                            widget.PackageVersion,
+                            widget.InstalledPath,
+                            widget.Capabilities,
+                            surface.Enabled,
+                            surface.Collapsed,
+                            surface.Order,
+                            surface.PreferredExpandedHeightDip,
+                            surface.MinimumCollapsedHeightDip,
+                            surface.MeasuredDesiredHeightDip,
+                            surface.ActualHeightDip);
+                    })
                 .OrderBy(
                     item =>
                         item.Order)
@@ -380,9 +486,12 @@ public sealed class InstalledWidgetCatalogService
                     item =>
                         item.WidgetId,
                     StringComparer.OrdinalIgnoreCase)
-                .ToArray(),
-            failures,
-            snapshot);
+                .ToArray();
+
+        return new InstalledWidgetCatalogSnapshot(
+            items,
+            candidate.Failures,
+            layout);
     }
 
     public WidgetHostLayoutSnapshot SetEnabled(

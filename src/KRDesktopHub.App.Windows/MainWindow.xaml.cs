@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using KRDesktopHub.Contracts;
 using KRDesktopHub.Core;
 
 namespace KRDesktopHub.App.Windows;
@@ -153,11 +154,25 @@ public partial class MainWindow
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
+        ApplyWidgetHostLayout(
+            snapshot.Layout);
+    }
+
+    public void ApplyWidgetHostLayout(
+        WidgetHostLayoutSnapshot layout)
+    {
+        ArgumentNullException.ThrowIfNull(
+            layout);
+
         var desiredHeight =
-            visible.Length == 0
-                ? 180
-                : snapshot.Layout.TotalDesiredHeightDip
-                    + 16;
+            layout
+                .Widgets
+                .Any(
+                    widget =>
+                        widget.Enabled)
+                ? layout.TotalDesiredHeightDip
+                    + 16
+                : 180;
 
         ApplyWidgetHostDesiredHeight(
             desiredHeight);

@@ -267,3 +267,28 @@ LayoutChanged host subscription
 Windows shell visual stabilization
 Owner manual acceptance
 ```
+
+## CoreHost stabilization checkpoint: transactional installed-catalog refresh
+
+Implemented:
+
+```text
+manifest discovery stages candidates without mutating layout registration
+rejected degraded candidates cause zero layout-state commit
+accepted candidates reconcile active registrations exactly
+removed Widgets prune measured runtime heights
+dormant Owner host-state preferences remain available for reinstall
+capability approvals reconcile exactly
+stale tray-icon requests are revoked through a host-owned broker boundary
+LayoutChanged refreshes host-level scrolling without package discovery
+Widget Manager explicit refreshes route through one accepted pipeline
+```
+
+Still blocked before production Widget implementation:
+
+```text
+Windows shell activation and focus stabilization
+popup shadow and tray-region darkening replay
+Microsoft Pinyin indicator replay
+Owner manual acceptance
+```

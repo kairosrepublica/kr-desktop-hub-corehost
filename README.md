@@ -276,3 +276,7 @@ overflow:
 use the CoreHost ScrollViewer
 do not auto-resize the outer popup
 ```
+
+## CoreHost transactional installed-catalog refresh checkpoint
+
+Explicit installed-Widget discovery is now staged before acceptance. Manifest scans no longer mutate active layout registration or persistent host state while the candidate is still untrusted. Accepted candidates reconcile active registrations exactly, prune stale measured heights, preserve dormant Owner preferences for later reinstall, reconcile capability approvals exactly and revoke stale tray-icon requests. Widget Manager manual refresh and post-install refresh now use the same accepted-catalog coordinator pipeline. Framework `LayoutChanged` events update host-level scrolling without rediscovery or outer-popup resize.

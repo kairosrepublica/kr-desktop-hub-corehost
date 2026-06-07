@@ -71,6 +71,22 @@ public sealed class InternalWidgetManagerService
     public InstalledWidgetCatalogService InstalledCatalog =>
         _installedCatalog;
 
+    public Task<InstalledWidgetCatalogCandidate> DiscoverInstalledWidgetsAsync(
+        CancellationToken cancellationToken)
+    {
+        return _installedCatalog
+            .DiscoverAsync(
+                cancellationToken);
+    }
+
+    public InstalledWidgetCatalogSnapshot CommitAcceptedInstalledWidgets(
+        InstalledWidgetCatalogCandidate candidate)
+    {
+        return _installedCatalog
+            .CommitAcceptedCandidate(
+                candidate);
+    }
+
     public Task<InstalledWidgetCatalogSnapshot> RefreshInstalledWidgetsAsync(
         CancellationToken cancellationToken)
     {

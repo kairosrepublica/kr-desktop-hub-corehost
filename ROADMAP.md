@@ -207,3 +207,30 @@ popup shadow and notification-area darkening replay
 Microsoft Pinyin indicator replay
 Owner manual acceptance
 ```
+
+## CoreHost stabilization checkpoint — transactional catalog refresh
+
+Completed scope:
+
+```text
+pure staged installed-catalog discovery
+acceptance before active-state commit
+exact active-registration reconciliation
+stale measured-height pruning
+dormant Owner preference preservation
+stronger degraded-candidate rejection for previously accepted disabled Widgets
+exact capability-approval reconciliation
+host-owned stale tray-icon request revocation
+LayoutChanged host subscription
+Widget Manager single accepted-refresh pipeline
+```
+
+Remaining CoreHost delivery gates:
+
+```text
+Windows popup activation and focus policy
+popup shadow and notification-area darkening replay
+Microsoft Pinyin indicator replay
+sanitary shell diagnostics
+Owner manual acceptance
+```

@@ -198,6 +198,52 @@ public sealed class InMemoryWidgetCapabilityApprovalStore
         ArgumentException.ThrowIfNullOrWhiteSpace(
             widgetId);
 
+        _approvedCapabilities[widgetId] =
+            NormalizeApprovedCapabilities(
+                capabilities);
+    }
+
+    public void ReconcileApprovedCapabilities(
+        IReadOnlyDictionary<string, IReadOnlyList<string>> capabilitiesByWidgetId)
+    {
+        ArgumentNullException.ThrowIfNull(
+            capabilitiesByWidgetId);
+
+        var normalized =
+            capabilitiesByWidgetId
+                .ToDictionary(
+                    pair =>
+                        pair.Key,
+                    pair =>
+                        NormalizeApprovedCapabilities(
+                            pair.Value),
+                    StringComparer.OrdinalIgnoreCase);
+
+        foreach (var widgetId in
+            _approvedCapabilities
+                .Keys
+                .Where(
+                    widgetId =>
+                        !normalized.ContainsKey(
+                            widgetId))
+                .ToArray())
+        {
+            _approvedCapabilities.TryRemove(
+                widgetId,
+                out _);
+        }
+
+        foreach (var pair in
+            normalized)
+        {
+            _approvedCapabilities[pair.Key] =
+                pair.Value;
+        }
+    }
+
+    private static IReadOnlySet<string> NormalizeApprovedCapabilities(
+        IEnumerable<string> capabilities)
+    {
         ArgumentNullException.ThrowIfNull(
             capabilities);
 
@@ -229,8 +275,7 @@ public sealed class InMemoryWidgetCapabilityApprovalStore
                 capability);
         }
 
-        _approvedCapabilities[widgetId] =
-            approvedCapabilities;
+        return approvedCapabilities;
     }
 }
 

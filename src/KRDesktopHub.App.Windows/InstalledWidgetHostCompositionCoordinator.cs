@@ -67,6 +67,12 @@ public sealed class InstalledWidgetHostCompositionCoordinator
                     .InstalledCatalog
                     .LayoutController);
 
+        _manager
+            .InstalledCatalog
+            .LayoutController
+            .LayoutChanged +=
+                HandleLayoutChanged;
+
         _panel.WidgetCollapseRequested +=
             (_, request) =>
                 _ = ObserveOperationAsync(
@@ -262,7 +268,7 @@ public sealed class InstalledWidgetHostCompositionCoordinator
     {
         var candidate =
             await _manager
-                .RefreshInstalledWidgetsAsync(
+                .DiscoverInstalledWidgetsAsync(
                     cancellationToken)
                 .ConfigureAwait(
                     true);
@@ -273,7 +279,7 @@ public sealed class InstalledWidgetHostCompositionCoordinator
                 candidate))
         {
             throw new InvalidOperationException(
-                "Widget-host refresh rejected a degraded installed catalog snapshot so the last known-good panel remains visible. Discovery failures: "
+                "Widget-host refresh rejected a degraded installed catalog candidate before any internal state mutation so the complete last-known-good host remains active. Discovery failures: "
                 + string.Join(
                     " | ",
                     candidate
@@ -285,18 +291,49 @@ public sealed class InstalledWidgetHostCompositionCoordinator
                                 + failure.Error)));
         }
 
-        _frameworkServices
-            .SynchronizeApprovedCapabilities(
-                candidate);
+        var committed =
+            _manager
+                .CommitAcceptedInstalledWidgets(
+                    candidate);
+
+        await _frameworkServices
+            .SynchronizeApprovedCapabilitiesAsync(
+                committed,
+                cancellationToken)
+            .ConfigureAwait(
+                true);
 
         _panel.ReconcileInstalledWidgets(
-            candidate,
+            committed,
             _surfaces);
 
         LastSnapshot =
-            candidate;
+            committed;
 
-        return candidate;
+        return committed;
+    }
+
+    private void HandleLayoutChanged(
+        WidgetHostLayoutSnapshot layout)
+    {
+        ArgumentNullException.ThrowIfNull(
+            layout);
+
+        if (_panel.Dispatcher.CheckAccess())
+        {
+            _panel.ApplyWidgetHostLayout(
+                layout);
+
+            return;
+        }
+
+        _ =
+            _panel
+                .Dispatcher
+                .InvokeAsync(
+                    () =>
+                        _panel.ApplyWidgetHostLayout(
+                            layout));
     }
 
     private InstalledWidgetCatalogSnapshot ApplyStateOnlyLayout(

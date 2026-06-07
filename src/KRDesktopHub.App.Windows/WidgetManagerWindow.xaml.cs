@@ -16,13 +16,18 @@ public partial class WidgetManagerWindow
     private readonly Func<
         InternalWidgetManagerService> _developmentManagerFactory;
 
+    private readonly Func<
+        CancellationToken,
+        Task<InstalledWidgetCatalogSnapshot>> _acceptedCatalogRefresh;
+
     private InstalledWidgetCatalogSnapshot? _installedSnapshot;
 
     private bool _operationInProgress;
 
     public WidgetManagerWindow(
         InternalWidgetManagerService defaultManager,
-        Func<InternalWidgetManagerService> developmentManagerFactory)
+        Func<InternalWidgetManagerService> developmentManagerFactory,
+        Func<CancellationToken, Task<InstalledWidgetCatalogSnapshot>> acceptedCatalogRefresh)
     {
         ArgumentNullException.ThrowIfNull(
             defaultManager);
@@ -30,11 +35,17 @@ public partial class WidgetManagerWindow
         ArgumentNullException.ThrowIfNull(
             developmentManagerFactory);
 
+        ArgumentNullException.ThrowIfNull(
+            acceptedCatalogRefresh);
+
         _defaultManager =
             defaultManager;
 
         _developmentManagerFactory =
             developmentManagerFactory;
+
+        _acceptedCatalogRefresh =
+            acceptedCatalogRefresh;
 
         InitializeComponent();
 
@@ -45,8 +56,6 @@ public partial class WidgetManagerWindow
         RefreshInbox();
     }
 
-    public event EventHandler? InstalledWidgetsChanged;
-
     public event EventHandler? InstalledWidgetStateChanged;
 
     private async void RefreshInstalledWidgetsButton_Click(
@@ -54,10 +63,6 @@ public partial class WidgetManagerWindow
         RoutedEventArgs e)
     {
         await RefreshInstalledWidgetsAsync();
-
-        InstalledWidgetsChanged?.Invoke(
-            this,
-            EventArgs.Empty);
     }
 
     private void RefreshInboxButton_Click(
@@ -320,10 +325,6 @@ public partial class WidgetManagerWindow
             RefreshInbox();
 
             await RefreshInstalledWidgetsAsync();
-
-            InstalledWidgetsChanged?.Invoke(
-                this,
-                EventArgs.Empty);
         }
         catch (
             WidgetPackageValidationException exception)
@@ -351,9 +352,8 @@ public partial class WidgetManagerWindow
         try
         {
             _installedSnapshot =
-                await _defaultManager
-                    .RefreshInstalledWidgetsAsync(
-                        CancellationToken.None);
+                await _acceptedCatalogRefresh(
+                    CancellationToken.None);
 
             InstalledWidgetsListBox.ItemsSource =
                 _installedSnapshot.Widgets;

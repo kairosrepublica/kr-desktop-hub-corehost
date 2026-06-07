@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using KRDesktopHub.Core;
@@ -122,9 +123,28 @@ try
             "Explicit package installation unexpectedly ran an embedded script.");
     }
 
+    var stagedCandidate =
+        await manager
+            .DiscoverInstalledWidgetsAsync(
+                CancellationToken.None);
+
+    if (
+        stagedCandidate.Widgets.Count != 1
+        || manager
+            .GetInstalledWidgetLayout()
+            .Widgets
+            .Count
+            != 0
+    )
+    {
+        throw new InvalidOperationException(
+            "Pure installed-catalog staging unexpectedly mutated active layout registration.");
+    }
+
     var installedInventory =
-        await manager.RefreshInstalledWidgetsAsync(
-            CancellationToken.None);
+        manager
+            .CommitAcceptedInstalledWidgets(
+                stagedCandidate);
 
     var installedInboxWidget =
         installedInventory
@@ -208,6 +228,196 @@ try
     {
         throw new InvalidOperationException(
             "Installed Widget order validation failed.");
+    }
+
+    var transactionalRoot =
+        Path.Combine(
+            tempRoot,
+            "transactional-catalog");
+
+    var transactionalInstalledRoot =
+        Path.Combine(
+            transactionalRoot,
+            "installed");
+
+    var transactionalStatePath =
+        Path.Combine(
+            transactionalRoot,
+            "state",
+            "widget-host-state.json");
+
+    var transactionalWidgetPath =
+        Path.Combine(
+            transactionalInstalledRoot,
+            "kr.fixture.manager.transactional");
+
+    CreateDevelopmentFolder(
+        transactionalWidgetPath,
+        widgetId:
+            "kr.fixture.manager.transactional");
+
+    var transactionalController =
+        new WidgetHostLayoutController(
+            new JsonWidgetHostStateStore(
+                transactionalStatePath));
+
+    var transactionalCatalog =
+        new InstalledWidgetCatalogService(
+            transactionalInstalledRoot,
+            transactionalController);
+
+    var transactionalStaged =
+        await transactionalCatalog
+            .DiscoverAsync(
+                CancellationToken.None);
+
+    if (
+        transactionalStaged.Widgets.Count != 1
+        || transactionalController
+            .GetLayout()
+            .Widgets
+            .Count
+            != 0
+        || File.Exists(
+            transactionalStatePath)
+    )
+    {
+        throw new InvalidOperationException(
+            "Installed-catalog staging unexpectedly mutated or persisted host state.");
+    }
+
+    var transactionalCommitted =
+        transactionalCatalog
+            .CommitAcceptedCandidate(
+                transactionalStaged);
+
+    if (
+        transactionalCommitted.Widgets.Count != 1
+        || !File.Exists(
+            transactionalStatePath)
+    )
+    {
+        throw new InvalidOperationException(
+            "Accepted installed-catalog candidate did not commit host state.");
+    }
+
+    _ =
+        transactionalController
+            .SetCollapsed(
+                "kr.fixture.manager.transactional",
+                collapsed:
+                    true);
+
+    _ =
+        transactionalController
+            .UpdateMeasuredHeight(
+                "kr.fixture.manager.transactional",
+                measuredDesiredHeightDip:
+                    999);
+
+    var committedStateHash =
+        ComputeSha256(
+            transactionalStatePath);
+
+    File.Delete(
+        Path.Combine(
+            transactionalWidgetPath,
+            "manifest.json"));
+
+    var rejectedCandidate =
+        await transactionalCatalog
+            .DiscoverAsync(
+                CancellationToken.None);
+
+    if (WidgetHostCatalogRefreshAcceptancePolicy
+        .ShouldApply(
+            transactionalCommitted,
+            rejectedCandidate))
+    {
+        throw new InvalidOperationException(
+            "Degraded transactional candidate unexpectedly passed acceptance.");
+    }
+
+    if (
+        ComputeSha256(
+            transactionalStatePath)
+            != committedStateHash
+        || transactionalController
+            .GetLayout()
+            .Widgets
+            .Count
+            != 1
+    )
+    {
+        throw new InvalidOperationException(
+            "Rejected transactional candidate mutated accepted host state.");
+    }
+
+    Directory.Delete(
+        transactionalWidgetPath,
+        recursive:
+            true);
+
+    var acceptedRemovalCandidate =
+        await transactionalCatalog
+            .DiscoverAsync(
+                CancellationToken.None);
+
+    if (!WidgetHostCatalogRefreshAcceptancePolicy
+        .ShouldApply(
+            transactionalCommitted,
+            acceptedRemovalCandidate))
+    {
+        throw new InvalidOperationException(
+            "Failure-free explicit removal candidate was incorrectly rejected.");
+    }
+
+    var removedTransactionalSnapshot =
+        transactionalCatalog
+            .CommitAcceptedCandidate(
+                acceptedRemovalCandidate);
+
+    if (
+        removedTransactionalSnapshot.Widgets.Count != 0
+        || transactionalController
+            .GetLayout()
+            .Widgets
+            .Count
+            != 0
+    )
+    {
+        throw new InvalidOperationException(
+            "Accepted removal did not prune active transactional registration.");
+    }
+
+    CreateDevelopmentFolder(
+        transactionalWidgetPath,
+        widgetId:
+            "kr.fixture.manager.transactional");
+
+    var reinstalledTransactionalSnapshot =
+        transactionalCatalog
+            .CommitAcceptedCandidate(
+                await transactionalCatalog
+                    .DiscoverAsync(
+                        CancellationToken.None));
+
+    var reinstalledTransactionalWidget =
+        reinstalledTransactionalSnapshot
+            .Widgets
+            .Single(
+                widget =>
+                    widget.WidgetId
+                    == "kr.fixture.manager.transactional");
+
+    if (
+        !reinstalledTransactionalWidget.Collapsed
+        || reinstalledTransactionalWidget.MeasuredDesiredHeightDip
+            != reinstalledTransactionalWidget.PreferredExpandedHeightDip
+    )
+    {
+        throw new InvalidOperationException(
+            "Dormant Owner preference or stale measured-height pruning validation failed.");
     }
 
     var outsideArchive =
@@ -305,6 +515,15 @@ finally
             recursive:
                 true);
     }
+}
+
+static string ComputeSha256(
+    string path)
+{
+    return Convert.ToHexString(
+        SHA256.HashData(
+            File.ReadAllBytes(
+                path)));
 }
 
 static void CreateWidgetArchive(

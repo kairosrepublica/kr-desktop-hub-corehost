@@ -485,6 +485,123 @@ try
             "Explicit Widget disable snapshot was incorrectly rejected.");
     }
 
+    var previouslyDisabledCatalog =
+        new InstalledWidgetCatalogSnapshot(
+            new[]
+            {
+                acceptedCatalogWidget with
+                {
+                    Enabled =
+                        false,
+                    ActualHeightDip =
+                        0
+                }
+            },
+            Array.Empty<InstalledWidgetCatalogFailure>(),
+            emptyLayout);
+
+    if (WidgetHostCatalogRefreshAcceptancePolicy
+        .ShouldApply(
+            previouslyDisabledCatalog,
+            degradedCatalog))
+    {
+        throw new InvalidOperationException(
+            "Degraded catalog unexpectedly removed a previously accepted disabled Widget.");
+    }
+
+    var reconciliationController =
+        new WidgetHostLayoutController();
+
+    _ =
+        reconciliationController
+            .ReconcileActiveRegistrations(
+                new[]
+                {
+                    new WidgetHostRegistration(
+                        "kr.fixture.reconcile.one",
+                        "KR Reconcile One",
+                        presentationWorld,
+                        10),
+
+                    new WidgetHostRegistration(
+                        "kr.fixture.reconcile.two",
+                        "KR Reconcile Two",
+                        presentationTrading,
+                        20)
+                });
+
+    _ =
+        reconciliationController
+            .SetCollapsed(
+                "kr.fixture.reconcile.one",
+                collapsed:
+                    true);
+
+    _ =
+        reconciliationController
+            .UpdateMeasuredHeight(
+                "kr.fixture.reconcile.one",
+                measuredDesiredHeightDip:
+                    999);
+
+    var reconciledRemoved =
+        reconciliationController
+            .ReconcileActiveRegistrations(
+                new[]
+                {
+                    new WidgetHostRegistration(
+                        "kr.fixture.reconcile.two",
+                        "KR Reconcile Two",
+                        presentationTrading,
+                        20)
+                });
+
+    if (
+        reconciledRemoved.Widgets.Count != 1
+        || reconciledRemoved.Widgets[0].WidgetId
+            != "kr.fixture.reconcile.two"
+    )
+    {
+        throw new InvalidOperationException(
+            "Accepted-catalog active-registration pruning validation failed.");
+    }
+
+    var reconciledReinstalled =
+        reconciliationController
+            .ReconcileActiveRegistrations(
+                new[]
+                {
+                    new WidgetHostRegistration(
+                        "kr.fixture.reconcile.one",
+                        "KR Reconcile One",
+                        presentationWorld,
+                        10),
+
+                    new WidgetHostRegistration(
+                        "kr.fixture.reconcile.two",
+                        "KR Reconcile Two",
+                        presentationTrading,
+                        20)
+                });
+
+    var reinstalledSurface =
+        reconciledReinstalled
+            .Widgets
+            .Single(
+                widget =>
+                    widget.WidgetId
+                    == "kr.fixture.reconcile.one");
+
+    if (
+        !reinstalledSurface.Collapsed
+        || reinstalledSurface.MeasuredDesiredHeightDip
+            != presentationWorld.PreferredExpandedHeightDip
+    )
+    {
+        throw new InvalidOperationException(
+            "Dormant persistent state or measured-height pruning validation failed.");
+    }
+
     var widgetId =
         "kr.fixture.framework";
 

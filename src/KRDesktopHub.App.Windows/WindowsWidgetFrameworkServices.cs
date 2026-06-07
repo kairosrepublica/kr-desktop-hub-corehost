@@ -11,6 +11,8 @@ public sealed class WindowsWidgetFrameworkServices
     private readonly InMemoryWidgetCapabilityApprovalStore _approvals =
         new();
 
+    private readonly GovernedWidgetTrayIconBroker _trayIcons;
+
     public WindowsWidgetFrameworkServices(
         MainWindow panel,
         WindowsTrayService tray,
@@ -42,7 +44,7 @@ public sealed class WindowsWidgetFrameworkServices
                     panel)
                     .PresentAsync);
 
-        TrayIcons =
+        _trayIcons =
             new GovernedWidgetTrayIconBroker(
                 authorizer,
                 new[]
@@ -82,6 +84,9 @@ public sealed class WindowsWidgetFrameworkServices
                             VisualState:
                                 selection.IconStateKey),
                         cancellationToken));
+
+        TrayIcons =
+            _trayIcons;
     }
 
     public IWidgetHostLayoutClient HostLayout { get; }
@@ -90,18 +95,49 @@ public sealed class WindowsWidgetFrameworkServices
 
     public IWidgetTrayIconBroker TrayIcons { get; }
 
-    public void SynchronizeApprovedCapabilities(
-        InstalledWidgetCatalogSnapshot snapshot)
+    public async Task SynchronizeApprovedCapabilitiesAsync(
+        InstalledWidgetCatalogSnapshot snapshot,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(
             snapshot);
 
-        foreach (var widget in snapshot.Widgets)
-        {
-            _approvals.SetApprovedCapabilities(
-                widget.WidgetId,
-                widget.Capabilities);
-        }
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var capabilitiesByWidgetId =
+            snapshot
+                .Widgets
+                .ToDictionary(
+                    widget =>
+                        widget.WidgetId,
+                    widget =>
+                        widget.Capabilities,
+                    StringComparer.OrdinalIgnoreCase);
+
+        _approvals.ReconcileApprovedCapabilities(
+            capabilitiesByWidgetId);
+
+        var approvedTrayWidgetIds =
+            snapshot
+                .Widgets
+                .Where(
+                    widget =>
+                        widget.Capabilities.Contains(
+                            WidgetCapabilityIds.TrayIconRequest,
+                            StringComparer.OrdinalIgnoreCase))
+                .Select(
+                    widget =>
+                        widget.WidgetId)
+                .ToHashSet(
+                    StringComparer.OrdinalIgnoreCase);
+
+        _ =
+            await _trayIcons
+                .RevokeRequestsExceptAsync(
+                    approvedTrayWidgetIds,
+                    cancellationToken)
+                .ConfigureAwait(
+                    true);
     }
 
     public IntegratedWidgetContext CreateIntegratedContext(

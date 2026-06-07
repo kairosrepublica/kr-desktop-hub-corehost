@@ -618,7 +618,8 @@ public partial class App : Application
     private void ShowWidgetManager()
     {
         if (_panel is null
-            || _widgetManager is null)
+            || _widgetManager is null
+            || _widgetHostCoordinator is null)
         {
             return;
         }
@@ -636,14 +637,15 @@ public partial class App : Application
 
                             installedCatalog:
                                 _widgetManager
-                                    .InstalledCatalog));
+                                    .InstalledCatalog),
+
+                    cancellationToken =>
+                        _widgetHostCoordinator
+                            .RefreshAsync(
+                                cancellationToken));
 
             _widgetManagerWindow.Owner =
                 _panel;
-
-            _widgetManagerWindow.InstalledWidgetsChanged +=
-                async (_, _) =>
-                    await RefreshWidgetHostAsync();
 
             _widgetManagerWindow.InstalledWidgetStateChanged +=
                 async (_, _) =>

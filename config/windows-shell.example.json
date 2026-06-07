@@ -1,11 +1,14 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "panel": {
     "show_after_manual_launch": false,
     "show_after_login_start": false,
     "close_action": "HideToTray",
     "always_on_top": false,
-    "remember_last_position": true
+    "remember_last_position": true,
+    "show_activated": false,
+    "show_in_taskbar": false,
+    "force_activate_after_ordinary_show": false
   },
   "hotkeys": {
     "panel.toggle": "Ctrl+Alt+K"
@@ -16,5 +19,10 @@
   },
   "notifications": {
     "transport": "TrayBalloonFallback"
+  },
+  "diagnostics": {
+    "category": "shell.panel.lifecycle",
+    "sanitized": true,
+    "export_through_corehost_diagnostics": true
   }
 }

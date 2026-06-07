@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = "0.1.0-rc1"
+    [string]$Version = "2.0.0"
 )
 
 Set-StrictMode -Version Latest
@@ -238,14 +238,33 @@ try {
 
     Write-Host "`n=== Release validation 2. Run all smoke tests ===" -ForegroundColor Cyan
 
-    $SmokeTests = @(
-        ".\tests\KRDesktopHub.Contracts.SmokeTests\KRDesktopHub.Contracts.SmokeTests.csproj",
-        ".\tests\KRDesktopHub.Core.SmokeTests\KRDesktopHub.Core.SmokeTests.csproj",
-        ".\tests\KRDesktopHub.Platform.Windows.SmokeTests\KRDesktopHub.Platform.Windows.SmokeTests.csproj",
-        ".\tests\KRDesktopHub.WidgetRuntime.SmokeTests\KRDesktopHub.WidgetRuntime.SmokeTests.csproj",
-        ".\tests\KRDesktopHub.SystemPolicies.SmokeTests\KRDesktopHub.SystemPolicies.SmokeTests.csproj",
-        ".\tests\KRDesktopHub.DiagnosticsMigration.SmokeTests\KRDesktopHub.DiagnosticsMigration.SmokeTests.csproj"
-    )
+    $SmokeTests =
+        @(
+            Get-ChildItem `
+                -LiteralPath (
+                    Join-Path `
+                        $RepoRoot `
+                        "tests"
+                ) `
+                -Recurse `
+                -File `
+                -Filter "*.SmokeTests.csproj" |
+                Sort-Object FullName |
+                ForEach-Object {
+                    $RelativePath =
+                        $_.FullName
+                            .Substring(
+                                $RepoRoot.Length)
+                            .TrimStart(
+                                '\')
+
+                    ".\" + $RelativePath
+                }
+        )
+
+    if ($SmokeTests.Count -eq 0) {
+        throw "No smoke-test projects were discovered."
+    }
 
     foreach ($Project in $SmokeTests) {
         Write-Host "Running: $Project"
@@ -364,12 +383,22 @@ try {
         Out-Null
 
     Copy-Item `
-        -LiteralPath (Join-Path $RepoRoot "docs\release\KR_Desktop_Hub_CoreHost_Portable_RC1_Release_Notes.md") `
+        -LiteralPath (Join-Path $RepoRoot "docs\release\KR_Desktop_Hub_CoreHost_v2.0.0_Release_Notes.md") `
         -Destination $DocsStage `
         -Force
 
     Copy-Item `
-        -LiteralPath (Join-Path $RepoRoot "docs\release\KR_Desktop_Hub_CoreHost_Portable_Manual_Acceptance_Checklist.md") `
+        -LiteralPath (Join-Path $RepoRoot "docs\release\KR_Desktop_Hub_CoreHost_v2.0.0_Manual_Acceptance_Checklist.md") `
+        -Destination $DocsStage `
+        -Force
+
+    Copy-Item `
+        -LiteralPath (Join-Path $RepoRoot "docs\api\KR_Desktop_Hub_CoreHost_Widget_Developer_API_v2.0.0.md") `
+        -Destination $DocsStage `
+        -Force
+
+    Copy-Item `
+        -LiteralPath (Join-Path $RepoRoot "docs\api\KR_Desktop_Hub_CoreHost_API_Surface_Map_v2.0.0.md") `
         -Destination $DocsStage `
         -Force
 

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Windows;
+using System.Windows.Input;
 using KRDesktopHub.Contracts;
 using KRDesktopHub.Core;
 using KRDesktopHub.Platform.Abstractions;
@@ -43,6 +44,7 @@ public partial class App : Application
     private InstalledWidgetHostCompositionCoordinator? _widgetHostCoordinator;
     private WindowsInstalledWidgetVisualSurfaceRegistry? _widgetVisualSurfaces;
     private WindowsWidgetFrameworkServices? _widgetFrameworkServices;
+    private StructuredFileDiagnosticLogger? _shellDiagnostics;
 
     protected override async void OnStartup(
         StartupEventArgs e)
@@ -113,6 +115,18 @@ public partial class App : Application
                 CoreHostDataRootResolver
                     .ResolveDefaultDataRoot();
 
+            _shellDiagnostics =
+                new StructuredFileDiagnosticLogger(
+                    Path.Combine(
+                        dataRoot,
+                        "logs"),
+
+                    TimeSpan.FromDays(
+                        14));
+
+            await _shellDiagnostics.CleanupExpiredAsync(
+                CancellationToken.None);
+
             _settingsStore =
                 new JsonCoreHostSettingsStore(
                     dataRoot);
@@ -126,13 +140,30 @@ public partial class App : Application
 
             ApplyPanelSettings();
 
+            await WriteShellDiagnosticAsync(
+                "initialize",
+                "startup");
+
+            _panel.Activated +=
+                (_, _) =>
+                    _ = WriteShellDiagnosticAsync(
+                        "activated",
+                        "window-event");
+
+            _panel.Deactivated +=
+                (_, _) =>
+                    _ = WriteShellDiagnosticAsync(
+                        "deactivated",
+                        "window-event");
+
             _panel.CloseExitRequested +=
                 (_, _) =>
                     ExitApplication();
 
             _panel.CloseToTrayRequested +=
                 (_, _) =>
-                    HidePanel();
+                    HidePanel(
+                        "title-bar-close-to-tray");
 
             _panel.WidgetManagerRequested +=
                 (_, _) =>
@@ -230,7 +261,8 @@ public partial class App : Application
                         "panel.toggle",
                         StringComparison.OrdinalIgnoreCase))
                     {
-                        TogglePanel();
+                        TogglePanel(
+                            "global-hotkey");
                     }
                 };
 
@@ -238,7 +270,8 @@ public partial class App : Application
 
             _tray.ToggleRequested +=
                 (_, _) =>
-                    TogglePanel();
+                    TogglePanel(
+                        "tray-toggle");
 
             _tray.ExitRequested +=
                 (_, _) =>
@@ -307,15 +340,13 @@ public partial class App : Application
                 || !_settings.PanelHiddenAfterLogin
             )
             {
-                ShowPanel();
+                ShowPanel(
+                    "startup-policy");
             }
             else
             {
-                _panel.Hide();
-
-                _systemPolicies.SetPanelVisibility(
-                    isVisible:
-                        false);
+                HidePanel(
+                    "startup-policy");
             }
         }
         catch (Exception exception)
@@ -739,8 +770,8 @@ public partial class App : Application
                     dataRoot,
 
                     new Version(
+                        2,
                         0,
-                        1,
                         0),
 
                     allowedCapabilities:
@@ -918,8 +949,12 @@ public partial class App : Application
                 }));
     }
 
-    private void TogglePanel()
+    private void TogglePanel(
+        string reason)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            reason);
+
         if (_panel is null)
         {
             return;
@@ -927,42 +962,160 @@ public partial class App : Application
 
         if (_panel.IsVisible)
         {
-            HidePanel();
+            HidePanel(
+                reason);
         }
         else
         {
-            ShowPanel();
+            ShowPanel(
+                reason);
         }
     }
 
-    private void HidePanel()
+    private void HidePanel(
+        string reason)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            reason);
+
         if (_panel is null)
         {
             return;
         }
+
+        var wasVisible =
+            _panel.IsVisible;
 
         _panel.Hide();
 
         _systemPolicies?.SetPanelVisibility(
             isVisible:
                 false);
+
+        _ =
+            WriteShellDiagnosticAsync(
+                "hide",
+                reason,
+                wasVisible);
     }
 
-    private void ShowPanel()
+    private void ShowPanel(
+        string reason)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            reason);
+
         if (_panel is null)
         {
             return;
         }
 
-        _panel.Show();
+        var wasVisible =
+            _panel.IsVisible;
+
+        if (!_panel.IsVisible)
+        {
+            _panel.Show();
+        }
 
         _systemPolicies?.SetPanelVisibility(
             isVisible:
                 true);
 
-        _panel.Activate();
+        _ =
+            WriteShellDiagnosticAsync(
+                "show",
+                reason,
+                wasVisible);
+    }
+
+    private async Task WriteShellDiagnosticAsync(
+        string action,
+        string reason,
+        bool? wasVisible =
+            null)
+    {
+        if (
+            _shellDiagnostics is null
+            || _panel is null
+        )
+        {
+            return;
+        }
+
+        try
+        {
+            var workArea =
+                SystemParameters.WorkArea;
+
+            var snapshot =
+                new CoreHostPanelShellDiagnosticSnapshot(
+                    Action:
+                        action,
+
+                    Reason:
+                        reason,
+
+                    WasVisible:
+                        wasVisible,
+
+                    IsVisible:
+                        _panel.IsVisible,
+
+                    IsActive:
+                        _panel.IsActive,
+
+                    FocusedElementType:
+                        Keyboard.FocusedElement?
+                            .GetType()
+                            .FullName
+                        ?? "<none>",
+
+                    Left:
+                        _panel.Left,
+
+                    Top:
+                        _panel.Top,
+
+                    Width:
+                        _panel.Width,
+
+                    Height:
+                        _panel.Height,
+
+                    WorkAreaLeft:
+                        workArea.Left,
+
+                    WorkAreaTop:
+                        workArea.Top,
+
+                    WorkAreaWidth:
+                        workArea.Width,
+
+                    WorkAreaHeight:
+                        workArea.Height,
+
+                    Topmost:
+                        _panel.Topmost,
+
+                    ShowActivated:
+                        _panel.ShowActivated,
+
+                    ShowInTaskbar:
+                        _panel.ShowInTaskbar);
+
+            await _shellDiagnostics.WriteAsync(
+                "INFO",
+                "shell.panel.lifecycle",
+                CoreHostPanelShellDiagnosticFormatter
+                    .Format(
+                        snapshot),
+                CancellationToken.None);
+        }
+        catch
+        {
+            // Shell diagnostics must never destabilize the CoreHost lifecycle.
+        }
     }
 
     private void ExitApplication()

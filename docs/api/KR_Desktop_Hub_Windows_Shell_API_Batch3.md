@@ -1,8 +1,8 @@
-# KR Desktop Hub Windows Shell API â€” Batch 3 Baseline
+# KR Desktop Hub Windows Shell API — v2.0.0
 
 ## Purpose
 
-Batch 3 adds the first runnable Windows desktop shell.
+Expose the Windows shell implementation boundary and the non-disruptive popup policy used by CoreHost `v2.0.0`.
 
 ## Implemented services
 
@@ -13,13 +13,33 @@ WindowsGlobalHotkeyService
 WindowsStartupRegistrationService
 WindowsPrivilegeService
 WindowsPlatformInfoService
+WindowsWindowPlacementService
 ```
+
+## Panel shell policy
+
+```text
+CoreHostPanelShellPolicy.ShowActivated = false
+CoreHostPanelShellPolicy.ShowInTaskbar = false
+CoreHostPanelShellPolicy.ForceActivateAfterOrdinaryShow = false
+```
+
+Ordinary CoreHost popup Show:
+
+```text
+shows the popup if hidden
+synchronizes system-policy visibility
+does not force Activate()
+writes sanitized shell lifecycle diagnostics
+```
+
+Manual Owner interaction remains available when the popup is clicked.
 
 ## WPF application behavior
 
 ```text
 single-instance process guard
-hidden panel by default
+hidden panel by default after login
 Ctrl+Alt+K panel toggle
 tray double-click panel toggle
 close button hides panel
@@ -37,12 +57,46 @@ The Windows adapter writes the current-user Run key and includes:
 --startup-delay-seconds 10
 ```
 
-## Notification boundary
+## Diagnostics
 
-Batch 3 implements the lightweight tray-balloon fallback.
+Shell lifecycle records are written through the governed structured file logger.
 
-A future batch may add modern Windows Notification Center transport without changing the Widget-facing notification contract.
+Category:
 
-## Visual boundary
+```text
+shell.panel.lifecycle
+```
 
-The panel remains a placeholder. Final visual design is intentionally unfrozen.
+Fields:
+
+```text
+action
+reason
+previous visibility
+current visibility
+active state
+focused-element type
+popup bounds
+working-area bounds
+Topmost
+ShowActivated
+ShowInTaskbar
+```
+
+Diagnostics are sanitized and exportable through the existing CoreHost diagnostics path.
+
+## Manual acceptance boundary
+
+Automated tests cannot prove taskbar-region visuals or Microsoft Pinyin indicator behavior.
+
+Run:
+
+```text
+../release/KR_Desktop_Hub_CoreHost_v2.0.0_Manual_Acceptance_Checklist.md
+```
+
+## Deferred stronger fallback
+
+Do not apply `WS_EX_NOACTIVATE` casually.
+
+A stronger Win32 fallback may be evaluated only if Owner manual replay proves the lower-risk WPF policy insufficient.

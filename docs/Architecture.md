@@ -11,16 +11,18 @@ Platform abstractions
 +
 Windows adapter
 +
+Universal Widget Framework
++
 Widget SDK
 +
-Independent Widgets
+Independent Widgets repository
 +
 Controlled configuration
 +
 Diagnostics and rollback
 ```
 
-## Planned layers
+## CoreHost layers
 
 ```text
 KRDesktopHub.Contracts
@@ -29,7 +31,6 @@ KRDesktopHub.Platform.Windows
 KRDesktopHub.Core
 KRDesktopHub.WidgetSdk
 KRDesktopHub.App.Windows
-Widgets
 Tests
 Tools
 Docs
@@ -59,29 +60,76 @@ App.Windows
     depends on Core
     depends on Platform.Windows
 
-Widgets
+Independent Widgets
     depend on Contracts
     may depend on WidgetSdk
 
 Core
-    must never depend on a concrete Widget
+    must never depend on a concrete production Widget
 ```
 
 ## Non-negotiable boundaries
 
 ```text
-No WPF type inside Contracts.
+No Windows Presentation Foundation type inside Contracts.
 No Windows-specific API inside platform-neutral Contracts.
 No market logic inside CoreHost.
 No calendar logic inside CoreHost.
 No reminder logic inside CoreHost.
+No production Widget implementation inside the CoreHost repository.
 No Widget-controlled permanent background threads.
 No direct Widget bypass of centralized scheduling.
 No direct Widget bypass of centralized notifications.
+No direct Widget ownership of the Windows tray icon.
+No ordinary state-only mutation coupled to filesystem discovery.
+No candidate catalog mutation before acceptance.
 ```
 
-## Current status
+## Widget-host state model
 
-Batch 0 creates the source-control and documentation skeleton only.
+```text
+state-only operation:
+mutate in-memory accepted projection
+persist generic host state
+reconcile affected host card
+do not discover packages
 
-The `.NET` projects are intentionally initialized during Batch 1 after the local Windows development environment is verified.
+explicit catalog refresh:
+stage discovery
+validate candidate
+evaluate acceptance
+commit exact reconciliation once
+```
+
+## Windows shell model
+
+```text
+popup show:
+ShowActivated = false
+ShowInTaskbar = false
+ordinary Show does not call Activate()
+
+popup hide:
+centralized HidePanel path
+system-policy visibility synchronized
+
+diagnostics:
+sanitized shell.panel.lifecycle JSONL records
+exported through governed diagnostics tooling
+```
+
+## Repository separation
+
+CoreHost public repository:
+
+```text
+kairosrepublica/kr-desktop-hub-corehost
+```
+
+Production Widgets public repository:
+
+```text
+kairosrepublica/kr-desktop-hub-widgets
+```
+
+Only Contracts, SDK examples, fixtures and API documentation may cross the boundary.

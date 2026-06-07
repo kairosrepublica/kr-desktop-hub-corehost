@@ -2,6 +2,32 @@
 
 All notable changes to KR Desktop Hub CoreHost will be documented in this file.
 
+## Unreleased — CoreHost v2.0.0 Windows shell release candidate
+
+### Added
+
+- Added explicit non-disruptive popup policy: `ShowActivated = false`, `ShowInTaskbar = false`, and no forced `Activate()` after ordinary Show.
+- Added sanitized `shell.panel.lifecycle` diagnostic records with popup visibility, active state, focused-element type, bounds, working-area bounds, `Topmost`, `ShowActivated` and `ShowInTaskbar`.
+- Added CoreHost v2.0.0 release notes and Owner manual shell-acceptance checklist.
+- Added public CoreHost maintainer handoff and AI co-coder instructions.
+- Added Widget developer API v2.0.0 and CoreHost API surface map.
+- Added explicit CoreHost and production-Widgets repository separation architecture note.
+- Upgraded portable release tooling to discover and run every smoke-test project dynamically.
+
+### Changed
+
+- Raised the internal Widget-package host compatibility version to `2.0.0`.
+- Removed production Widget prototypes, production Widget requirements and the production Widget placeholder from the CoreHost repository. They move to the separate `kairosrepublica/kr-desktop-hub-widgets` repository.
+- Updated public README, Product Scope, Architecture, Roadmap and API index for the v2.0.0 platform boundary.
+
+### Manual acceptance required
+
+- Verify no Microsoft Pinyin Chinese / English indicator jump.
+- Verify no taskbar notification-area darkening.
+- Verify no visually dirty lower-edge shadow overlap.
+- Verify popup remains manually interactive.
+- Verify Owner geometry persistence and host-level scrolling.
+
 ## CoreHost state-only Widget-host transition checkpoint
 
 - Removed installed-package filesystem rediscovery from normal Collapse, Expand, enable, disable and order operations.

@@ -13,6 +13,88 @@ if (recommended.SchemaVersion != 2)
         "CoreHost settings schema version must be 2.");
 }
 
+
+if (
+    CoreHostPanelShellPolicy.ShowActivated
+    || CoreHostPanelShellPolicy.ShowInTaskbar
+    || CoreHostPanelShellPolicy.ForceActivateAfterOrdinaryShow
+)
+{
+    throw new InvalidOperationException(
+        "CoreHost panel shell activation policy must remain non-disruptive.");
+}
+
+var shellDiagnostic =
+    CoreHostPanelShellDiagnosticFormatter
+        .Format(
+            new CoreHostPanelShellDiagnosticSnapshot(
+                Action:
+                    "show",
+
+                Reason:
+                    "smoke",
+
+                WasVisible:
+                    false,
+
+                IsVisible:
+                    true,
+
+                IsActive:
+                    false,
+
+                FocusedElementType:
+                    "<none>",
+
+                Left:
+                    10.5,
+
+                Top:
+                    20.5,
+
+                Width:
+                    600,
+
+                Height:
+                    720,
+
+                WorkAreaLeft:
+                    0,
+
+                WorkAreaTop:
+                    0,
+
+                WorkAreaWidth:
+                    1920,
+
+                WorkAreaHeight:
+                    1040,
+
+                Topmost:
+                    false,
+
+                ShowActivated:
+                    false,
+
+                ShowInTaskbar:
+                    false));
+
+if (
+    !shellDiagnostic.Contains(
+        "action=show",
+        StringComparison.Ordinal)
+    || !shellDiagnostic.Contains(
+        "showActivated=False",
+        StringComparison.Ordinal)
+    || !shellDiagnostic.Contains(
+        "showInTaskbar=False",
+        StringComparison.Ordinal)
+)
+{
+    throw new InvalidOperationException(
+        "CoreHost panel shell diagnostic formatter validation failed.");
+}
+
 var policyOptions =
     CoreHostSettingsRuntimeBindings
         .ToSystemPolicyOptions(

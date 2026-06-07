@@ -1,236 +1,90 @@
 # Roadmap
 
-## CoreHost baseline
+## CoreHost v2.0.0
 
-Status: frozen at `v0.2.1-rc1`.
-
-Public code checkpoint before the narrative-sync commit:
+Status:
 
 ```text
-dabca8f78f26918ebbf0e543175013b46cf244f3
+release candidate pending Owner Windows shell manual acceptance
 ```
 
-Completed CoreHost capabilities include:
+Completed platform capabilities:
 
-- Windows tray lifecycle;
-- panel show-hide lifecycle;
-- window-placement persistence;
-- durable CoreHost settings;
-- Settings Center;
-- notification governance;
-- system-policy handling;
-- resource governance;
-- diagnostics export;
-- migration import and export;
-- Widget manifest validation;
-- Widget package installer;
-- Widget Manager;
-- broker contracts;
-- Widget SDK sample;
-- portable self-test mode.
+```text
+Windows tray lifecycle
+non-disruptive panel show / hide policy
+window-placement persistence
+durable CoreHost settings
+Settings Center
+notification governance
+system-policy handling
+resource governance
+diagnostics export
+migration import and export
+Widget contracts
+Widget SDK
+Widget manifest validation
+Widget package installer
+Widget Manager
+Universal Widget Framework
+state-only discovery-free transitions
+transactional installed-catalog refresh
+exact active-registration reconciliation
+capability pruning
+tray-request revocation
+host-level scrolling
+portable release self-test
+```
 
-The popup panel is intentionally blank and reserved for production Widgets.
+## CoreHost v2.0.0 final release gate
 
-## Phase 1 Γö£├│╬ô├⌐┬╝╬ô├ç┬Ñ Production Widget foundation
+Remaining actions:
 
-### Step 1 Γö£├│╬ô├⌐┬╝╬ô├ç┬Ñ HTML/CSS interaction prototype gate
+```text
+Owner manual shell replay
+confirm no Microsoft Pinyin Chinese / English indicator jump
+confirm no tray notification-area darkening
+confirm popup remains manually interactive
+confirm close-to-tray behavior
+confirm Owner geometry persistence
+generate portable v2.0.0 ZIP
+tag v2.0.0
+publish GitHub release
+```
 
-Status: in progress.
+## Production Widgets repository
 
-Prepare and approve an interactive browser prototype before writing Windows Widget production code.
+Production Widgets are intentionally separate:
 
-### Step 2 Γö£├│╬ô├⌐┬╝╬ô├ç┬Ñ KR World Time-Space Widget
+```text
+kairosrepublica/kr-desktop-hub-widgets
+```
 
-Status: planned.
+Planned sequence:
 
-Build a synchronized multi-city time-comparison Widget with date, local time, time-zone and holiday context.
+```text
+Widget 01:
+KR World Time-Space
 
-### Step 3 Γö£├│╬ô├⌐┬╝╬ô├ç┬Ñ KR Trading Clock Widget
+Widget 02:
+KR Trading Clock
+```
 
-Status: planned.
+CoreHost fixtures remain in this repository only to prove the platform contract.
 
-Build United States and Hong Kong market-clock comparisons with exchange-local and user-local 24-hour timelines.
+## Future CoreHost work after v2.0.0
+
+```text
+Windows ARM64 evaluation
+modern Windows Notification Center transport
+explicit diagnostics-export UI
+optional installer
+automatic updater evaluation
+future Contracts versioning
+```
 
 ## Public checkpoint discipline
 
 Every validated Owner-approved engineering step receives an immediate scoped commit and immediate push to `origin/main`.
 
-Narrative evidence is synchronized at the same checkpoint when the public product state changes.
-
-## Phase 1 final HTML-gate approval
-
-Status: final HTML/CSS/JavaScript interaction gate prepared for Owner browser review.
-
-```text
-World Time-Space:
-v0.7
-
-Trading Clock:
-approved v0.5, preserved byte-for-byte
-
-Review shell:
-v0.7
-```
-
-After Owner approval, production engineering begins with KR World Time-Space as a standalone Widget.
-
-
-## Universal Widget framework foundation
-
-Status: implementation checkpoint prepared.
-
-Before production Widgets, CoreHost gains one reusable framework:
-
-```text
-600 DIP default popup width
-adaptive Widget height negotiation
-collapsed, expanded and disabled host states
-shared CoreHost UI token layer
-floating-dialog request broker
-tray-icon request broker
-approved visual-state registry
-```
-
-Production sequence after framework validation:
-
-```text
-KR World Time-Space
-KR Trading Clock
-```
-
-
-## CoreHost Widget Management production wiring
-
-Status: backend activation boundary implemented; Windows UI wiring remains next.
-
-Completed backend checkpoint:
-
-```text
-installed Widget catalog
-snake_case package manifest to camelCase runtime manifest adapter
-installed-folder discovery
-host-state registration
-backend enable and disable
-backend collapse and expand
-backend ordering
-runtime-loader support for installed package manifests
-```
-
-Next CoreHost checkpoint:
-
-```text
-Widget Management installed inventory UI
-production WidgetHostSurface composition
-CoreHost-owned floating-dialog presenter
-tray-icon broker application wiring
-```
-
-## Completed — Checkpoint 2B Windows Widget composition
-
-- Widget Management installed inventory UI
-- enable, disable, expand, collapse and ordering controls
-- production generic WidgetHostSurface composition
-- 600-DIP adaptive popup refresh
-- CoreHost-owned floating-dialog presenter
-- CoreHost-owned tray-icon broker application wiring
-- non-breaking integrated Widget context seam
-
-## CoreHost stabilization before production Widgets
-
-Status: required before KR World Time-Space production implementation.
-
-Owner manual acceptance exposed two blocking defects:
-
-```text
-quiet-hours clear intent was not persistent
-Widget-card collapse incorrectly shrank the outer CoreHost popup
-```
-
-The stabilization checkpoint fixes both behaviors and adds regression coverage before Widget 01 begins.
-
-The repair also closes a default-state contradiction: the Settings Center quiet-hours default now uses a valid 23:00–08:00 pair before runtime overlay.
-
-
-## CoreHost stabilization follow-up — snapped geometry and refresh integrity
-
-Status: required Owner-acceptance repair before production Widget 01.
-
-```text
-preserve vertically snapped outer popup geometry during Widget collapse
-apply work-area cap only to automatic growth
-serialize host mutations
-serialize installed-catalog refreshes
-retain last known-good panel during degraded catalog reads
-replace visible Widget cards transactionally
-```
-
-## CoreHost stabilization gate — Owner-sized viewport
-
-Before Widget 01 begins, the CoreHost shell must treat popup geometry as Owner-controlled state.
-
-```text
-minimum width:
-600 DIP
-
-expand / collapse:
-child Widget only
-
-overflow:
-host-level scrolling
-
-outer shell:
-no Widget-driven width or height mutation
-```
-
-## CoreHost stabilization checkpoint — state-only Widget-host transitions
-
-Completed scope:
-
-```text
-state-only Collapse / Expand path separated from filesystem discovery
-state-only enable / disable / ordering path separated from filesystem discovery
-framework-owned Widget-chrome transition seam added
-sample card converted into canonical transition consumer
-visible cards reconciled by Widget ID without unrelated surface recreation
-close-to-tray visibility path centralized
-600-DIP minimum-width contract unified
-```
-
-Remaining CoreHost delivery gates:
-
-```text
-transactional staged catalog refresh
-exact registration and capability pruning
-LayoutChanged host subscription
-Windows popup activation and focus policy
-popup shadow and notification-area darkening replay
-Microsoft Pinyin indicator replay
-Owner manual acceptance
-```
-
-## CoreHost stabilization checkpoint — transactional catalog refresh
-
-Completed scope:
-
-```text
-pure staged installed-catalog discovery
-acceptance before active-state commit
-exact active-registration reconciliation
-stale measured-height pruning
-dormant Owner preference preservation
-stronger degraded-candidate rejection for previously accepted disabled Widgets
-exact capability-approval reconciliation
-host-owned stale tray-icon request revocation
-LayoutChanged host subscription
-Widget Manager single accepted-refresh pipeline
-```
-
-Remaining CoreHost delivery gates:
-
-```text
-Windows popup activation and focus policy
-popup shadow and notification-area darkening replay
-Microsoft Pinyin indicator replay
-sanitary shell diagnostics
-Owner manual acceptance
-```
+Narrative evidence is synchronized in the same checkpoint whenever public project state changes.

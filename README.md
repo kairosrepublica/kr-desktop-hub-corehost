@@ -1,85 +1,160 @@
 # KR Desktop Hub CoreHost
 
-> CoreHost stabilization status: normal Widget-host state mutations now use an in-memory accepted-catalog projection and no longer rediscover installed packages. Production business Widgets remain blocked until the remaining CoreHost catalog-transaction and Windows-shell stabilization gates pass.
+> CoreHost v2.0.0 release-candidate status: the platform boundary is complete, state-only Widget-host transitions are discovery-free, installed-catalog refresh is transactional, and the Windows shell now uses a non-disruptive popup activation policy. Production business Widgets live in a separate repository and remain blocked until Owner manual shell acceptance and the final `v2.0.0` release checkpoint.
 
-Portable-first and extensible desktop CoreHost for Windows 11 Widgets.
+Portable-first, extensible desktop CoreHost for Windows 11 Widgets.
 
 ## Current status
 
 ```text
-Project stage: CoreHost stabilization in progress
-Runnable application: implemented; release-candidate revalidation required after each scoped checkpoint
-CoreHost panel: universal adaptive WidgetHostSurface foundation implemented
-Installed Widget catalog: explicit discovery remains available; state-only operations now use in-memory projection
-Production Widgets: blocked until remaining CoreHost stabilization gates and Owner manual acceptance pass
-Frozen source baseline before this checkpoint: ba2b9fb5236362d1760aa895c244ab06e4800f3f
-```
+Project stage:
+CoreHost v2.0.0 release candidate
 
-The CoreHost platform remains under stabilization. Future user-facing functions remain independent Widgets rather than embedded CoreHost business logic, but their production implementation stays blocked until CoreHost delivery is complete.
-
-The blocked Phase 1 production-Widget sequence is:
-
-```text
-Widget 01: KR World Time-Space
-Widget 02: KR Trading Clock
-```
-## Target platform
-
-Initial implementation target:
-
-```text
+Target platform:
 Windows 11 x64
+
+CoreHost popup:
+Owner-controlled viewport
+600-DIP default width
+600-DIP minimum width
+240-DIP minimum height
+host-level overflow scrolling
+
+Widget-host state:
+persistent
+transactional
+discovery-free for ordinary state-only transitions
+
+Installed-catalog refresh:
+pure staged discovery
+acceptance before mutation
+exact accepted-catalog reconciliation
+
+Windows shell:
+ShowActivated = false
+ShowInTaskbar = false
+ordinary Show does not force Activate()
+sanitized shell lifecycle diagnostics enabled
+
+Production business Widgets:
+not stored in this repository
 ```
 
-Planned compatibility paths are reserved for:
+`DIP` means device-independent pixel: the Windows logical-pixel unit that remains stable across display scaling.
+
+## Repository boundary
+
+This repository contains the stable CoreHost platform only:
 
 ```text
-Windows ARM64
-Apple macOS
+application lifecycle
+Windows tray host
+global hotkey
+startup registration
+notifications
+durable settings
+window placement
+system-policy coordination
+diagnostics and migration
+Widget contracts
+Widget SDK
+Widget package installer
+Widget Manager
+Universal Widget Framework
+sample and regression fixtures
+public CoreHost API documentation
 ```
 
-Those platforms are **not implemented or supported yet**.
-
-## Distribution principle
-
-Portable ZIP first:
+Production Widget specifications, prototypes and implementations belong in the separate repository:
 
 ```text
-extract
-run
+kairosrepublica/kr-desktop-hub-widgets
 ```
 
-A simple installer may be added later. Portable mode must remain available.
+CoreHost may retain sample Widgets and regression fixtures because they prove the host contract. CoreHost must not absorb business Widget logic.
 
 ## Start here
 
-Run:
+For ordinary repository checkpoint work:
 
 ```powershell
 .\START_HERE.ps1
 ```
 
-Only `START_HERE.ps1` is exposed as the normal operator entry point. Advanced scripts remain under `tools\advanced\`.
+For portable release generation:
 
-## Documentation
-
-Start with:
-
-```text
-docs\Product_Scope.md
-docs\Architecture.md
-docs\ROADMAP_IMPLEMENTATION.md
-docs\governance\PUBLIC_DEVELOPMENT_RECORD_POLICY.md
+```powershell
+.\tools\BUILD_VERIFY_PORTABLE_RELEASE.ps1 -Version "2.0.0"
 ```
 
-## Security
+## CoreHost v2.0.0 release documentation
 
-Never commit secrets, private logs, personal calendar data, local configuration, API keys, tokens, private certificates or machine-specific private paths.
+```text
+docs\release\KR_Desktop_Hub_CoreHost_v2.0.0_Release_Notes.md
+docs\release\KR_Desktop_Hub_CoreHost_v2.0.0_Manual_Acceptance_Checklist.md
+docs\maintenance\KR_Desktop_Hub_CoreHost_Maintainer_Handoff_v2.0.0.md
+docs\maintenance\KR_Desktop_Hub_CoreHost_AI_CoCoder_Public_Instructions_v2.0.0.md
+```
+
+## Widget developer entry point
+
+Future Widget developers should begin with:
+
+```text
+docs\api\KR_Desktop_Hub_CoreHost_Widget_Developer_API_v2.0.0.md
+docs\api\KR_Desktop_Hub_CoreHost_API_Surface_Map_v2.0.0.md
+docs\architecture\KR_Desktop_Hub_CoreHost_And_Widgets_Repository_Separation_v1.0.md
+```
+
+## Security and governance
+
+Never commit secrets, private logs, local configuration, personal calendar data, tokens, private certificates, private Owner instructions or machine-specific private paths.
+
+Every validated engineering step must create one honest scoped commit, push immediately and verify `origin/main`.
 
 See:
 
 ```text
 SECURITY.md
+docs\governance\PUBLIC_DEVELOPMENT_RECORD_POLICY.md
+```
+
+## Portable distribution principle
+
+Portable ZIP remains the primary distribution format:
+
+```text
+extract
+run START_KR_DESKTOP_HUB.cmd
+```
+
+The release package contains:
+
+```text
+self-contained win-x64 application
+configuration examples
+sample HelloWidget
+release manifest
+self-test launcher
+manual acceptance checklist
+Widget-facing API overview
+```
+
+## Explicit exclusions
+
+This repository does not contain:
+
+```text
+KR World Time-Space production implementation
+KR Trading Clock production implementation
+market-session business logic
+holiday packs
+weather business logic
+calendar business logic
+reminder business logic
+third-party Widget marketplace
+cloud backend
+automatic online updater
 ```
 
 ## License
@@ -87,196 +162,3 @@ SECURITY.md
 No open-source license has been selected yet.
 
 A public portfolio repository and a permission grant for third-party reuse are separate decisions.
-
-
-## Canonical GitHub repository
-
-The single canonical public repository target is:
-
-```text
-kairosrepublica/kr-desktop-hub-corehost
-```
-
-Commits are authored through the Kent Reis personal GitHub identity:
-
-```text
-kentreis
-```
-
-Do not create a competing primary repository under the personal account.
-
-## Portable release candidate
-
-Build and validate the local Windows 11 x64 portable release candidate:
-
-```powershell
-.\tools\BUILD_VERIFY_PORTABLE_RELEASE.ps1
-```
-
-The generated ZIP, SHA-256 file and resource baseline remain under:
-
-```text
-dist/releases/
-```
-
-Release binaries are local artifacts until manual desktop acceptance is complete.
-
-## Public checkpoint discipline
-
-Every validated, Owner-approved engineering step is committed and pushed immediately as a scoped public checkpoint. Public narrative evidence is updated in the same checkpoint whenever the product state changes.
-
-See:
-
-```text
-docs\governance\PUBLIC_DEVELOPMENT_RECORD_POLICY.md
-```
-
-## Phase 1 final HTML interaction gate
-
-Final Owner-review prototype:
-
-```text
-prototypes/phase1-review-shell/v0.7
-```
-
-Independent Widget prototypes:
-
-```text
-prototypes/world-time-space-widget/v0.7
-prototypes/trading-clock-widget/v0.5
-```
-
-Frozen interaction targets:
-
-```text
-World Time-Space default height:
-220 DIP
-
-Trading Clock default height:
-500 DIP
-
-World Time-Space:
-row-based auto-height growth
-right-click Add city...
-floating Add City chooser
-right-click Remove city
-
-Trading Clock:
-approved v0.5 visual baseline
-collapse-based auto-height shrink in the host review shell
-```
-
-Widget release distribution:
-
-```text
-GitHub downloadable Widget releases use an outer AES-256 encrypted .7z archive.
-To request free authorization and the extraction password,
-email kr@kairosrepublica.com.
-```
-
-
-## Universal Widget framework foundation
-
-The first CoreHost framework extension establishes:
-
-```text
-600 DIP default popup width
-Widget width inherited from CoreHost
-measured adaptive height
-collapsed, expanded and disabled host states
-host-level overflow scrolling only when required
-CoreHost-owned UI design tokens
-CoreHost-owned floating-dialog broker
-CoreHost-owned tray-icon request broker
-approved declarative tray visual states
-```
-
-Widgets remain isolated packages. They may consume the versioned CoreHost framework but must not import one another's code, styles, settings or mutable runtime state.
-
-
-## Installed Widget activation boundary
-
-The CoreHost now maintains one explicit translation boundary between:
-
-```text
-installed .krwidget.zip package manifest
-snake_case package fields
-```
-
-and:
-
-```text
-runtime Widget manifest
-camelCase runtime fields
-```
-
-The installed-Widget catalog reads top-level installed package folders, maps schema-1 package metadata into runtime metadata, registers adaptive host-state defaults and exposes backend enable, disable, collapse, expand and ordering controls.
-
-The next CoreHost checkpoint wires this backend into:
-
-```text
-Widget Management inventory UI
-production WidgetHostSurface composition
-CoreHost-owned floating-dialog presenter
-Windows tray-icon broker application
-```
-
-## CoreHost Checkpoint 2B — Windows Widget composition
-
-CoreHost now wires installed Widget inventory into the Windows panel and Widget Management window. Disabled Widgets can be reopened from Widget Management. Expanded and collapsed states persist through the shared host-state store. The Windows panel composes generic isolated Widget cards at the 600-DIP baseline and exposes a registry seam for package-specific visual surfaces. CoreHost also owns the floating-dialog presenter and applies governed tray-icon selections through the Windows tray service.
-
-## CoreHost stabilization gate
-
-Owner manual acceptance exposed two CoreHost defects before production Widget development:
-
-```text
-clearing both quiet-hours fields repopulated the prior values
-collapsing a Widget card resized the outer popup window
-```
-
-The stabilization checkpoint separates editor intent from runtime fallback values and separates internal Widget-card height changes from the outer popup viewport policy.
-
-The Settings Center recommended quiet-hours state is internally valid before the runtime bridge runs: `Enabled = true`, `Start = 23:00`, `End = 08:00`. Clearing both fields remains an explicit disable action.
-
-The outer popup now preserves or grows its height. It does not automatically shrink because an individual Widget was collapsed.
-
-
-## CoreHost stabilization gate — window snap and Widget refresh integrity
-
-Additional Owner acceptance testing exposed two deeper host-boundary failures:
-
-```text
-vertically snapped outer popup height was reduced when a Widget collapsed
-an overlapping or degraded installed-catalog refresh could temporarily replace the visible panel with the empty state
-```
-
-The follow-up stabilization checkpoint preserves user- or Windows-expanded outer geometry unless automatic growth is required, serializes host mutations and catalog refreshes, rejects degraded catalog snapshots that would remove a previously visible Widget, and builds Widget cards transactionally before replacing the visible panel.
-
-## Owner-sized CoreHost popup viewport
-
-The CoreHost popup is an Owner-controlled viewport.
-
-```text
-default width:
-600 DIP
-
-minimum width:
-600 DIP
-
-allowed:
-Owner may widen the popup
-Owner may adjust popup height
-
-forbidden:
-Widget Expand may not change outer width or height
-Widget Collapse may not change outer width or height
-Widget refresh may not reset an Owner-adjusted width or height
-
-overflow:
-use the CoreHost ScrollViewer
-do not auto-resize the outer popup
-```
-
-## CoreHost transactional installed-catalog refresh checkpoint
-
-Explicit installed-Widget discovery is now staged before acceptance. Manifest scans no longer mutate active layout registration or persistent host state while the candidate is still untrusted. Accepted candidates reconcile active registrations exactly, prune stale measured heights, preserve dormant Owner preferences for later reinstall, reconcile capability approvals exactly and revoke stale tray-icon requests. Widget Manager manual refresh and post-install refresh now use the same accepted-catalog coordinator pipeline. Framework `LayoutChanged` events update host-level scrolling without rediscovery or outer-popup resize.

@@ -45,6 +45,14 @@ public partial class MainWindow
     public MainWindow()
     {
         InitializeComponent();
+
+        ShowActivated =
+            CoreHostPanelShellPolicy
+                .ShowActivated;
+
+        ShowInTaskbar =
+            CoreHostPanelShellPolicy
+                .ShowInTaskbar;
     }
 
     public void RenderInstalledWidgets(

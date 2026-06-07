@@ -2,11 +2,9 @@
 
 ## Product definition
 
-KR Desktop Hub CoreHost is a lightweight, persistent desktop host for Windows 11.
+KR Desktop Hub CoreHost is a lightweight, persistent Windows 11 desktop host for isolated Widgets.
 
-It is not a one-off world-clock script.
-
-The host provides infrastructure. User-facing capabilities grow through independent Widgets.
+It is infrastructure, not a bundle of embedded business modules.
 
 ## CoreHost responsibilities
 
@@ -14,28 +12,45 @@ The host provides infrastructure. User-facing capabilities grow through independ
 application lifecycle
 single-instance execution
 system tray
-global hotkeys
-Windows notifications
+global hotkey
 startup configuration
-configuration persistence
-localization reservation
+durable configuration persistence
+window-placement persistence
+Owner-controlled popup geometry
+shell show / hide lifecycle
+non-disruptive popup activation policy
+host-level overflow scrolling
+Windows notifications
 resource monitoring
+system-policy coordination
 Widget discovery
-Widget loading
-Widget scheduling
-Widget runtime control
-Widget health
-Widget quarantine
+transactional installed-catalog refresh
+Widget package installation
+Widget Management
+Widget-host state persistence
+capability governance
+floating-dialog broker
+tray-icon broker
 diagnostics
 migration
 rollback
+public Widget-facing API documentation
 ```
 
 ## Widget responsibilities
 
+Production Widgets live in the separate repository:
+
+```text
+kairosrepublica/kr-desktop-hub-widgets
+```
+
+Examples:
+
 ```text
 world clocks
 market sessions
+holiday packs
 calendar
 reminders
 personal plans
@@ -44,15 +59,27 @@ financial calendar
 future user-facing modules
 ```
 
+## Allowed CoreHost Widget content
+
+CoreHost may retain only:
+
+```text
+sample Widgets
+test fixtures
+contract examples
+SDK examples
+```
+
+These prove platform behavior and must not become business modules.
+
 ## Explicitly deferred
 
 ```text
-final visual design
-production Widgets
 third-party Widget marketplace
 cloud backend
 automatic online updater
 live DLL replacement
 macOS implementation
 Windows ARM64 release artifact
+stronger Win32 no-activate fallback unless manual shell replay proves it necessary
 ```

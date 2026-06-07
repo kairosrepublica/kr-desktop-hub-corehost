@@ -8,6 +8,8 @@
     Height="720"
     MinWidth="600"
     MinHeight="240"
+    ShowActivated="False"
+    ShowInTaskbar="False"
     Background="{StaticResource KrWidgetBackgroundBrush}"
     WindowStartupLocation="CenterScreen">
     <Grid>

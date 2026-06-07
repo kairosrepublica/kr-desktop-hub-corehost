@@ -85,3 +85,20 @@ kairosrepublica/kr-desktop-hub-widgets
 ```
 
 The separate Widgets repository may pin a CoreHost API baseline, but it must not copy mutable CoreHost implementation code.
+
+## Default CoreHost icon ownership
+
+```text
+EXE icon:
+KRDesktopHub.App.Windows/Assets/CoreHost/KRDesktopHub.CoreHost.ico
+
+WPF popup window icon:
+MainWindow.xaml Icon binding
+
+Tray default visual state:
+WindowsTrayVisualStateCatalog.Default
+resolved through
+CoreHostDefaultIconCatalog.Resolve()
+```
+
+Production Widgets must not replace the CoreHost default icon directly. A Widget may request only approved declarative tray-icon states through the constrained CoreHost-owned broker.

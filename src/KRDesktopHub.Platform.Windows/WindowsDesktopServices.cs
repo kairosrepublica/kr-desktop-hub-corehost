@@ -47,9 +47,59 @@ public static class WindowsTrayVisualStateCatalog
             Shield =>
                 SystemIcons.Shield,
 
+            Default =>
+                CoreHostDefaultIconCatalog.Resolve(),
+
             _ =>
                 SystemIcons.Application
         };
+    }
+}
+
+internal static class CoreHostDefaultIconCatalog
+{
+    private static readonly object Gate = new();
+    private static Icon? _defaultIcon;
+
+    public static Icon Resolve()
+    {
+        lock (Gate)
+        {
+            _defaultIcon ??=
+                LoadDefaultIcon();
+
+            return _defaultIcon;
+        }
+    }
+
+    private static Icon LoadDefaultIcon()
+    {
+        try
+        {
+            var processPath =
+                Environment.ProcessPath;
+
+            if (!string.IsNullOrWhiteSpace(
+                    processPath)
+                && System.IO.File.Exists(
+                    processPath))
+            {
+                var icon =
+                    Icon.ExtractAssociatedIcon(
+                        processPath);
+
+                if (icon is not null)
+                {
+                    return icon;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // The generic fallback keeps tray initialization resilient.
+        }
+
+        return SystemIcons.Application;
     }
 }
 

@@ -22,6 +22,10 @@ kairosrepublica/kr-desktop-hub-corehost
 ## CoreHost platform delivered
 
 ```text
+default branded KR CoreHost icon
+```
+
+```text
 single-instance Windows tray host
 global panel-toggle hotkey
 startup registration

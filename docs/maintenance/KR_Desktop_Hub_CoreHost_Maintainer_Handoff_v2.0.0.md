@@ -73,3 +73,23 @@ tag and publish GitHub release
 ## Private governance
 
 Private coding rules, error-experience case studies and Owner instructions remain outside public GitHub.
+
+## Default CoreHost icon
+
+The default branded KR icon is owned by CoreHost:
+
+```text
+src/KRDesktopHub.App.Windows/Assets/CoreHost/KRDesktopHub.CoreHost.ico
+src/KRDesktopHub.App.Windows/Assets/CoreHost/KRDesktopHub.CoreHost.png
+src/KRDesktopHub.App.Windows/Assets/CoreHost/KRDesktopHub.CoreHost.svg
+```
+
+Usage:
+
+```text
+application executable icon
+WPF popup-window icon
+tray default visual state
+```
+
+Widgets must not submit arbitrary icon-file paths or directly own the tray icon.

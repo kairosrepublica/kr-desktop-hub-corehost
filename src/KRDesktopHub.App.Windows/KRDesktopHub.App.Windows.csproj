@@ -5,9 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\CoreHost\KRDesktopHub.CoreHost.ico</ApplicationIcon>
     <AssemblyName>KRDesktopHub.App.Windows</AssemblyName>
     <RootNamespace>KRDesktopHub.App.Windows</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Assets\CoreHost\KRDesktopHub.CoreHost.ico" />
+    <Resource Include="Assets\CoreHost\KRDesktopHub.CoreHost.ico" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KRDesktopHub.Contracts\KRDesktopHub.Contracts.csproj" />
     <ProjectReference Include="..\KRDesktopHub.Platform.Abstractions\KRDesktopHub.Platform.Abstractions.csproj" />

@@ -62,6 +62,17 @@ if (
         "Approved tray visual-state registry validation failed.");
 }
 
+var defaultTrayIcon =
+    WindowsTrayVisualStateCatalog.ResolveIcon(
+        WindowsTrayVisualStateCatalog.Default);
+
+if (defaultTrayIcon.Width <= 0
+    || defaultTrayIcon.Height <= 0)
+{
+    throw new InvalidOperationException(
+        "CoreHost default tray icon resolution validation failed.");
+}
+
 foreach (var character in CoreHostTrayStatusText.Ready)
 {
     if (character > 127)

@@ -6,6 +6,7 @@ All notable changes to KR Desktop Hub CoreHost will be documented in this file.
 
 ### Added
 
+- Added the default branded KR CoreHost icon for the executable, popup window and tray default visual state.
 - Added explicit non-disruptive popup policy: `ShowActivated = false`, `ShowInTaskbar = false`, and no forced `Activate()` after ordinary Show.
 - Added sanitized `shell.panel.lifecycle` diagnostic records with popup visibility, active state, focused-element type, bounds, working-area bounds, `Topmost`, `ShowActivated` and `ShowInTaskbar`.
 - Added CoreHost v2.0.0 release notes and Owner manual shell-acceptance checklist.

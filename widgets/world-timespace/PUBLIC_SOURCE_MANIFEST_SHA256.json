@@ -1,0 +1,12 @@
+{
+  "BUILD_TIMESPACE_WIDGET_0_4_7.py": "36e0f7ee79705a405bd2f74cd2d9bc4e04b0d569ee6726935f1929d735967948",
+  "README.md": "9f3ec6641a35a970959090efb0a074c002d297e8a46b5f309112d901d62e5217",
+  "contracts_snapshot/KRDesktopHub.WidgetSurface.Windows.Contracts/KRDesktopHub.WidgetSurface.Windows.Contracts.csproj": "cd4be2ccb5afdedbc1a3426dc780dc8ce7286411a2e84095cb5095d801bffb2d",
+  "contracts_snapshot/KRDesktopHub.WidgetSurface.Windows.Contracts/WindowsWidgetSurfaceContracts.cs": "451fd23a511c3441bdbc0fee3a8a460788b82215d90a44f712937ea22c9b6aa1",
+  "docs/VALIDATION_0.4.7.md": "674bcc48fb960a3eb54631d18ed9b33c9b5556b6746c0f055573a01e82c7e388",
+  "docs/images/world-timespace-widget-0.4.7-map.png": "d96577be2b89dbefb6b911ea17648b35fd97f7850800e48d7409ca084fa869a6",
+  "manifest.json": "62bdde256a4558b7072117bf0a1b93cd91ddf6abf2f9682396ffb52975f2fec2",
+  "source/KRDesktopHub.WorldTimeSpace/Assets/world_map_precise_lat84_-60.png": "7fe8f8a25e080a6eef0cfd6b724b160aa62605440bfa2cf0f30be174bc56903c",
+  "source/KRDesktopHub.WorldTimeSpace/KRDesktopHub.WorldTimeSpace.csproj": "57fd2d50534c065e78df8d2c6b0f5dbde072dc78f242023a30ca6fbe5ae72069",
+  "source/KRDesktopHub.WorldTimeSpace/WorldTimeSpaceSurface.cs": "f2460260aee3fddc32664bcefb68f531f8816aac2037b343da61919f9e6f684b"
+}

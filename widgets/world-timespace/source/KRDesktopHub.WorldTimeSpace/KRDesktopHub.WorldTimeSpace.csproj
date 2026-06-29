@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>KRDesktopHub.WorldTimeSpace</AssemblyName>
+    <RootNamespace>KRDesktopHub.WorldTimeSpace</RootNamespace>
+    <Version>0.4.7</Version>
+    <AssemblyVersion>0.4.7.0</AssemblyVersion>
+    <FileVersion>0.4.7.0</FileVersion>
+    <InformationalVersion>0.4.7-corehost-2.6.3-map-top-gap-restored-bottom-pad-2</InformationalVersion>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="KRDesktopHub.WidgetSurface.Windows.Contracts">
+      <HintPath>$(ContractsDir)\KRDesktopHub.WidgetSurface.Windows.Contracts.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\world_map_precise_lat84_-60.png" />
+  </ItemGroup>
+</Project>

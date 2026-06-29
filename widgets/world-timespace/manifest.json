@@ -1,0 +1,31 @@
+{
+  "manifest_schema_version": 2,
+  "widget_id": "kr.world-time-space",
+  "display_name": "KR World Time-Space",
+  "package_version": "0.4.7",
+  "required_contracts_version": "2.5.0",
+  "required_neutral_contracts_version": "2.5.0",
+  "required_windows_surface_contracts_version": "2.5.0",
+  "host_shared_assemblies": [
+    "KRDesktopHub.WidgetSurface.Windows.Contracts.dll",
+    "PresentationFramework.dll",
+    "PresentationCore.dll",
+    "WindowsBase.dll",
+    "System.Xaml.dll"
+  ],
+  "minimum_host_version": "0.1.0",
+  "entry_assembly": "KRDesktopHub.WorldTimeSpace.dll",
+  "entry_type": "KRDesktopHub.WorldTimeSpace.WorldTimeSpaceSurfaceFactory",
+  "activation_mode": "OnDemand",
+  "capabilities": [
+    "ui.surface",
+    "height.report",
+    "network.read"
+  ],
+  "default_enabled": true,
+  "default_collapsed": false,
+  "preferred_expanded_height_dip": 286,
+  "minimum_collapsed_height_dip": 44,
+  "settings_schema_version": 1,
+  "state_schema_version": 5
+}
